@@ -1,11 +1,15 @@
 Package: modelbuilder
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Building Compartmental Mechanistic Models Without Coding
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Date: 2018-07-01
+Authors@R: c(
+    person("Andreas", "Handel", email = "ahandel@uga.edu", 
+    role = c("aut", "cre")),
+    person("Spencer", "Hall",  role = "aut"),
+Maintainer: Andreas Handel <ahandel@uga.edu>
+License: GPL-3
 Encoding: UTF-8
-LazyData: true
+LazyData: TRUE
+
+
