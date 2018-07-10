@@ -11,5 +11,5 @@ Maintainer: Andreas Handel <ahandel@uga.edu>
 License: GPL-3
 Encoding: UTF-8
 LazyData: TRUE
-
-
+URL: https://github.com/andreashandel/modelbuilder
+BugReports: https://github.com/andreashandel/modelbuilder/issues
