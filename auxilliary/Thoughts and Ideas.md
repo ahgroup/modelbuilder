@@ -22,3 +22,7 @@
 * We could have 2 tabs, a model 'building' that allows building and shows diagram and equations, and a 'testing' that shows inputs and outputs (that one similar to UI of DSAIDE/DSAIRM shiny apps)
 * I (Andreas) currently favor trying to do it with/through shiny and coding everything in R as much as possible.
 * Add unit tests to package (using testthat)
+
+## Resources
+A good source of shiny examples and tips and tricks that might be helpful:
+https://deanattali.com/blog/advanced-shiny-tips/
