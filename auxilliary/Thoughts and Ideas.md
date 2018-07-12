@@ -21,3 +21,4 @@
 * As model is being built, it should interactively show diagram and differential equations, as well as inputs for initial conditions and parameters so a user can run it.
 * We could have 2 tabs, a model 'building' that allows building and shows diagram and equations, and a 'testing' that shows inputs and outputs (that one similar to UI of DSAIDE/DSAIRM shiny apps)
 * I (Andreas) currently favor trying to do it with/through shiny and coding everything in R as much as possible.
+* Add unit tests to package (using testthat)
