@@ -41,6 +41,53 @@
 * Functions that take the internal model object and turn it into code/functions to be run using deSolve, adaptivetau,...
 * A function that takes a generated deSolve/adaptivetau,... object and wraps a shiny interface around it (for the 'analyze' tab)
 
+## Model structure
+We'll store a model as a list, and save it as Rdata file. The model list will have the following components:
+
+model$title - model title
+model$description - a short model description
+model$author - name of author
+model$date - date of creation or last change
+model$var$names - vector of characters containing variable names
+model$var$text- vector of characters describing each variable 
+model$par$names - vector of characters containing parameter names
+model$par$text- vector of characters describing each parameter 
+model$flow$VAR$names - a vector of characters for each variable naming all flows for that variable. replicated for all vars.
+model$flow$VAR$text - a vector of characters for each variable explaining all flows for that variable. replicated for all vars.
+
+
+Optional:
+model$par$lb - lower bound for a given parameter, vector of numeric values, needs to be in same order as model$par$names
+model$par$ub - upper bound for a given parameter, vector of numeric values, needs to be in same order as model$par$names
+
+********
+Example for a simple SIR model:
+********
+
+model = list()
+model$title = "SIR model"
+model$description = "A basic SIR model with 3 compartments and infection and recovery processes"
+model$author = "Andreas Handel"
+model$date = Sys.Date()
+model$var$names = c("S","I","R") 
+model$var$text = c("Susceptible","Infected","Recovered") 
+model$par$names = c('b','g')
+model$par$text = c('rate of infection','rate of recovery')  
+model$flow$S$names = c('-b*S*I') 
+model$flow$S$text = c('infection of susceptibles')
+model$flow$I$names = c('b*S*I','-g*I') 
+model$flow$I$text = c('infection of susceptibles','recovery of infected')
+model$flow$R$names = c('g*I') 
+model$flow$R$text = c('recovery of infected')
+
+
+#next steps
+
+* write a function that takes a model list like the one above and turns it into an ODE function/file like simulate_SIR.R
+* write a function that reads the ODE function/file and automatically builds a shiny app/wrapper for it
+
+
+
 
 ## Resources
 A good source of shiny examples and tips and tricks that might be helpful:
