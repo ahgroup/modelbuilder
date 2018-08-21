@@ -1,0 +1,33 @@
+SIR_model_ode <- function(t, y, parms) 
+{  with( as.list(c(y,parms)), { #lets us access variables and parameters stored in y and parms by name 
+    dS = -b*S*I #Susceptible
+    dI = b*S*I -g*I #Infected
+    dR = g*I #Recovered
+    list(c(dS,dI,dR)) 
+} ) } #close with statement, end ODE function 
+ 
+#' A basic SIR model with 3 compartments and infection and recovery processes
+ 
+#' @description USER CAN ADD MORE DETAILS HERE 
+#' @param S starting value for Susceptible
+#' @param I starting value for Infected
+#' @param R starting value for Recovered
+#' @param b infection rate
+#' @param g recovery rate
+#' @param t0 start time 
+#' @param tf final time 
+#' @param dt time steps 
+#' @return The function returns the output from the odesolver as a matrix, 
+#' with one column per compartment/variable. The first column is time.   
+#' @details USER CAN ADD MORE DETAILS HERE  
+#' @examples  
+#' # To run the simulation with default parameters just call the function:  
+#' result <- SIR_model_desolve() 
+#' @author Andreas Handel 
+ 
+SIR_model_desolve <- function(var = c(S = 1000, I = 1, R = 0), par = c(b = 0.002, g = 1), tvec = c(t0 = 0, tf = 100, dt = 0.1)) 
+{ 
+  times=seq(tvec[1],tvec[2],by=tvec[3]) 
+  result = deSolve::ode(y = var, parms= par, times = times,  func = SIR_model_ode) 
+  return(result) 
+} 
