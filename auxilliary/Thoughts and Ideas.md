@@ -93,3 +93,4 @@ Example for a simple SIR model - see make_SIR_model.R
 ## Resources
 A good source of shiny examples and tips and tricks that might be helpful:
 https://deanattali.com/blog/advanced-shiny-tips/
+https://shiny.rstudio.com/articles/dynamic-ui.html
