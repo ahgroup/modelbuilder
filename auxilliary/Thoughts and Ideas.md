@@ -7,9 +7,10 @@
 * present at UGA teaching conference: https://coe.uga.edu/events/2018/10/innovation-in-teaching-conference-20181019
 * Integrate with Systems Biology Markup Language (SBML)
 * Use DiagrammeR package for graph creation?
-* Do (and write/publish?) a review of software out there that does what we want to do?
+* Do (and write/publish?) a review of software out there that does what we want to do? See e.g. here for a table of various software packages: https://en.wikipedia.org/wiki/Comparison_of_system_dynamics_software
 * Go through medley18pcb
 * A series of reviews of GUI's for R data analyis: http://r4stats.com/articles/software-reviews/  Might give us some pointers as to ways of doing GUI things for our purpose
+* There is a Systems Dynamics Society, maybe look into: https://www.systemdynamics.org
 
 ## Maybe Comparable/competing software
 * Berkley Madonna
