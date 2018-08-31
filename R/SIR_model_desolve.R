@@ -15,9 +15,10 @@
 #' @examples  
 #' # To run the simulation with default parameters just call the function:  
 #' result <- SIR_model_desolve() 
-#' @author Andreas Handel 
+#' @author Andreas Handel
+#' @export 
  
-SIR_model_desolve <- function(var = c(S = 1000, I = 1, R = 0), par = c(b = 0.002, g = 1), tvec = c(t0 = 0, tf = 100, dt = 0.1)) 
+SIR_model_desolve <- function(vars = c(S = 1000, I = 1, R = 0), pars = c(b = 0.002, g = 1), tvec = c(t0 = 0, tf = 100, dt = 0.1)) 
 { 
   #Block of ODE equations for deSolve 
   SIR_model_ode <- function(t, y, parms) 
@@ -31,6 +32,6 @@ SIR_model_desolve <- function(var = c(S = 1000, I = 1, R = 0), par = c(b = 0.002
  
   #Main function code block 
   times=seq(tvec[1],tvec[2],by=tvec[3]) 
-  result = deSolve::ode(y = var, parms= par, times = times,  func = SIR_model_ode) 
+  result = deSolve::ode(y = vars, parms= pars, times = times,  func = SIR_model_ode) 
   return(result) 
 } 

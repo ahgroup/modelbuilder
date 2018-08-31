@@ -34,7 +34,8 @@ create_ode <- function(model)
     sdesc=paste0(sdesc,"#' @examples  \n")
     sdesc=paste0(sdesc,"#' # To run the simulation with default parameters just call the function:  \n")
     sdesc=paste0(sdesc,"#' result <- ",gsub(" ","_",model$title),"_desolve()", " \n")
-    sdesc=paste0(sdesc,"#' @author ",model$author, " \n \n")
+    sdesc=paste0(sdesc,"#' @author ",model$author, "\n")
+    sdesc=paste0(sdesc,"#' @export \n \n")
 
     ##############################################################################
     #the next block of commands produces the ODE function required by desolve
@@ -62,7 +63,7 @@ create_ode <- function(model)
     ##############################################################################
     #this creates the lines of code for the main function
     #text for main body of function
-    varstring = "var = c("
+    varstring = "vars = c("
     for (n in 1:nvars)
     {
         varstring=paste0(varstring, model$var[[n]]$varname," = ", model$var[[n]]$startval,', ')
@@ -70,7 +71,7 @@ create_ode <- function(model)
     varstring = substr(varstring,1,nchar(varstring)-2)
     varstring = paste0(varstring,'), ') #close parantheses
 
-    parstring = "par = c("
+    parstring = "pars = c("
     for (n in 1:npars)
     {
         parstring=paste0(parstring, model$par[[n]]$parname," = ", model$par[[n]]$value,', ')
@@ -84,7 +85,7 @@ create_ode <- function(model)
     smain = "  #Main function code block \n"
 
     smain = paste0(smain,'  times=seq(tvec[1],tvec[2],by=tvec[3]) \n')
-    smain = paste0(smain,'  result = deSolve::ode(y = var, parms= par, times = times,  func = ',gsub(" ","_",model$title),'_ode) \n')
+    smain = paste0(smain,'  result = deSolve::ode(y = vars, parms= pars, times = times,  func = ',gsub(" ","_",model$title),'_ode) \n')
     smain = paste0(smain,'  return(result) \n')
     smain = paste0(smain,'} \n')
     #finish block that creates main function part
