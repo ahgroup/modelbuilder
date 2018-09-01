@@ -26,8 +26,8 @@ convert_to_desolve <- function(model)
     {
         sdesc=paste0(sdesc,"#' @param ", model$par[[n]]$parname," ", model$par[[n]]$partext, "\n")
     }
-    sdesc=paste0(sdesc,"#' @param t0 start time \n")
-    sdesc=paste0(sdesc,"#' @param tf final time \n")
+    sdesc=paste0(sdesc,"#' @param tstart start time \n")
+    sdesc=paste0(sdesc,"#' @param tfinal final time \n")
     sdesc=paste0(sdesc,"#' @param dt time steps \n")
     sdesc=paste0(sdesc,"#' @return The function returns the output as a list. \n")
     sdesc=paste0(sdesc,"#' The time-series from the simulation is returned as a dataframe saved as list element ts. \n")
@@ -83,7 +83,7 @@ convert_to_desolve <- function(model)
     }
     parstring = substr(parstring,1,nchar(parstring)-2)
     parstring = paste0(parstring,'), ') #close parantheses
-    timestring = paste0('tvec = c(t0 = ',model$time$t0,', tf = ',model$time$tf,', dt = ',model$time$dt,')')
+    timestring = paste0('tvec = c(tstart = ',model$time$tstart,', tfinal = ',model$time$tfinal,', dt = ',model$time$dt,')')
 
     stitle = paste0(gsub(" ","_",model$title),"_desolve <- function(",varstring, parstring, timestring,') \n{ \n')
 

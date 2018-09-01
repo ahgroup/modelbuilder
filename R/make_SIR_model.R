@@ -48,8 +48,8 @@ par[[2]]$parval = 1
 model$par = par
 
 #time parvals
-model$time$t0 = 0
-model$time$tf = 100
+model$time$tstart = 0
+model$time$tfinal = 100
 model$time$dt = 0.1
 
 filename =paste(gsub(" ","_",model$title),'.Rdata',sep='')
