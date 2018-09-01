@@ -24,13 +24,13 @@ var[[1]]$flownames = c('infection of susceptibles')
 var[[2]]$varname = "I"
 var[[2]]$vartext = "Infected"
 var[[2]]$varval = 1
-var[[2]]$flows = c('b*S*I','-g*I')
+var[[2]]$flows = c('+b*S*I','-g*I')
 var[[2]]$flownames = c('infection of susceptibles','recovery of infected')
 
 var[[3]]$varname = "R"
 var[[3]]$vartext = "Recovered"
 var[[3]]$varval = 0
-var[[3]]$flows = c('g*I')
+var[[3]]$flows = c('+g*I')
 var[[3]]$flownames = c('recovery of infected')
 
 model$var = var

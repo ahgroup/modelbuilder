@@ -71,7 +71,7 @@ convert_to_desolve <- function(model)
     varstring = "vars = c("
     for (n in 1:nvars)
     {
-        varstring=paste0(varstring, model$var[[n]]$varname," = ", model$var[[n]]$startval,', ')
+        varstring=paste0(varstring, model$var[[n]]$varname," = ", model$var[[n]]$varval,', ')
     }
     varstring = substr(varstring,1,nchar(varstring)-2)
     varstring = paste0(varstring,'), ') #close parantheses
@@ -79,7 +79,7 @@ convert_to_desolve <- function(model)
     parstring = "pars = c("
     for (n in 1:npars)
     {
-        parstring=paste0(parstring, model$par[[n]]$parname," = ", model$par[[n]]$value,', ')
+        parstring=paste0(parstring, model$par[[n]]$parname," = ", model$par[[n]]$parval,', ')
     }
     parstring = substr(parstring,1,nchar(parstring)-2)
     parstring = paste0(parstring,'), ') #close parantheses
