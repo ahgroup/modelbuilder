@@ -1,5 +1,16 @@
-#a function that takes as input a model following our structure and writes an R function based on this
-#the model can be supplied as list, or the name of an Rdata file
+#' Create a desolve function
+#'
+#' This function takes as input a model and writes an R desolve function
+#'
+#' @description USER CAN ADD MORE DETAILS HERE
+#' @param model model structure, either as list or Rdata file name
+#' @return The function does not return anything
+#' Instead, it writes an R file into the working directory
+#' this R file contains a desolve implementation of the model
+#' the name of the file is model$title_desolve.R
+#' @author Andreas Handel
+#' @date 2018-09-01
+#' @export
 
 convert_to_desolve <- function(model)
 {
@@ -49,18 +60,20 @@ convert_to_desolve <- function(model)
     sode = paste0(sode,"    with( as.list(c(y,parms)), { #lets us access variables and parameters stored in y and parms by name \n")
 
     #text for equations and final list
-    seqs= NULL
+    seqs= "    #StartODES\n"
     slist="    list(c("
     for (n in 1:nvars)
     {
-        seqs = paste0(seqs,'    d',model$var[[n]]$varname,' = ',paste(model$var[[n]]$flows, collapse = ' ')," #",model$var[[n]]$vartext, '\n' )
+        seqs = paste0(seqs,"    #",model$var[[n]]$vartext,' : ', paste(model$var[[n]]$flownames, collapse = ' : '),' :\n')
+        seqs = paste0(seqs,'    d',model$var[[n]]$varname,' = ',paste(model$var[[n]]$flows, collapse = ' '), '\n' )
         slist = paste0(slist, paste0('d',model$var[[n]]$varname,','))
     }
     sode=paste0(sode,seqs)
+    sode = paste0(sode,"    #EndODES\n")
     slist = substr(slist,1,nchar(slist)-1) #get rid of final comma
     slist = paste0(slist,')) \n') #close parantheses
     sode=paste0(sode,slist)
-    sode = paste0(sode, "  } ) } #close with statement, end ODE function \n \n")
+    sode = paste0(sode, "  } ) } #close with statement, end ODE code block \n \n")
     #finish block that creates the ODE function
     ##############################################################################
 
@@ -83,13 +96,13 @@ convert_to_desolve <- function(model)
     }
     parstring = substr(parstring,1,nchar(parstring)-2)
     parstring = paste0(parstring,'), ') #close parantheses
-    timestring = paste0('tvec = c(tstart = ',model$time$tstart,', tfinal = ',model$time$tfinal,', dt = ',model$time$dt,')')
+    timestring = paste0('time = c(tstart = ',model$time$tstart,', tfinal = ',model$time$tfinal,', dt = ',model$time$dt,')')
 
     stitle = paste0(gsub(" ","_",model$title),"_desolve <- function(",varstring, parstring, timestring,') \n{ \n')
 
     smain = "  #Main function code block \n"
 
-    smain = paste0(smain,'  times=seq(tvec[1],tvec[2],by=tvec[3]) \n')
+    smain = paste0(smain,'  times=seq(time[1],time[2],by=time[3]) \n')
     smain = paste0(smain,'  odeout = deSolve::ode(y = vars, parms= pars, times = times,  func = ',gsub(" ","_",model$title),'_ode) \n')
     smain = paste0(smain,'  result <- list() \n');
     smain = paste0(smain,'  result$ts <- as.data.frame(odeout) \n')
@@ -106,5 +119,4 @@ convert_to_desolve <- function(model)
     cat(sode)
     cat(smain)
     sink()
-
 }

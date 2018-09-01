@@ -14,8 +14,8 @@
 #' @param w wanning immunity rate
 #' @param b vector birth rate
 #' @param n vector death rate
-#' @param t0 start time 
-#' @param tf final time 
+#' @param tstart start time 
+#' @param tfinal final time 
 #' @param dt time steps 
 #' @return The function returns the output as a list. 
 #' The time-series from the simulation is returned as a dataframe saved as list element ts. 
@@ -30,22 +30,29 @@
 #' @fuctiondate 2018-09-01
 #' @export 
  
-Vector_transmission_model_desolve <- function(vars = c(Sh = 1000, Ih = 1, Rh = 0, Sv = 1000, Iv = 1), pars = c(b1 = 0.002, b2 = 0.002, g = 1, w = 0.1, b = 100, n = 0.1), tvec = c(tstart = 0, tfinal = 100, dt = 0.1)) 
+Vector_transmission_model_desolve <- function(vars = c(Sh = 1000, Ih = 1, Rh = 0, Sv = 1000, Iv = 1), pars = c(b1 = 0.002, b2 = 0.002, g = 1, w = 0.1, b = 100, n = 0.1), time = c(tstart = 0, tfinal = 100, dt = 0.1)) 
 { 
   #Block of ODE equations for deSolve 
   Vector_transmission_model_ode <- function(t, y, parms) 
   {
     with( as.list(c(y,parms)), { #lets us access variables and parameters stored in y and parms by name 
-    dSh = -b1*Sh*Iv +w*Rh #Susceptible Humans
-    dIh = +b1*Sh*Iv -g*Ih #Infected Humans
-    dRh = +g*Ih -w*Rh #Recovered Humans
-    dSv = +b -b2*Sv*Ih +n*Sv #Susceptible Vectors
-    dIv = +b2*Sv*Ih -n*Iv #Infected Vctors
+    #StartODES
+    #Susceptible Humans : infection of susceptible hosts : waning immunity :
+    dSh = -b1*Sh*Iv +w*Rh
+    #Infected Humans : infection of susceptible hosts : recovery of infected :
+    dIh = +b1*Sh*Iv -g*Ih
+    #Recovered Humans : recovery of infected hosts : waning immunity :
+    dRh = +g*Ih -w*Rh
+    #Susceptible Vectors : vector births : infection of susceptible vectors : death of susceptible vectors :
+    dSv = +b -b2*Sv*Ih +n*Sv
+    #Infected Vctors : infection of susceptible vectors : death of infected vectors :
+    dIv = +b2*Sv*Ih -n*Iv
+    #EndODES
     list(c(dSh,dIh,dRh,dSv,dIv)) 
-  } ) } #close with statement, end ODE function 
+  } ) } #close with statement, end ODE code block 
  
   #Main function code block 
-  times=seq(tvec[1],tvec[2],by=tvec[3]) 
+  times=seq(time[1],time[2],by=time[3]) 
   odeout = deSolve::ode(y = vars, parms= pars, times = times,  func = Vector_transmission_model_ode) 
   result <- list() 
   result$ts <- as.data.frame(odeout) 

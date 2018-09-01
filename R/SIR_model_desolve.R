@@ -8,8 +8,8 @@
 #' @param R starting value for Recovered
 #' @param b infection rate
 #' @param g recovery rate
-#' @param t0 start time 
-#' @param tf final time 
+#' @param tstart start time 
+#' @param tfinal final time 
 #' @param dt time steps 
 #' @return The function returns the output as a list. 
 #' The time-series from the simulation is returned as a dataframe saved as list element ts. 
@@ -24,20 +24,25 @@
 #' @fuctiondate 2018-09-01
 #' @export 
  
-SIR_model_desolve <- function(vars = c(S = 1000, I = 1, R = 0), pars = c(b = 0.002, g = 1), tvec = c(tstart = 0, tfinal = 100, dt = 0.1)) 
+SIR_model_desolve <- function(vars = c(S = 1000, I = 1, R = 0), pars = c(b = 0.002, g = 1), time = c(tstart = 0, tfinal = 100, dt = 0.1)) 
 { 
   #Block of ODE equations for deSolve 
   SIR_model_ode <- function(t, y, parms) 
   {
     with( as.list(c(y,parms)), { #lets us access variables and parameters stored in y and parms by name 
-    dS = -b*S*I #Susceptible
-    dI = +b*S*I -g*I #Infected
-    dR = +g*I #Recovered
+    #StartODES
+    #Susceptible : infection of susceptibles :
+    dS = -b*S*I
+    #Infected : infection of susceptibles : recovery of infected :
+    dI = +b*S*I -g*I
+    #Recovered : recovery of infected :
+    dR = +g*I
+    #EndODES
     list(c(dS,dI,dR)) 
-  } ) } #close with statement, end ODE function 
+  } ) } #close with statement, end ODE code block 
  
   #Main function code block 
-  times=seq(tvec[1],tvec[2],by=tvec[3]) 
+  times=seq(time[1],time[2],by=time[3]) 
   odeout = deSolve::ode(y = vars, parms= pars, times = times,  func = SIR_model_ode) 
   result <- list() 
   result$ts <- as.data.frame(odeout) 
