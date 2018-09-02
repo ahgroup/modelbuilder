@@ -23,7 +23,7 @@ convert_to_desolve <- function(model)
     filename=paste0(gsub(" ","_",model$title),"_desolve.R")
     nvars = length(model$var)  #number of variables/compartments in model
     npars = length(model$par)  #number of parameters in model
-
+    ntime = length(model$time) #numer of parameters for time
     #text for model description
     #all this should be provided in the model sctructure
     sdesc=paste0("#' ",model$title,"\n#' \n")
@@ -37,9 +37,10 @@ convert_to_desolve <- function(model)
     {
         sdesc=paste0(sdesc,"#' @param ", model$par[[n]]$parname," ", model$par[[n]]$partext, "\n")
     }
-    sdesc=paste0(sdesc,"#' @param tstart start time \n")
-    sdesc=paste0(sdesc,"#' @param tfinal final time \n")
-    sdesc=paste0(sdesc,"#' @param dt time steps \n")
+    for (n in 1:ntime)
+    {
+        sdesc=paste0(sdesc,"#' @param ", model$time[[n]]$timename," ", model$time[[n]]$timetext, "\n")
+    }
     sdesc=paste0(sdesc,"#' @return The function returns the output as a list. \n")
     sdesc=paste0(sdesc,"#' The time-series from the simulation is returned as a dataframe saved as list element ts. \n")
     sdesc=paste0(sdesc,"#' The ts dataframe has one column per compartment/variable. The first column is time.   \n")
@@ -96,7 +97,14 @@ convert_to_desolve <- function(model)
     }
     parstring = substr(parstring,1,nchar(parstring)-2)
     parstring = paste0(parstring,'), ') #close parantheses
-    timestring = paste0('time = c(tstart = ',model$time$tstart,', tfinal = ',model$time$tfinal,', dt = ',model$time$dt,')')
+
+    timestring = "time = c("
+    for (n in 1:ntime)
+    {
+        timestring=paste0(timestring, model$time[[n]]$timename," = ", model$time[[n]]$timeval,', ')
+    }
+    timestring = substr(timestring,1,nchar(timestring)-2)
+    timestring = paste0(timestring,') ') #close parantheses
 
     stitle = paste0(gsub(" ","_",model$title),"_desolve <- function(",varstring, parstring, timestring,') \n{ \n')
 

@@ -48,9 +48,20 @@ par[[2]]$parval = 1
 model$par = par
 
 #time parvals
-model$time$tstart = 0
-model$time$tfinal = 100
-model$time$dt = 0.1
+time = vector("list",3)
+time[[1]]$timename = "tstart"
+time[[1]]$timetext = "Start time of simulation"
+time[[1]]$timeval = 0
+
+time[[2]]$timename = "tfinal"
+time[[2]]$timetext = "Final time of simulation"
+time[[2]]$timeval = 100
+
+time[[3]]$timename = "dt"
+time[[3]]$timetext = "Time step"
+time[[3]]$timeval = 0.1
+
+model$time = time
 
 filename =paste(gsub(" ","_",model$title),'.Rdata',sep='')
 

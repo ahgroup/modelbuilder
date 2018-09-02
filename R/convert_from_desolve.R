@@ -86,7 +86,7 @@ convert_from_desolve <- function(desolvefunction)
     for (n in (1:npars))
     {
         par[[n]]$parname = parname[n]
-        par[[n]]$partext = str_extract(parlines[n],"(?<=\\@param .{1,20} )(.*)") #extract text after "@param x " which is description. parameter name can't be more than 20 characters
+        par[[n]]$partext = stringr::str_extract(parlines[n],"(?<=\\@param .{1,20} )(.*)") #extract text after "@param x " which is description. parameter name can't be more than 20 characters
         par[[n]]$parval = as.numeric(parval[n])
 
     }
@@ -94,13 +94,25 @@ convert_from_desolve <- function(desolvefunction)
 
     ###############################
     #process time
+    pattern = "\\b[a-z][A-Z0-9q-z]*\\b" #regex for time parameter names. Those must start with a lowercase letter and only include letters and numbers
+    timename = stringr::str_extract_all(vptvector[3],pattern, simplify = TRUE) #extract all parameter names
     pattern = "( [0-9]+\\.[0-9]*)|( [0-9]*\\.[0-9]+)|( [0-9]+)" #regex for a real number with leading blank
     timeval = stringr::str_extract_all(vptvector[3],pattern, simplify = TRUE) #extract all parameter values
 
-    #time parvals
-    model$time$tstart = as.numeric(timeval[1])
-    model$time$tfinal = as.numeric(timeval[2])
-    model$time$dt = as.numeric(timeval[3])
+    ntime = length(timename)
+    times = vector("list",ntime)
+
+    #pull out all lines in the description that start with @param
+    timelines = allparlines[(nvars+npars+1):length(allparlines)] #pull out lines for time
+
+    for (n in (1:3))
+    {
+        times[[n]]$timename = timename[n]
+        times[[n]]$timetext = stringr::str_extract(timelines[n],"(?<=\\@param .{1,20} )(.*)") #extract text after "@param x " which is description. parameter name can't be more than 20 characters
+        times[[n]]$timeval = as.numeric(timerval[n])
+
+    }
+    model$time = times
 
     return(model)
 }
