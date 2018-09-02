@@ -60,18 +60,18 @@ convert_from_desolve <- function(desolvefunction)
     for (n in (1:nvars))
     {
         var[[n]]$varname = varname[n]
-        var[[n]]$vartext = str_extract(odetext[n],"(?<=\\#)(.*?)(?= \\:)") #extract everything between # and : symbols
+        var[[n]]$vartext = stringr::str_extract(odetext[n],"(?<=\\#)(.*?)(?= \\:)") #extract everything between # and : symbols
         var[[n]]$varval = as.numeric(varval[n])
-        flows = str_extract(odeeq[n] ,"(?<=\\= ).*") #remove text to left of flows
-        var[[n]]$flows = as.vector(str_split(flows, " ", simplify=TRUE)) #add vector of flows
-        flownames = str_extract_all(odetext[n],"(?<=\\: )(.*?)(?= \\:)",simplify = TRUE) #get all flows between : symbols
+        flows = stringr::str_extract(odeeq[n] ,"(?<=\\= ).*") #remove text to left of flows
+        var[[n]]$flows = as.vector(stringr::str_split(flows, " ", simplify=TRUE)) #add vector of flows
+        flownames = stringr::str_extract_all(odetext[n],"(?<=\\: )(.*?)(?= \\:)",simplify = TRUE) #get all flows between : symbols
         var[[n]]$flownames = as.vector(flownames) #add vector of flow descriptions
     }
     model$var = var
 
     ###############################
     #process parameters
-    pattern = "\\b[a-z][A-Z0-9q-z]*\\b" #regex to get parameter names. Those must start with a lowercase letter and only include letters and numbers
+    pattern = "\\b[a-z][A-Z0-9a-z]*\\b" #regex to get parameter names. Those must start with a lowercase letter and only include letters and numbers
     parname = stringr::str_extract_all(vptvector[2],pattern, simplify = TRUE) #extract all parameter names
     pattern = "( [0-9]+\\.[0-9]*)|( [0-9]*\\.[0-9]+)|( [0-9]+)" #regex for a real number
     parval = stringr::str_extract_all(vptvector[2],pattern, simplify = TRUE) #extract all parameter values
@@ -94,7 +94,7 @@ convert_from_desolve <- function(desolvefunction)
 
     ###############################
     #process time
-    pattern = "\\b[a-z][A-Z0-9q-z]*\\b" #regex for time parameter names. Those must start with a lowercase letter and only include letters and numbers
+    pattern = "\\b[a-z][A-Z0-9a-z]*\\b" #regex for time parameter names. Those must start with a lowercase letter and only include letters and numbers
     timename = stringr::str_extract_all(vptvector[3],pattern, simplify = TRUE) #extract all parameter names
     pattern = "( [0-9]+\\.[0-9]*)|( [0-9]*\\.[0-9]+)|( [0-9]+)" #regex for a real number with leading blank
     timeval = stringr::str_extract_all(vptvector[3],pattern, simplify = TRUE) #extract all parameter values
@@ -105,11 +105,13 @@ convert_from_desolve <- function(desolvefunction)
     #pull out all lines in the description that start with @param
     timelines = allparlines[(nvars+npars+1):length(allparlines)] #pull out lines for time
 
+    #browser()
+
     for (n in (1:3))
     {
         times[[n]]$timename = timename[n]
         times[[n]]$timetext = stringr::str_extract(timelines[n],"(?<=\\@param .{1,20} )(.*)") #extract text after "@param x " which is description. parameter name can't be more than 20 characters
-        times[[n]]$timeval = as.numeric(timerval[n])
+        times[[n]]$timeval = as.numeric(timeval[n])
 
     }
     model$time = times
