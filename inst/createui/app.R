@@ -2,8 +2,11 @@
 #this function is wrapped inside the shiny server function below to allow return to main menu when window is closed
 refresh <- function(input, output){
 
+    #load("inst/modelexamples/SIR_model.Rdata"); source("inst/modelexamples/SIR_model_desolve.R")
+
     result <- reactive({
         input$submitBtn
+
 
         #save all results to a list for processing plots and text
         listlength = 1;       #here we do all simulations in the same figure
@@ -12,44 +15,45 @@ refresh <- function(input, output){
         #create the simulation function call
         filename=paste0(gsub(" ","_",model$title),"_desolve")
 
-        #browser()
+
 
         nvars = length(model$var)
         varstring = "vars = c("
         for (n in 1:nvars)
         {
-            #varstring=paste0(varstring, model$var[[n]]$varname," = ", isolate(input$'model$var[[n]]$varname',', '))
+            isolate(input[[model$var[[n]]$varname]])
+            varstring=paste0(varstring, model$var[[n]]$varname, " = ", isolate(input[[model$var[[n]]$varname]]),', ')
         }
         varstring = substr(varstring,1,nchar(varstring)-2)
-        varstring = paste0(varstring,'), ') #close parantheses
-
-        S=isolate(input$S)
+        varstring = paste0(varstring,'), ') #close parentheses
 
         npars = length(model$par)
         parstring = "pars = c("
         for (n in 1:npars)
         {
-            parstring=paste0(parstring, model$par[[n]]$parname," = ", model$par[[n]]$parval,', ')
+            parstring=paste0(parstring, model$par[[n]]$parname," = ", isolate(input[[model$par[[n]]$parname]]),', ')
         }
         parstring = substr(parstring,1,nchar(parstring)-2)
-        parstring = paste0(parstring,'), ') #close parantheses
+        parstring = paste0(parstring,'), ') #close parentheses
 
         ntime = length(model$time)
         timestring = "time = c("
         for (n in 1:ntime)
         {
-            timestring=paste0(timestring, model$time[[n]]$timename," = ", model$time[[n]]$timeval,', ')
+            timestring=paste0(timestring, model$time[[n]]$timename," = ", isolate(input[[model$time[[n]]$timename]]),', ')
         }
         timestring = substr(timestring,1,nchar(timestring)-2)
-        timestring = paste0(timestring,') ') #close parantheses
+        timestring = paste0(timestring,') ')
 
-        #browser()
-        functioncall = paste0(filename,"(", varstring, parstring, timestring,')')
+        fct = match.fun(filename) #function to run
+        fctargs = paste0(varstring, parstring, timestring) #arguments for function
+        print(fctargs)
+        browser()
         #shows a 'running simulation' message
         withProgress(message = 'Running Simulation', value = 0,
                      {
-                         #simresult <- eval(functioncall)
-                         simresult <- SIR_model_desolve(vars = c(S = S, I = 1, R = 0), pars = c(b = 0.002, g = 1), time = c(tstart = 0, tfinal = 100, dt = 0.1) )
+                         simresult <- fct(fctargs)
+                         #simresult <- SIR_model_desolve(vars = c(S = 100, I = 1, R = 0), pars = c(b = 0.002, g = 1), time = c(tstart = 0, tfinal = 100, dt = 0.1) )
                      })
 
         #data for plots and text
@@ -60,7 +64,7 @@ refresh <- function(input, output){
 
         return(result)
 
-    }) #ends inner shiny server function that runs the simulation and returns output
+    }) #ends the reactive function that runs the simulation and returns output
 
     output$plot  <- renderPlot({
         input$submitBtn
@@ -77,8 +81,13 @@ refresh <- function(input, output){
 } #ends the 'refresh' shiny server function that runs the simulation and returns output
 
 
-server <- function(input, output)
+server <- function(input, output, session)
 {
+    observeEvent(input$exitBtn, {
+        input$exitBtn
+        stopApp(returnValue = NULL)
+    })
+
     #creates the UI part
     output$vars <- renderUI({
         nvars = length(model$var)  #number of variables/compartments in model
@@ -96,11 +105,6 @@ server <- function(input, output)
         ntime = length(model$time)  #number of time variables in model
         allt = lapply(1:ntime, function(n) { numericInput(model$time[[n]]$timename, model$time[[n]]$timetext, value = model$time[[n]]$timeval) } )
         do.call(mainPanel, allt)
-    })
-
-    observeEvent(input$exitBtn, {
-        input$exitBtn
-        stopApp(returnValue = NULL)
     })
 
     # This function is called to refresh the content of the Shiny App
@@ -133,7 +137,9 @@ ui <- fluidPage(
         column(6,
                 h2('Simulation Settings'),
                 uiOutput("vars"),
-                uiOutput("pars")
+                uiOutput("pars"),
+                uiOutput("time")
+
             ), #end sidebar column for inputs
 
         #all the outcomes here
