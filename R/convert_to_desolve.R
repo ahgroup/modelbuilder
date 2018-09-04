@@ -9,7 +9,6 @@
 #' this R file contains a desolve implementation of the model
 #' the name of the file is model$title_desolve.R
 #' @author Andreas Handel
-#' @date 2018-09-01
 #' @export
 
 convert_to_desolve <- function(model)

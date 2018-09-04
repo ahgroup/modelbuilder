@@ -9,9 +9,7 @@
 #' @param desolvefunction name of file that should be converted
 #' @return A list structure containing the model
 #' @author Andreas Handel
-#' @date 2018-09-01
 #' @export
-#'
 
 convert_from_desolve <- function(desolvefunction)
 {

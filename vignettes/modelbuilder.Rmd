@@ -1,0 +1,21 @@
+---
+title: "modelbuilder Package Tutorial"
+author: "<a href=http://handelgroup.uga.edu>Andreas Handel</a>"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    fig_caption: yes
+    css: vignettestyle.css
+vignette: >
+  %\VignetteIndexEntry{DSAIDE}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: vignetterefs.bib
+---
+
+
+
+## Summary
+Future home of the modelbuilder vignette
+
+## References
