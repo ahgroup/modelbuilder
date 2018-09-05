@@ -41,8 +41,9 @@ convert_from_desolve <- function(desolvefunction)
     #########################################
     #get the bit of code that is the main function call, so we can extract variable and parameter default values
     #name of function, this strips the .R part and introduces a blank to prevent getting the example line
-    fctname =paste0(substr(desolvefunction,1,nchar(desolvefunction)-2)," ")
-    fcts = grep(fctname,x,value=TRUE) #string for the function definition line
+    fctname=basename(desolvefunction)
+    fctstring=paste0(substr(fctname,1,nchar(fctname)-2)," ")
+    fcts = grep(fctstring,x,value=TRUE) #string for the function definition line
     pattern = "\\(([^)|^(]+)\\)" #regex for capturing group matching one or more characters that are not ) inside parantheses
     vptvector = stringr::str_extract_all(fcts,pattern, simplify = TRUE) #extract variables, parameters, time vectors (in slots 1,2,3)
 
@@ -67,11 +68,12 @@ convert_from_desolve <- function(desolvefunction)
     }
     model$var = var
 
+
     ###############################
     #process parameters
     pattern = "\\b[a-z][A-Z0-9a-z]*\\b" #regex to get parameter names. Those must start with a lowercase letter and only include letters and numbers
     parname = stringr::str_extract_all(vptvector[2],pattern, simplify = TRUE) #extract all parameter names
-    pattern = "( [0-9]+\\.[0-9]*)|( [0-9]*\\.[0-9]+)|( [0-9]+)" #regex for a real number
+    pattern = "[+\\-]?(?:0|[1-9]\\d*)(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?" #regex for number, also allow scientific notation
     parval = stringr::str_extract_all(vptvector[2],pattern, simplify = TRUE) #extract all parameter values
 
     npars = length(parname)
@@ -90,6 +92,7 @@ convert_from_desolve <- function(desolvefunction)
     }
     model$par = par
 
+
     ###############################
     #process time
     pattern = "\\b[a-z][A-Z0-9a-z]*\\b" #regex for time parameter names. Those must start with a lowercase letter and only include letters and numbers
@@ -102,8 +105,6 @@ convert_from_desolve <- function(desolvefunction)
 
     #pull out all lines in the description that start with @param
     timelines = allparlines[(nvars+npars+1):length(allparlines)] #pull out lines for time
-
-    #browser()
 
     for (n in (1:3))
     {
