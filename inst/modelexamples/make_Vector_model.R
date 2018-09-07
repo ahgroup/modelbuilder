@@ -12,23 +12,24 @@ model$title = "Vector transmission model"
 model$description = "A basic model with several compartments to model vector-borne transmission"
 model$author = "Andreas Handel"
 model$date = Sys.Date()
+model$details = 'The model tracks the dynamics of susceptible, infected, and recovered hosts, and susceptible and infected vectors. Infection, recovery, and waning immunity processes are implemented for hosts. Births and deaths and infection processes are implemented for vectors.'
 
 #list of elements for each model variable.
 var = vector("list",5)
 var[[1]]$varname = "Sh"
-var[[1]]$vartext = "Susceptible Humans"
+var[[1]]$vartext = "Susceptible hosts"
 var[[1]]$varval = 1000
 var[[1]]$flows = c('-b1*Sh*Iv','+w*Rh')
 var[[1]]$flownames = c('infection of susceptible hosts','waning immunity')
 
 var[[2]]$varname = "Ih"
-var[[2]]$vartext = "Infected Humans"
+var[[2]]$vartext = "Infected hosts"
 var[[2]]$varval = 1
 var[[2]]$flows = c('+b1*Sh*Iv','-g*Ih')
 var[[2]]$flownames = c('infection of susceptible hosts','recovery of infected')
 
 var[[3]]$varname = "Rh"
-var[[3]]$vartext = "Recovered Humans"
+var[[3]]$vartext = "Recovered hosts"
 var[[3]]$varval = 0
 var[[3]]$flows = c('+g*Ih','-w*Rh')
 var[[3]]$flownames = c('recovery of infected hosts','waning immunity')
@@ -40,7 +41,7 @@ var[[4]]$flows = c('+b','-b2*Sv*Ih','+n*Sv')
 var[[4]]$flownames = c('vector births','infection of susceptible vectors','death of susceptible vectors')
 
 var[[5]]$varname = "Iv"
-var[[5]]$vartext = "Infected Vctors"
+var[[5]]$vartext = "Infected Vectors"
 var[[5]]$varval = 1
 var[[5]]$flows = c('+b2*Sv*Ih','-n*Iv')
 var[[5]]$flownames = c('infection of susceptible vectors', 'death of infected vectors')

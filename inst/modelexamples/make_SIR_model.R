@@ -12,6 +12,7 @@ model$title = "SIR model"
 model$description = "A basic SIR model with 3 compartments and infection and recovery processes"
 model$author = "Andreas Handel"
 model$date = Sys.Date()
+model$details = 'The model includes susceptible, infected, and recovered compartments. The two processes that are modeled are infection and recovery.'
 
 #list of elements for each model variable. So a 3-variable model will have var[[1]], var[[2]] and var[[3]]
 var = vector("list",3)

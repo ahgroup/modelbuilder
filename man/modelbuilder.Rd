@@ -7,7 +7,7 @@
 modelbuilder()
 }
 \description{
-This function opens a GUI which allows the user to build and analyze compartmental models
+This function opens a menu which allows the user to choose build or analyze apps
 }
 \details{
 Run this function with no arguments to start the main menu

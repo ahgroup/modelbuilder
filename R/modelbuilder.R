@@ -1,6 +1,6 @@
 #' @title The main menu for the modelbuilder package
 #'
-#' @description This function opens a GUI which allows the user to build and analyze compartmental models
+#' @description This function opens a menu which allows the user to choose build or analyze apps
 #'
 #' @details Run this function with no arguments to start the main menu
 #' @examples
@@ -10,11 +10,19 @@
 #' @export
 
 modelbuilder <- function() {
-    #appDir <- system.file("createmodels", package = "DSAIDE")
-    #appname = shiny::runApp(appDir = appDir)
-    #appDirname <- system.file("shinyapps", appname, package = "DSAIDE")
-
-    shiny::runApp(appDir = appDirname)
+    cond <- 1
+    while (cond == 1)
+    {
+        appname <- NULL
+        appDir <- system.file("mainmenu", package = "modelbuilder")
+        appname = shiny::runApp(appDir = appDir)
+        if (!is.null(appname) & appname != "Exit")     #run the shiny app chosen
+        {
+            appDirname <- system.file(appname, package = "modelbuilder")
+            shiny::runApp(appDir = appDirname)
+        }
+        if (appname == "Exit") {cond = 0} #leave while loop/menu
+    }
 
   print('*************************************************')
   print('Exiting the modelbuilder GUI.')

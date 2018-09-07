@@ -1,6 +1,8 @@
 server <- function(input, output, session)
 {
 
+    model = load_model()
+
     generate_shinyinput(model, output) #make the UI for the model
 
     ###########################################
@@ -97,4 +99,4 @@ ui <- fluidPage(
 ) #end fluidpage
 
 
-#shinyApp(ui = ui, server = server)
+shinyApp(ui = ui, server = server)
