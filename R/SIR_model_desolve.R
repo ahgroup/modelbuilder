@@ -4,9 +4,9 @@
 #' 
 #' @description USER CAN ADD MORE DETAILS HERE 
 #' @param vars vector of starting conditions for these model variables: 
-#' S: starting value for Susceptible
-#' I: starting value for Infected
-#' R: starting value for Recovered
+#' S : starting value for Susceptible
+#' I : starting value for Infected
+#' R : starting value for Recovered
 #' @param pars vector of values for these model parameters: 
 #' b : infection rate
 #' g : recovery rate
@@ -28,7 +28,7 @@
 #' @section Function creation date: 2018-09-07
 #' @export 
  
-SIR_model_desolve <- function(S = 1000, I = 1, R = 0, b = 0.002, g = 1, tstart = 0, tfinal = 100, dt = 0.1) 
+SIR_model_desolve <- function(vars = c(S = 1000, I = 1, R = 0), pars = c(b = 0.002, g = 1), times = c(tstart = 0, tfinal = 100, dt = 0.1) ) 
 { 
   #Block of ODE equations for deSolve 
   SIR_model_ode <- function(t, y, parms) 
@@ -46,8 +46,8 @@ SIR_model_desolve <- function(S = 1000, I = 1, R = 0, b = 0.002, g = 1, tstart =
   } ) } #close with statement, end ODE code block 
  
   #Main function code block 
-  times=seq(tstart,tfinal,by=dt) 
-  odeout = deSolve::ode(y = vars, parms= pars, times = times,  func = SIR_model_ode) 
+  timevec=seq(times[1],times[2],by=times[3]) 
+  odeout = deSolve::ode(y = vars, parms = pars, times = timevec,  func = SIR_model_ode) 
   result <- list() 
   result$ts <- as.data.frame(odeout) 
   return(result) 

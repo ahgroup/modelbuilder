@@ -28,17 +28,17 @@ convert_to_desolve <- function(model)
     sdesc=paste0("#' ",model$title,"\n#' \n")
     sdesc=paste0(sdesc,"#' ",model$description,"\n#' \n")
     sdesc=paste0(sdesc,"#' @description USER CAN ADD MORE DETAILS HERE \n")
-    sdesc=paste0(sdesc,"#' @param vars vector of starting conditions for these model variables: \n")
+    sdesc=paste0(sdesc,"#' @param vars vector of starting conditions for model variables: \n")
     for (n in 1:nvars)
     {
         sdesc=paste0(sdesc,"#' ", model$var[[n]]$varname, ' : starting value for ',model$var[[n]]$vartext, "\n")
     }
-    sdesc=paste0(sdesc,"#' @param pars vector of values for these model parameters: \n")
+    sdesc=paste0(sdesc,"#' @param pars vector of values for model parameters: \n")
     for (n in 1:npars)
     {
         sdesc=paste0(sdesc,"#' ", model$par[[n]]$parname," : ", model$par[[n]]$partext, "\n")
     }
-    sdesc=paste0(sdesc,"#' @param times vector of values for these model times: \n")
+    sdesc=paste0(sdesc,"#' @param times vector of values for model times: \n")
     for (n in 1:ntime)
     {
         sdesc=paste0(sdesc,"#' ", model$time[[n]]$timename," : ", model$time[[n]]$timetext, "\n")
@@ -85,38 +85,41 @@ convert_to_desolve <- function(model)
     ##############################################################################
     #this creates the lines of code for the main function
     #text for main body of function
-    varstring = ""
+    varstring = "vars = c("
     for (n in 1:nvars)
     {
         varstring=paste0(varstring, model$var[[n]]$varname," = ", model$var[[n]]$varval,', ')
     }
+    varstring = substr(varstring,1,nchar(varstring)-2)
+    varstring = paste0(varstring,'), ') #close parantheses
 
-    parstring = ""
+    parstring = "pars = c("
     for (n in 1:npars)
     {
         parstring=paste0(parstring, model$par[[n]]$parname," = ", model$par[[n]]$parval,', ')
     }
+    parstring = substr(parstring,1,nchar(parstring)-2)
+    parstring = paste0(parstring,'), ') #close parantheses
 
-    timestring = ""
+    timestring = "times = c("
     for (n in 1:ntime)
     {
         timestring=paste0(timestring, model$time[[n]]$timename," = ", model$time[[n]]$timeval,', ')
     }
-    timestring = substr(timestring,1,nchar(timestring)-2) #delete final comma
+    timestring = substr(timestring,1,nchar(timestring)-2)
+    timestring = paste0(timestring,') ') #close parantheses
 
     stitle = paste0(gsub(" ","_",model$title),"_desolve <- function(",varstring, parstring, timestring,') \n{ \n')
 
     smain = "  #Main function code block \n"
 
-    smain = paste0(smain,'  times=seq(tstart,tfinal,by=dt) \n')
-    smain = paste0(smain,'  odeout = deSolve::ode(y = vars, parms= pars, times = times,  func = ',gsub(" ","_",model$title),'_ode) \n')
+    smain = paste0(smain,'  timevec=seq(times[1],times[2],by=times[3]) \n')
+    smain = paste0(smain,'  odeout = deSolve::ode(y = vars, parms = pars, times = timevec,  func = ',gsub(" ","_",model$title),'_ode) \n')
     smain = paste0(smain,'  result <- list() \n');
     smain = paste0(smain,'  result$ts <- as.data.frame(odeout) \n')
     smain = paste0(smain,'  return(result) \n')
     smain = paste0(smain,'} \n')
     #finish block that creates main function part
-    ##############################################################################
-
     ##############################################################################
     #write all text blocks to file
     sink(filename)

@@ -3,12 +3,13 @@
 #' @description This function generates input buttons and sliders for a supplied model.
 #' This is a helper function called by the shiny app.
 #' @param model a modelbuilder model structure
+#' @param output shiny output structure
 #' @return HTML formatted text for display in a Shiny UI
 #' @details This function is called by the Shiny server to produce the Shiny input UI elements.
 #' @author Andreas Handel
 #' @export
 
-makeui <- function(model, output)
+generate_shinyinput <- function(model, output)
 {
     ###########################################
     #server part that dynamically creates the UI
@@ -52,5 +53,4 @@ makeui <- function(model, output)
         HTML(model$title)
     }) #creates title
 
-    #return(output)
 }

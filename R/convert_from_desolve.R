@@ -9,6 +9,7 @@
 #' @param desolvefunction name of file that should be converted
 #' @return A list structure containing the model
 #' @author Andreas Handel
+#' @importFrom stats na.omit
 #' @export
 
 convert_from_desolve <- function(desolvefunction)
@@ -26,7 +27,7 @@ convert_from_desolve <- function(desolvefunction)
     #add model meta-information
     model$title = x[1] #first line of code is title
     model$description = x[3] #third line of code is description
-    model$author =  na.omit(stringr::str_match(x, "@modelauthor (.*)"))[1,2] #pull out model author
+    model$author =  stats::na.omit(stringr::str_match(x, "@modelauthor (.*)"))[1,2] #pull out model author
     model$date =  as.Date(na.omit(stringr::str_match(x, "@modeldate (.*)"))[1,2]) #pull out model date
 
     #######################################

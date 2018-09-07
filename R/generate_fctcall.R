@@ -2,6 +2,7 @@
 #'
 #' @description This function generates a text string that contains the function call for a given model
 #' This is a helper function called by the shiny app.
+#' @param input shiny input structure
 #' @param model a modelbuilder model structure
 #' @param modeltype type of model/code that should be run
 #' @return a string that can be evaluated to run the model
@@ -9,7 +10,7 @@
 #' @author Andreas Handel
 #' @export
 
-make_fctcall <- function(input,model,modeltype)
+generate_fctcall <- function(input,model,modeltype)
 {
 
     #process all variables, parameters and times from the model structure
