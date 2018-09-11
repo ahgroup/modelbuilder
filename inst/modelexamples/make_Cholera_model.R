@@ -12,6 +12,8 @@ model$title = "Cholera model"
 model$description = "A Cholera model based on Codeco 2001 BMC ID"
 model$author = "Andreas Handel"
 model$date = Sys.Date()
+model$details = 'The model includes susceptible, infected, and environmental compartments. See reference for more details.'
+
 
 var = vector("list",3)
 var[[1]]$varname = "S"
