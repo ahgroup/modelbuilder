@@ -11,28 +11,30 @@
 generate_model <- function(model, location = NULL)
 {
 
+    currentdir = getwd()
     if (is.null(location))
     {
         location = system.file("modelexamples", package = "modelbuilder")
     }
-
-    modelfolder = paste0(location,'/temp') #create temp folder to store files
-    unlink(modelfolder, recursive = TRUE, force = TRUE) #delete temp folder in case it exists
-    dir.create(modelfolder) #create folder with name of model
-
+    setwd(location)
+    unlink('./modeltemp', recursive = TRUE, force = TRUE) #delete temp folder in case it exists
+    dir.create('./modeltemp') #create temp folder to store model files
 
     modelname = gsub(" ","_",model$title)
-    rdatafile = paste0(modelfolder,'/',modelname,'.Rdata')
+    rdatafile = paste0('./modeltemp/',modelname,'.Rdata')
     save(model,file = rdatafile)
-    convert_to_desolve(model = model, location = modelfolder)
+    #create all 3 model versions, ODE/deSolve, discrete, stochastic/adaptivetau
+    convert_to_desolve(model = model, location = './modeltemp')
+    #convert_to_discrete(model = model, location = './modeltemp')
+    #convert_to_adaptivetau(model = model, location = './modeltemp')
 
-    zipfile = paste0(location,'/',modelname,".zip") #path and name of zip file that will contain all model fiels
+    zipfile = paste0(modelname,".zip") #path and name of zip file that will contain all model files
 
-    browser()
+    #writes all files to a zip file
+    #note that opening the zip file in windows shows it's empty, but the files are in there
+    #using the unzip R command, one can extract them
+    zip::zip(zipfile, './modeltemp')
 
-    zip::zip(zipfile, modelfolder) #writes all files
-
-
-    unlink(modelfolder, recursive = TRUE, force = TRUE) #delete temp folder in case it exists
-
+    unlink('./modeltemp', recursive = TRUE, force = TRUE) #delete temp folder
+    setwd(currentdir) #set working directory back to where it was
 }

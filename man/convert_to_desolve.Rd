@@ -4,10 +4,12 @@
 \alias{convert_to_desolve}
 \title{Create a desolve function}
 \usage{
-convert_to_desolve(model)
+convert_to_desolve(model, location)
 }
 \arguments{
 \item{model}{model structure, either as list or Rdata file name}
+
+\item{location}{a path/folder to save the model to. Default is current directory}
 }
 \value{
 The function does not return anything

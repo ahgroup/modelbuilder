@@ -22,12 +22,14 @@ Imports:
     gridExtra (>= 2.3),
     knitr (>= 1.15),
     rmarkdown (>= 1.10),
+    RxODE,
     stats (>= 3.4),
     tidyr (>= 0.7),
     utils (>= 3.4),
     stringr,
     readr,
-    XML
+    XML,
+    zip
 Depends:
     R (>= 3.4),
     shiny (>= 1.0)
