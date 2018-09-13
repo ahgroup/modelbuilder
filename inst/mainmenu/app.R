@@ -7,12 +7,21 @@ server <- function(input, output, session) {
 
   stopping <- FALSE
 
-  lapply(appNames, function(appName) {
-    observeEvent(input[[appName]], {
+  observeEvent(input$buildmodel, {
       stopping <<- TRUE
       stopApp(appName)
-    })
   })
+
+  observeEvent(input$analyzemodel, {
+      stopping <<- TRUE
+      stopApp(appName)
+  })
+
+  observeEvent(input$Exit, {
+      stopping <<- TRUE
+      stopApp(appName)
+  })
+
 
   session$onSessionEnded(function(){
     if (!stopping) {
