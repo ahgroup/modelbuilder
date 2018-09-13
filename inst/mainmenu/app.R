@@ -9,18 +9,27 @@ server <- function(input, output, session) {
 
   observeEvent(input$buildmodel, {
       stopping <<- TRUE
-      stopApp(appName)
+      stopApp('buildmodel')
   })
 
   observeEvent(input$analyzemodel, {
       stopping <<- TRUE
-      stopApp(appName)
+      stopApp('analyzemodel')
   })
 
   observeEvent(input$Exit, {
       stopping <<- TRUE
-      stopApp(appName)
+      stopApp('Exit')
   })
+
+  output$downloadData <- downloadHandler(
+      filename = function() {
+          paste(input$dataset, ".csv", sep = "")
+      },
+      content = function(file) {
+          write.csv(datasetInput(), file, row.names = FALSE)
+      }
+  )
 
 
   session$onSessionEnded(function(){
@@ -42,8 +51,12 @@ ui <- fluidPage(
 
   h1('Main Menu', align = "center", style = "background-color:#123c66; color:#fff"),
   fluidRow(
-      column(12,
-             fileInput("currentmodel", label = "Load a Model", accept = c('Rdata'), buttonLabel = "Load Model", placeholder = "No model selected")),
+      column(6,
+             fileInput("currentmodel", label = "Load a Model", accept = c('Rdata'), buttonLabel = "Load Model", placeholder = "No model selected")
+             ),
+      column(6,
+             downloadButton("exportmodel", "Export Model Files")
+      ),
       class = "mainmenurow"
   ), #close fluidRow structure for input
 
