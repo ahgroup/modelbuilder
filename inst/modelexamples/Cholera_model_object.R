@@ -83,7 +83,3 @@ time[[3]]$timetext = "Time step"
 time[[3]]$timeval = 0.1
 
 model$time = time
-
-filename =paste(gsub(" ","_",model$title),'.Rdata',sep='')
-
-save(model,file = filename)

@@ -1,10 +1,7 @@
 server <- function(input, output, session)
 {
 
-    modellist = load_model() #open a console to let the user load a model
-
-    model = modellist$model
-    modeltype = modellist$type
+    model = load(input$currentmodel$datapath)
 
     generate_shinyinput(model, output) #make the UI for the model
 

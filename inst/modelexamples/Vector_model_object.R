@@ -79,7 +79,6 @@ par[[6]]$parval = 0.1
 
 model$par = par
 
-
 #time parvals
 time = vector("list",3)
 time[[1]]$timename = "tstart"
@@ -96,7 +95,3 @@ time[[3]]$timeval = 0.1
 
 model$time = time
 
-
-filename =paste(gsub(" ","_",model$title),'.Rdata',sep='')
-
-save(model,file = filename)

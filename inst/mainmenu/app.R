@@ -3,7 +3,7 @@
 #this function is the server part of the app
 server <- function(input, output, session) {
 
-  appNames <- c('buildmodels','analyzemodels','Exit') #options
+  appNames <- c('buildmodel','analyzemodel','Exit') #options
 
   stopping <- FALSE
 
@@ -32,16 +32,23 @@ ui <- fluidPage(
   p(paste('This is modelbuilder version ',utils::packageVersion("modelbuilder"),' last updated ', utils::packageDescription('modelbuilder')$Date,sep=''), class='infotext'),
 
   h1('Main Menu', align = "center", style = "background-color:#123c66; color:#fff"),
+  fluidRow(
+      column(12,
+             fileInput("currentmodel", label = "Load a Model", accept = c('Rdata'), buttonLabel = "Load Model", placeholder = "No model selected")),
+      class = "mainmenurow"
+  ), #close fluidRow structure for input
 
  fluidRow(
     column(6,
-           actionButton("buildmodels", "Build a model", class="mainbutton")
+           actionButton("buildmodel", "Build a model", class="mainbutton")
     ),
     column(6,
-           actionButton("analyzemodels", "Analyze a model", class="mainbutton")
+           actionButton("analyzemodel", "Analyze a model", class="mainbutton")
     ),
     class = "mainmenurow"
   ), #close fluidRow structure for input
+
+
 
  fluidRow(
 

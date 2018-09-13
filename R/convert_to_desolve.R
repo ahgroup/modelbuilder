@@ -4,6 +4,7 @@
 #'
 #' @description USER CAN ADD MORE DETAILS HERE
 #' @param model model structure, either as list or Rdata file name
+#' @param location a path/folder to save the model to. Default is current directory
 #' @return The function does not return anything
 #' Instead, it writes an R file into the working directory
 #' this R file contains a desolve implementation of the model
@@ -11,8 +12,11 @@
 #' @author Andreas Handel
 #' @export
 
-convert_to_desolve <- function(model)
+convert_to_desolve <- function(model, location)
 {
+
+
+
 
     #if the model is passed in as an Rdata file name, load it
     #otherwise, it is assumed that 'model' is a list structure of the right type
@@ -20,6 +24,13 @@ convert_to_desolve <- function(model)
 
     #the name of the function produced by this script is  "model title" + "_desolve.R"
     filename=paste0(gsub(" ","_",model$title),"_desolve.R")
+    savepath = filename #default is current directory for saving the R function
+
+    #if location is supplied, that's where the code will be saved to
+    if (!is.null(location)) {savepath = paste0(location,'/',filename)}
+
+
+
     nvars = length(model$var)  #number of variables/compartments in model
     npars = length(model$par)  #number of parameters in model
     ntime = length(model$time) #numer of parameters for time
@@ -127,7 +138,7 @@ convert_to_desolve <- function(model)
     #finish block that creates main function part
     ##############################################################################
     #write all text blocks to file
-    sink(filename)
+    sink(savepath)
     cat(sdesc)
     cat(stitle)
     cat(sode)
