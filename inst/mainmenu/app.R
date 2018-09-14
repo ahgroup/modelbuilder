@@ -7,6 +7,7 @@ server <- function(input, output, session) {
 
   stopping <- FALSE
 
+
   observeEvent(input$buildmodel, {
       stopping <<- TRUE
       stopApp('buildmodel')
@@ -22,14 +23,27 @@ server <- function(input, output, session) {
       stopApp('Exit')
   })
 
-  output$downloadData <- downloadHandler(
-      filename = function() {
-          paste(input$dataset, ".csv", sep = "")
-      },
-      content = function(file) {
-          write.csv(datasetInput(), file, row.names = FALSE)
-      }
-  )
+  #model needs to be loaded inside a reactive, but then should be a non-reactive object for further use
+  model <<- isolate( reactive({
+      # input$currentmodel will be NULL initially. After the user selects
+      # and uploads a file, it will be a data frame with 'name',
+      # 'size', 'type', and 'datapath' columns. The 'datapath'
+      # column will contain the local filenames where the data can
+      # be found.
+      inFile <- input$currentmodel
+
+      if (is.null(inFile))
+          return(NULL)
+
+      model = load(inFile$datapath)
+  }) )
+
+  #export bit not working
+  #output$exportmodel <- downloadHandler(
+  #    filename = input$currentmodel$name,
+  #    content = function(file) {convert_to_desolve(data = output$currentmodel, location = file)}
+  #)
+
 
 
   session$onSessionEnded(function(){
@@ -52,10 +66,10 @@ ui <- fluidPage(
   h1('Main Menu', align = "center", style = "background-color:#123c66; color:#fff"),
   fluidRow(
       column(6,
-             fileInput("currentmodel", label = "Load a Model", accept = c('Rdata'), buttonLabel = "Load Model", placeholder = "No model selected")
+             fileInput("currentmodel", label = "Load a Model", accept = c('.Rdata'), buttonLabel = "Load Model", placeholder = "No model selected")
              ),
       column(6,
-             downloadButton("exportmodel", "Export Model Files")
+             downloadButton("exportmodel", "Export Model Code")
       ),
       class = "mainmenurow"
   ), #close fluidRow structure for input

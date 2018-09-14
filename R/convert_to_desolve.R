@@ -15,9 +15,6 @@
 convert_to_desolve <- function(model, location)
 {
 
-
-
-
     #if the model is passed in as an Rdata file name, load it
     #otherwise, it is assumed that 'model' is a list structure of the right type
     if(is.character(model)) {load(model)}
@@ -28,8 +25,6 @@ convert_to_desolve <- function(model, location)
 
     #if location is supplied, that's where the code will be saved to
     if (!is.null(location)) {savepath = paste0(location,'/',filename)}
-
-
 
     nvars = length(model$var)  #number of variables/compartments in model
     npars = length(model$par)  #number of parameters in model
