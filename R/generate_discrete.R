@@ -34,11 +34,15 @@ generate_discrete <- function(model, location = NULL)
     nvars = length(model$var)  #number of variables/compartments in model
     npars = length(model$par)  #number of parameters in model
     ntime = length(model$time) #numer of parameters for time
+    modeltitle = gsub(" ","_",model$title) #title for model, replacing space with low dash to be used in function and file names
     #text for model description
     #all this should be provided in the model sctructure
     sdesc=paste0("#' ",model$title,"\n#' \n")
     sdesc=paste0(sdesc,"#' ",model$description,"\n#' \n")
     sdesc=paste0(sdesc,"#' @details ",model$details, "\n")
+    sdesc=paste0(sdesc,"#' This code is based on a dynamical systems model created by the modelbuilder package.  \n")
+    sdesc=paste0(sdesc,"#' The model is implemented here as a set of discrete-time, deterministic equations, \n")
+    sdesc=paste0(sdesc,"#' coded as a simple for-loop. \n")
     sdesc=paste0(sdesc,"#' @param vars vector of starting conditions for model variables: \n")
     sdesc=paste0(sdesc,"#' \\itemize{ \n")
     for (n in 1:nvars)
@@ -65,7 +69,7 @@ generate_discrete <- function(model, location = NULL)
     sdesc=paste0(sdesc,"#' The \\code{ts} dataframe has one column per compartment/variable. The first column is time.   \n")
     sdesc=paste0(sdesc,"#' @examples  \n")
     sdesc=paste0(sdesc,"#' # To run the simulation with default parameters:  \n")
-    sdesc=paste0(sdesc,"#' result <- simulate_",gsub(" ","_",model$title),"_discrete()", " \n")
+    sdesc=paste0(sdesc,"#' result <- simulate_",modeltitle,"_discrete()", " \n")
     sdesc=paste0(sdesc,"#' @section Warning: ","This function does not perform any error checking. So if you try to do something nonsensical (e.g. have negative values for parameters), the code will likely abort with an error message.", "\n")
     sdesc=paste0(sdesc,"#' @section Model Author: ",model$author, "\n")
     sdesc=paste0(sdesc,"#' @section Model creation date: ",model$date, "\n")
@@ -79,14 +83,15 @@ generate_discrete <- function(model, location = NULL)
     #text for head of main body of function
     varstring = "vars = c("
     varnames = ""
+    varnamestring = ""
     varstartvals = ""
     for (n in 1:nvars)
     {
         varstring=paste0(varstring, model$var[[n]]$varname," = ", model$var[[n]]$varval,', ')
-        varnames=paste0(varnames,'"',model$var[[n]]$varname,'",')
-        varstartvals=paste0(varstartvals,model$var[[n]]$varval,',')
+        varnamestring=paste0(varnamestring,'"',model$var[[n]]$varname,'",')
+        varnames=paste0(varnames,',',model$var[[n]]$varname)
     }
-    varnames = substr(varnames,1,nchar(varnames)-1)
+    varnamestring = substr(varnamestring,1,nchar(varnamestring)-1) #trim off final comma
     varstring = substr(varstring,1,nchar(varstring)-2)
     varstring = paste0(varstring,'), ') #close parantheses
 
@@ -106,45 +111,44 @@ generate_discrete <- function(model, location = NULL)
     timestring = substr(timestring,1,nchar(timestring)-2)
     timestring = paste0(timestring,') ') #close parantheses
 
-    stitle = paste0('simulate_',gsub(" ","_",model$title),"_discrete <- function(",varstring, parstring, timestring,') \n{ \n')
+
+    stitle = paste0('simulate_',modeltitle,"_discrete <- function(",varstring, parstring, timestring,') \n{ \n')
+    #finished generating the heading/function call line
+
+    ##############################################################################
+    #the next block of commands produces the simulator block as a function
+    #which is expressed as a for-loop
+    sdisc = "  #Function that encodes simulation loop \n"
+    sdisc = paste0(sdisc,'  ',modeltitle,"_discrete <- function(vars, pars, times) \n")
+    sdisc = paste0(sdisc,"  {\n")
+    sdisc = paste0(sdisc,"    with( as.list(c(vars,pars,times)), {  \n")
+
+    sdisc = paste0(sdisc,'      tvec = seq(tstart,tfinal,by=dt) \n')
+    sdisc = paste0(sdisc,'      ts = data.frame(cbind(tvec, matrix(0,nrow=length(tvec),ncol=length(vars)))) \n')
+    sdisc = paste0(sdisc,'      colnames(ts) = c("time",',varnamestring,') \n');
+    sdisc = paste0(sdisc,'      ct=1 #a counter to index array \n');
+    sdisc = paste0(sdisc,"      for (t in tvec) \n")
+    sdisc = paste0(sdisc,"      {\n")
+    sdisc = paste0(sdisc,"        ts[ct,] = c(t",varnames,") \n")
+    for (n in 1:nvars)
+    {
+    sdisc = paste0(sdisc,'        ',model$var[[n]]$varname,'p = ',model$var[[n]]$varname,' + dt*(',paste(model$var[[n]]$flows, collapse = ' '), ') \n' )
+    }
+    for (n in 1:nvars)
+    {
+    sdisc = paste0(sdisc,'        ',model$var[[n]]$varname,' = ',model$var[[n]]$varname,'p \n')
+    }
+    sdisc = paste0(sdisc,"        ct = ct + 1 \n")
+    sdisc = paste0(sdisc,"      } #finish loop \n")
+    sdisc = paste0(sdisc,"      return(ts) \n")
+    sdisc = paste0(sdisc,"    }) #close with statement \n")
+    sdisc = paste0(sdisc," } #end function encoding loop \n")
+    #finish block that creates the discrete time loop function
+    ##############################################################################
 
     smain = "  #Main function code block \n"
-
-    smain = paste0(smain,'  timevec=seq(times[1],times[2],by=times[3]) \n')
-    smain = paste0(smain,'  nvars=length(vars) \n')
-    smain = paste0(smain,'  ts = cbind(timevec, matrix(0,nrow=length(timevec)+1,ncol=nvars)) \n')
-    smain = paste0(smain,'  ts = data.frame(ts)  \n');
-    smain = paste0(smain,'  colnames(ts) = c("time",',varnames,') \n');
-    sdisc = paste0(smain,"  ts[1,] = c(timevec[1],vars) \n")
-    smain = paste0(smain,'  ct=1 #a counter to index array \n');
-    smain = paste0(smain,'  V=rep(0,nvars)\n');
-    #finish block that creates head of function
-
-    ##############################################################################
-    #the next block of commands produces the simulator block inside the loop
-    sdisc = "  #Block of simulator code \n"
-    sdisc = paste0(sdisc,"   with( as.list(c(vars,pars,times)), {  \n")
-    sdisc = paste0(sdisc,"   for (t in timevec) \n")
-    sdisc = paste0(sdisc,"   { \n")
-
-    for (n in 1:nvars)
-    {
-        sdisc = paste0(sdisc,'     V[',n,'] = ',model$var[[n]]$varname,' + dt*(',paste(model$var[[n]]$flows, collapse = ' '), ') \n' )
-    }
-    for (n in 1:nvars)
-    {
-        sdisc = paste0(sdisc,'     ',model$var[[n]]$varname, '= V[',n,'] \n')
-    }
-    sdisc = paste0(sdisc,"     ct = ct + 1 \n")
-    sdisc = paste0(sdisc,"     ts[ct,] = c(t[ct],V) \n")
-    sdisc = paste0(sdisc,"  } #finish loop \n")
-    sdisc = paste0(sdisc,"  }) #close with statement \n")
-
-    #finish block that creates the discrete time loop
-    ##############################################################################
-
+    smain = paste0(smain," ts <- ",modeltitle,"_discrete(vars = vars, pars = pars, times = times) \n")
     #write result to a list and return
-    smain = paste0(smain, sdisc)
     smain = paste0(smain,'  result <- list() \n')
     smain = paste0(smain,'  result$ts <- ts \n')
     smain = paste0(smain,'  return(result) \n')
@@ -155,6 +159,7 @@ generate_discrete <- function(model, location = NULL)
     sink(savepath)
     cat(sdesc)
     cat(stitle)
+    cat(sdisc)
     cat(smain)
     sink()
 }
