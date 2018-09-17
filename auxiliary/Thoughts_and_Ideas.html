@@ -139,10 +139,10 @@ $(document).ready(function () {
 <li>Package also needs to have lots of internal (unit) tests (using testthat)</li>
 </ul>
 </div>
-<div id="structureconcept-ideas" class="section level2">
-<h2>Structure/Concept Ideas</h2>
+<div id="current-package-structure-and-concept-ideas" class="section level2">
+<h2>Current package structure and concept ideas</h2>
 <ul>
-<li>Currently, user loads package, starts main menu with modelbuilder()</li>
+<li>Currently, user loads package, starts main menu with <code>modelbuilder()</code></li>
 <li>Main menu lets users build a new model, load an existing model, modify or analyze existing model, export code for existing model, and do import/export to SBML. Only some of the features are currently implemented/working.</li>
 <li>Each model is saved as list structure called ‘model’ and stored in Rdata files.</li>
 <li>Several functions take the model structure and turn it into R code/functions for implementing the model as ODE, stochastic/adaptivetau, discrete time, RxODE, SBML, etc. (only some implemented yet)</li>
@@ -160,9 +160,9 @@ $(document).ready(function () {
 <div id="functions-needed" class="section level2">
 <h2>Functions needed</h2>
 <ul>
-<li>A shiny app for the main menu - beginning exists in inst subfolder.</li>
-<li>A shiny app for model building/modification/saving - beginning exists in inst </li>
-<li>A shiny app for model analysis - fairly complete one exists in inst </li>
+<li>A shiny app for the main menu - beginning exists in <code>inst\mainmenu\</code> subfolder.</li>
+<li>A shiny app for model building/modification/saving - beginning exists in <code>inst\buildmodel\</code></li>
+<li>A shiny app for model analysis - fairly complete one exists in <code>inst\analyzemodel\</code></li>
 <li>Helper functions that build and show diagram and equations as model is built (can be reactive or triggered by button press).</li>
 <li>Functions that take the internal model object and turn it into code/functions to be run using deSolve, adaptivetau,… Several exsit, called generate_…</li>
 </ul>
@@ -172,31 +172,59 @@ $(document).ready(function () {
 <p>We’ll store a model as a list, and save it as Rdata file. The model list will have the following components (subject to change):</p>
 <div id="meta-information" class="section level3">
 <h3>Meta-Information</h3>
-<p>model<span class="math inline">\(title - model title model\)</span>description - a short (1 sentence) model description model<span class="math inline">\(author - name of model author/creator model\)</span>date - date of creation or last change model$details - a detailed model description</p>
+<ul>
+<li><code>model$title</code> - model title</li>
+<li><code>model$description</code> - a short (1 sentence) model description</li>
+<li><code>model$author</code> - name of model author/creator</li>
+<li><code>model$date</code> - date of creation or last change</li>
+<li><code>model$details</code> - a detailed model description</li>
+</ul>
 </div>
 <div id="variable-information" class="section level3">
 <h3>Variable information</h3>
-<p>model<span class="math inline">\(var[[i]]\)</span>varname - characters containing variable name, string model<span class="math inline">\(var[[i]]\)</span>vartext - description of variable, string model<span class="math inline">\(var[[i]]\)</span>varval - starting value, numeric model<span class="math inline">\(var[[i]]\)</span>flows - all flow terms, as vector of strings model<span class="math inline">\(var[[i]]\)</span>flownames - description of each flow, vector of strings i = 1..number of variables</p>
+<ul>
+<li><code>model$var[[i]]$varname</code> - characters containing variable name, string</li>
+<li><code>model$var[[i]]$vartext</code> - description of variable, string</li>
+<li><code>model$var[[i]]$varval</code> - starting value, numeric</li>
+<li><code>model$var[[i]]$flows</code> - all flow terms, as vector of strings</li>
+<li><code>model$var[[i]]$flownames</code> - description of each flow, vector of strings</li>
+</ul>
+<p>i = 1..number of variables</p>
 </div>
 <div id="parameter-information" class="section level3">
 <h3>Parameter information</h3>
-<p>model<span class="math inline">\(par[[i]]\)</span>parname - parameter name model<span class="math inline">\(par[[i]]\)</span>partext - description of parameter model<span class="math inline">\(par[[i]]\)</span>parval - default value i = 1..number of parameters</p>
+<ul>
+<li><code>model$par[[i]]$parname</code> - parameter name</li>
+<li><code>model$par[[i]]$partext</code> - description of parameter</li>
+<li><code>model$par[[i]]$parval</code> - default value</li>
+</ul>
+<p>i = 1..number of parameters</p>
 </div>
 <div id="time-information" class="section level3">
 <h3>Time information</h3>
-<p>model<span class="math inline">\(time[[i]]\)</span>timename - tstart/tfinal/dt (fixed names, in that order) model<span class="math inline">\(time[[i]]\)</span>timetext - text<br />
-model<span class="math inline">\(time[[i]]\)</span>timeval - default value i = 1,2,3 being tstart, tfinal and dt</p>
-<p>Optional/for later: model<span class="math inline">\(par[[i]]\)</span>lb - lower bound for parameter model<span class="math inline">\(par[[i]]\)</span>ub - upper bound for parameter</p>
+<ul>
+<li><code>model$time[[i]]$timename</code> - tstart/tfinal/dt (fixed names, in that order)</li>
+<li><code>model$time[[i]]$timetext</code> - text<br />
+</li>
+<li><code>model$time[[i]]$timeval</code> - default value</li>
+</ul>
+<p>i = 1,2,3 being tstart, tfinal and dt</p>
+</div>
+<div id="optionalfor-later" class="section level3">
+<h3>Optional/for later:</h3>
+<ul>
+<li><code>model$par[[i]]$lb</code> - lower bound for parameter</li>
+<li><code>model$par[[i]]$ub</code> - upper bound for parameter</li>
+</ul>
 </div>
 <div id="model-examples" class="section level3">
 <h3>Model examples</h3>
-<p>Several model examples following the above structure (and currently generated by hand with the XX_model_object.R scripts) are in the folder</p>
+<p>Several model examples following the above structure (and currently generated by hand with the XX_model_object.R scripts) are in the <code>\inst\modelexamples</code> folder</p>
 </div>
 </div>
 <div id="general-thoughts-and-ideas" class="section level2">
 <h2>general thoughts and ideas</h2>
 <ul>
-<li>present at UGA teaching conference: <a href="https://coe.uga.edu/events/2018/10/innovation-in-teaching-conference-20181019" class="uri">https://coe.uga.edu/events/2018/10/innovation-in-teaching-conference-20181019</a></li>
 <li>Integrate with Systems Biology Markup Language (SBML)</li>
 <li>Use DiagrammeR package for graph creation?</li>
 <li>Do (and write/publish?) a review of software out there that does what we want to do? See e.g. here for a table of various software packages: <a href="https://en.wikipedia.org/wiki/Comparison_of_system_dynamics_software" class="uri">https://en.wikipedia.org/wiki/Comparison_of_system_dynamics_software</a></li>
@@ -206,7 +234,7 @@ model<span class="math inline">\(time[[i]]\)</span>timeval - default value i = 1
 </ul>
 </div>
 <div id="maybe-comparablecompeting-software" class="section level2">
-<h2>Maybe Comparable/competing software</h2>
+<h2>Maybe comparable/competing software</h2>
 <ul>
 <li>Berkley Madonna</li>
 <li>Numerus: <a href="https://www.numerusinc.com/" class="uri">https://www.numerusinc.com/</a></li>
