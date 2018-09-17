@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <script type="application/shiny-singletons"></script>
+  <script type="application/html-dependencies">json2[2014.02.04];jquery[1.12.4];shiny[1.1.0];font-awesome[4.7.0];bootstrap[3.3.7]</script>
+<script src="shared/json2-min.js"></script>
+<script src="shared/jquery.min.js"></script>
+<link href="shared/shiny.css" rel="stylesheet" />
+<script src="shared/shiny.min.js"></script>
+<link href="shared/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="shared/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<script src="shared/bootstrap/js/bootstrap.min.js"></script>
+<script src="shared/bootstrap/shim/html5shiv.min.js"></script>
+<script src="shared/bootstrap/shim/respond.min.js"></script>
+
+</head>
+
+<body>
+  <div class="container-fluid">
+    <style type="text/css">/* Handel midifications for shiny apps
+ * Last Modified: 2016-06-06
+------------------------------------------- */
+
+
+/* Color Glossary for easy changing of colors later
+ * grey:  #403c3d
+ * dark grey:  #333
+ * light grey: #ccc
+ * near white: #f9f9f9
+ * light blue: #3388CC
+ * blue: #005599
+ * red: #FF0000
+------------------------------------------------ */
+
+
+/* Image
+---------------*/
+img {
+	max-width: 100%;
+	max-height: 90%;
+	padding: 6px;
+
+}
+.image {
+	display: inline-block;
+	margin-left: 10px;
+	margin-right: 10px;
+	max-width: 100%;
+	max-height: 90%;
+	padding: 0;
+	text-align: center;
+
+  /* Visual */
+	border-radius: 5px;
+	border: 1px solid #ccc;  /* light grey */
+}
+.figure {
+	margin-left: 10px;
+	margin-right: 10px;
+	padding: 0;
+	text-align: center;
+
+  /* Visual */
+	border-radius: 5px;
+	border: 1px solid #ccc;  /* light grey */
+}
+.caption {
+	padding: 0;
+	margin: auto;
+	margin-bottom: 6px;
+}
+
+/* ------- Tables ------- */
+table {
+	margin: 10px;
+	border-spacing: 0;
+}
+table th {
+ /* Box-model */
+	padding: 2px;
+
+  /* Typography */
+	font-size: 16px;
+	line-height: 36px;
+
+  /* Visual */
+	background-color: #403c3d;
+	color: #fff;
+	border: 1px solid #ccc; /* light grey */
+  border-bottom: 0;
+}
+table thead th:empty {
+	background: transparent;
+	border: none;
+}
+table caption {
+	font-weight: bold;
+}
+tr:nth-child(2n+1) {
+  /* Visual */
+	background-color: #f9f9f9;  /* near white */
+	color: #000; /* black */
+}
+table td {
+	padding: 2px;
+	border-collapse: collapse;
+	border: 1px solid #ccc; /* light grey */
+}
+
+
+/* My additions
+-------------------- */
+
+#shinyheadertitle
+{
+	color: #123c66;
+	font-weight: bold;
+	text-align: center;
+	font-size: 120%;
+}
+
+#shinyheadertext
+{
+	color: #123c66;
+	text-align: center;
+	font-size: 100%;
+}
+
+
+#classauthor
+{
+	color: black;
+	font-weight: normal;
+	text-align: center;
+
+}
+
+#mylicense
+{
+	text-align: center;
+	font-size: 70%;
+
+}
+
+iframe {
+	display: block;
+	margin-left: auto;
+    margin-right: auto;
+}
+
+#mytextbox
+{
+	border: 10px solid #cfd7e0;
+	color: black;
+	font-weight: normal;
+}
+
+.MathJax {
+	font-size: 2em;
+}
+
+
+/* shiny progress bar
+-------------------- */
+
+
+.shiny-progress-container {
+	top: 40px;
+}
+
+.progress-message {
+	color: red;
+}
+
+.shiny-notification{
+  position: fixed;
+  top: 33%;
+  left: 33%;
+  right: 33%;
+}
+
+
+.mainbutton {
+	text-align: center;
+	color: #000000;
+	background-color: #D2FFE2;
+	border-spacing: 2px;
+	width: 200px;
+}
+
+.submitbutton {
+	text-align: center;
+	color: #000000;
+	background-color: #D2FFE2;
+	border-spacing: 10px;
+	width: 200px;
+}
+
+.exitbutton {
+	text-align: center;
+	color: #000000;
+	background-color: #FF0000;
+	width: 200px;
+}
+
+.savebutton {
+	text-align: center;
+	color: #000000;
+	background-color: #7a89f9;
+	width: 200px;
+}
+
+.mainmenurow {
+	text-align: center;
+	padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+.maintext {
+	text-align: center;
+	color: #2a3f9e;
+	font-weight: bold;
+}
+
+.mainsectionheader {
+	text-align: left;
+	color: green;
+	font-weight: bold;
+	font-size: 2em;
+}
+
+
+.infotext {
+	text-align: center;
+	color: #2a3f9e;
+
+}
+</style>
+    <div align="center"><body> <div id="shinyheader" class="container">&#13;
+	<p id="shinyheadertitle">modelbuilder</p>&#13;
+	<p id="shinyheadertext">A tool for building and analysis of simulation models without the need for writing code. &#13;
+	<br/> Written and maintained by <a href="http://handelgroup.uga.edu">Andreas Handel</a>,  with contributions from <a href="https://github.com/ahgroup/modelbuilder#contributors">others</a>.</p>&#13;	
+</div> </body></div>
+    <div class="row" align="center">
+      <button class="btn btn-default action-button exitbutton" id="exitBtn" type="button">Exit to main menu</button>
+    </div>
+    <br/>
+    <div class="row" align="center">
+      <div class="col-sm-4">
+        <a id="saveBtn" class="btn btn-default shiny-download-link savebutton" href="" target="_blank" download>
+          <i class="fa fa-download"></i>
+          Save Model
+        </a>
+      </div>
+      <div class="col-sm-4">
+        <button class="btn btn-default action-button savebutton" id="saveBtn" type="button">Save Diagram</button>
+      </div>
+      <div class="col-sm-4">
+        <button class="btn btn-default action-button savebutton" id="exitBtn" type="button">Save Equations</button>
+      </div>
+    </div>
+    <br/>
+    <div class="row" align="center">
+      <div class="col-sm-6">
+        <button class="btn btn-default action-button submitbutton" id="addvar" type="button">Add Variable</button>
+      </div>
+      <div class="col-sm-6">
+        <button class="btn btn-default action-button submitbutton" id="rmvar" type="button">Remove last Variable</button>
+      </div>
+    </div>
+    <div class="row myrow">
+      <div class="col-sm-6">
+        <p class="mainsectionheader">General model information</p>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group shiny-input-container">
+              <label for="modeltitle">Model Name</label>
+              <input id="modeltitle" type="text" class="form-control" value=""/>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group shiny-input-container">
+              <label for="modelauthor">Author</label>
+              <input id="modelauthor" type="text" class="form-control" value=""/>
+            </div>
+          </div>
+        </div>
+        <div class="form-group shiny-input-container">
+          <label for="modeldescription">One sentence model Description</label>
+          <input id="modeldescription" type="text" class="form-control" value=""/>
+        </div>
+        <div class="form-group shiny-input-container">
+          <label for="modeldetails">Long model Description</label>
+          <textarea id="modeldetails" class="form-control"></textarea>
+        </div>
+        <p class="mainsectionheader">Model time information</p>
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="form-group shiny-input-container">
+              <label for="tstart">Start time</label>
+              <input id="tstart" type="number" class="form-control" value="0"/>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group shiny-input-container">
+              <label for="tfinal">Final time</label>
+              <input id="tfinal" type="number" class="form-control" value="100"/>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group shiny-input-container">
+              <label for="dt">Time step</label>
+              <input id="dt" type="number" class="form-control" value="0.1"/>
+            </div>
+          </div>
+        </div>
+        <p class="mainsectionheader">Model variable information</p>
+        <div id="var1placeholder"></div>
+        <p class="mainsectionheader">Model parameter information</p>
+      </div>
+      <div class="col-sm-6">
+        <h2>Model Diagram</h2>
+        <h2>Model Equations</h2>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
