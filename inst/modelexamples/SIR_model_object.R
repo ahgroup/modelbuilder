@@ -64,3 +64,6 @@ time[[3]]$timeval = 0.1
 
 model$time = time
 
+modelname = gsub(" ","_",model$title)
+rdatafile = paste0(modelname,'.Rdata')
+save(model,file = rdatafile)

@@ -184,6 +184,13 @@ iframe {
 	width: 200px;
 }
 
+.savebutton {
+	text-align: center;
+	color: #000000;
+	background-color: #7a89f9;
+	width: 200px;
+}
+
 .mainmenurow {
 	text-align: center;
 	padding-top: 1em;

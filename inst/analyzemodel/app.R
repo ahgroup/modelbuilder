@@ -1,9 +1,9 @@
 server <- function(input, output, session)
 {
 
-    model = load(input$currentmodel$datapath)
 
     generate_shinyinput(model, output) #make the UI for the model
+
 
     ###########################################
     #server part that listens for exit button click
@@ -18,10 +18,27 @@ server <- function(input, output, session)
     #on click, run simulation and update plots and text
     observeEvent(input$submitBtn,
     {
+
+
+        modeltype = isolate(input$modeltype)
+        rngseed = isolate(input$rngseed)
+        nreps = isolate(input$nreps)
+        plotscale = isolate(input$plotscale)
+
         #save all results to a list for processing plots and text
         listlength = 1
         #here we do all simulations in the same figure
         result = vector("list", listlength) #create empty list of right size for results
+
+
+        #creates model code
+        if (modeltype == 'ode')
+        {
+            location = tempdir() #temporary directory to save file
+            convert_to_desolve(model = model, location = location)
+            filename=paste0(gsub(" ","_",model$title),"_desolve.R")
+            source(paste0(location,filename)) #source file
+        }
 
         #parses the model and creates the code to call/run the simulation
         fctcall <- generate_fctcall(input=input,model=model,modeltype='desolve')
@@ -78,8 +95,11 @@ ui <- fluidPage(
             h2('Simulation Settings'),
             uiOutput("vars"),
             uiOutput("pars"),
-            uiOutput("time")
-
+            uiOutput("time"),
+            numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
+            selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both")),
+            selectInput("modeltype", "Models to run",c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = '1'),
+            numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1)
         ),
         #end sidebar column for inputs
 
