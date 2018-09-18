@@ -72,6 +72,7 @@ ui <- fluidPage(
   p(paste('This is modelbuilder version ',utils::packageVersion("modelbuilder"),' last updated ', utils::packageDescription('modelbuilder')$Date,sep=''), class='infotext'),
 
   h1('Main Menu', align = "center", style = "background-color:#123c66; color:#fff"),
+  h1("Testing to make sure revisions are working correcty"),
   p('Build a new model', class='mainsectionheader'),
     fluidRow(
         column(12,
