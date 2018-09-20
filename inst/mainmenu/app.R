@@ -45,6 +45,17 @@ server <- function(input, output, session) {
     },
     contentType = "text/plain"
   )
+  
+  output$exportdiscrete <- downloadHandler(
+    filename = function() {
+      paste0("simulate_",gsub(" ","_",model()$title),"_discrete.R")
+    },
+    content = function(file) {
+      stopifnot(!is.null(model()))
+      generate_discrete(model = model(), location = file)
+    },
+    contentType = "text/plain"
+  )
 
   session$onSessionEnded(function() {
     if (!stopping) {
