@@ -1,4 +1,4 @@
-convert_to_rxode <- function(model)
+convert_to_rxode <- function(model, location)
 {
 
   #if the model is passed in as an Rdata file name, load it
@@ -6,7 +6,6 @@ convert_to_rxode <- function(model)
   if(is.character(model)) {load(model)}
 
   #the name of the function produced by this script is  "model title" + "_RxODE.R"
-  filename=paste0(gsub(" ","_",model$title),"_RxODE.R")
   nvars = length(model$var)  #number of variables/compartments in model
   npars = length(model$par)  #number of parameters in model
   ntime = length(model$time) #numer of parameters for time
@@ -109,7 +108,7 @@ convert_to_rxode <- function(model)
 
   ##############################################################################
   #write all text blocks to file
-  sink(filename)
+  sink(location)
   cat(sdesc)
   cat(stitle)
   cat(sode)

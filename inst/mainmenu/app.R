@@ -28,6 +28,10 @@ server <- function(input, output, session) {
     stopping <<- TRUE
     inFile <- input$currentmodel
     if (is.null(inFile)) return(NULL)
+    # loadRData() below was suggesed on Stack Overflow 8/22/14 by user ricardo.
+    # The code was provided for general use in answer to another user's question
+    # about loading data into R. The original source for the code can be found
+    # here: https://stackoverflow.com/questions/5577221/how-can-i-load-an-object-into-a-variable-name-that-i-specify-from-an-r-data-file
     loadRData <- function(filename) {
       load(filename)
       get(ls()[ls() != "filename"])
@@ -42,6 +46,17 @@ server <- function(input, output, session) {
     content = function(file) {
       stopifnot(!is.null(model()))
       generate_ode(model = model(), location = file)
+    },
+    contentType = "text/plain"
+  )
+  
+  output$exportstochastic <- downloadHandler(
+    filename = function() {
+      paste0(gsub(" ","_",model$title),"_RxODE.R")
+    },
+    content = function(file) {
+      stopifnot(!is.null(model()))
+      convert_to_rxode(model = model(), location = file)
     },
     contentType = "text/plain"
   )
