@@ -86,5 +86,5 @@ model$time = time
 
 modelname = gsub(" ","_",model$title)
 rdatafile = paste0(modelname,'.Rdata')
-save(model, file = paste0("./inst/modelexamples", rdatafile))
+save(model, file = rdatafile)
 

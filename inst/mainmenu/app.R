@@ -40,6 +40,22 @@ server <- function(input, output, session) {
   #     if (is.null(inFile))  return(NULL)
   #     load(inFile$datapath)
   # })
+  
+  observeEvent(input$examination, {
+    print(head(model()))
+  })
+  
+  model <- reactive({
+    stopping <<- TRUE
+    inFile <- input$currentmodel
+    # if (is.null(inFile)) return(NULL)
+    # load(inFile$datapath)
+    loadRData <- function(filename) {
+      load(filename)
+      get(ls()[ls() != "filename"])
+    }
+    d <- loadRData(inFile$datapath)
+  })
 
 
   #FOR SPENCER
@@ -53,8 +69,16 @@ server <- function(input, output, session) {
   #     content = function(file) {generate_ode(data = model, location = file)},
   #     contentType = 'text/plain'
   # )
+  
+  output$exportode <- downloadHandler(
+    filename = function() {
+      "output.R"
+    },
+    content = function(file) {generate_ode(model = model(), location = file)},
+    contentType = "text/plain"
+  )
 
-  session$onSessionEnded(function(){
+  session$onSessionEnded(function() {
     if (!stopping) {
       stopApp('Exit')
     }
@@ -72,7 +96,6 @@ ui <- fluidPage(
   p(paste('This is modelbuilder version ',utils::packageVersion("modelbuilder"),' last updated ', utils::packageDescription('modelbuilder')$Date,sep=''), class='infotext'),
 
   h1('Main Menu', align = "center", style = "background-color:#123c66; color:#fff"),
-  h1("Testing to make sure revisions are working correcty"),
   p('Build a new model', class='mainsectionheader'),
     fluidRow(
         column(12,
@@ -83,8 +106,10 @@ ui <- fluidPage(
   p('Load an existing model', class='mainsectionheader'),
   fluidRow(
         column(12,
-                 fileInput("currentmodel", label = "Load a Model", accept = c('.Rdata'), buttonLabel = "Load Model", placeholder = "No model selected"),
+                 fileInput("currentmodel", label = "Load a Model", accept = ".Rdata", buttonLabel = "Load Model", placeholder = "No model selected"),
                align = 'center' ),
+        column(12, 
+               actionButton("examination", "Did you load the model?")),
         class = "mainmenurow"
   ),
   fluidRow(

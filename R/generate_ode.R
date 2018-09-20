@@ -16,20 +16,21 @@
 #' @author Andreas Handel
 #' @export
 
-generate_ode <- function(model, location = NULL)
+generate_ode <- function(model, location) # Originally "location = NULL"
 {
-
     #if the model is passed in as an Rdata file name, load it
     #otherwise, it is assumed that 'model' is a list structure of the right type
-    if(is.character(model)) {load(model)}
+    if (is.character(model)) {load(model)}
 
     #the name of the function produced by this script is simulate_ + "model title" + "_ode.R"
-    filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
+    # filename = paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
+    filename <- location
     savepath = filename #default is current directory for saving the R function
+  
 
     #if location is supplied, that's where the code will be saved to
-    if (!is.null(location)) {savepath = paste0(location,'/',filename)}
-
+    # if (!is.null(location)) {savepath = paste0(location,'/',filename)}
+    
     nvars = length(model$var)  #number of variables/compartments in model
     npars = length(model$par)  #number of parameters in model
     ntime = length(model$time) #numer of parameters for time
