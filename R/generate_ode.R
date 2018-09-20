@@ -23,9 +23,7 @@ generate_ode <- function(model, location) # Originally "location = NULL"
     if (is.character(model)) {load(model)}
 
     #the name of the function produced by this script is simulate_ + "model title" + "_ode.R"
-    # filename = paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
-    filename <- location
-    savepath = filename #default is current directory for saving the R function
+    savepath <- location #default is current directory for saving the R function
   
 
     #if location is supplied, that's where the code will be saved to

@@ -23,58 +23,26 @@ server <- function(input, output, session) {
       stopping <<- TRUE
       stopApp('Exit')
   })
-
-  #FOR SPENCER
-  #this function should load the model as list object 'model',
-  #contained in the .Rdata file selected by the user through the fileInput buttion
-  #example .Rdata model files that are properly formated are in \inst\modelexamples
-  # model <- reactive({
-  #     # input$currentmodel will be NULL initially. After the user selects
-  #     # and uploads a file, it will be a data frame with 'name',
-  #     # 'size', 'type', and 'datapath' columns. The 'datapath'
-  #     # column will contain the local filenames where the data can
-  #     # be found.
-  #     stopping <<- TRUE
-  #     inFile <- input$currentmodel
-  #
-  #     if (is.null(inFile))  return(NULL)
-  #     load(inFile$datapath)
-  # })
-  
-  observeEvent(input$examination, {
-    print(head(model()))
-  })
   
   model <- reactive({
     stopping <<- TRUE
     inFile <- input$currentmodel
-    # if (is.null(inFile)) return(NULL)
-    # load(inFile$datapath)
+    if (is.null(inFile)) return(NULL)
     loadRData <- function(filename) {
       load(filename)
       get(ls()[ls() != "filename"])
     }
     d <- loadRData(inFile$datapath)
   })
-
-
-  #FOR SPENCER
-  #when the user clicks the appropriate downloadButton,
-  #this function should check if a model is loaded.
-  #if yes, it should take the loaded model object, send it to the generate_ode function to produce
-  #R code for an ODE function, and save the function with the filename produced by generate_ode (or specified by user)
-  #in a location of the user's choice
-  # output$exportode <- downloadHandler(
-  #     filename = ,
-  #     content = function(file) {generate_ode(data = model, location = file)},
-  #     contentType = 'text/plain'
-  # )
   
   output$exportode <- downloadHandler(
     filename = function() {
-      "output.R"
+      paste0("simulate_",gsub(" ","_",model()$title),"_ode.R")
     },
-    content = function(file) {generate_ode(model = model(), location = file)},
+    content = function(file) {
+      stopifnot(!is.null(model()))
+      generate_ode(model = model(), location = file)
+    },
     contentType = "text/plain"
   )
 
@@ -107,10 +75,7 @@ ui <- fluidPage(
   fluidRow(
         column(12,
                  fileInput("currentmodel", label = "Load a Model", accept = ".Rdata", buttonLabel = "Load Model", placeholder = "No model selected"),
-               align = 'center' ),
-        column(12, 
-               actionButton("examination", "Did you load the model?")),
-        class = "mainmenurow"
+               align = 'center' )
   ),
   fluidRow(
       column(12,
