@@ -4,7 +4,7 @@
 \alias{generate_ode}
 \title{Create an ODE simulation model that uses deSolve}
 \usage{
-generate_ode(model, location = NULL)
+generate_ode(model, location)
 }
 \arguments{
 \item{model}{model structure, either as list object or Rdata file name}

@@ -24,11 +24,11 @@ generate_ode <- function(model, location) # Originally "location = NULL"
 
     #the name of the function produced by this script is simulate_ + "model title" + "_ode.R"
     savepath <- location #default is current directory for saving the R function
-  
+
 
     #if location is supplied, that's where the code will be saved to
     # if (!is.null(location)) {savepath = paste0(location,'/',filename)}
-    
+
     nvars = length(model$var)  #number of variables/compartments in model
     npars = length(model$par)  #number of parameters in model
     ntime = length(model$time) #numer of parameters for time
@@ -77,7 +77,7 @@ generate_ode <- function(model, location) # Originally "location = NULL"
     ##############################################################################
     #the next block of commands produces the ODE function required by deSolve
     sode = "  #Block of ODE equations for deSolve \n"
-    sode = paste0(sode,"  ", gsub(" ","_",model$title),'_ode <- function(t, y, parms) \n  {\n')
+    sode = paste0(sode,"  ", gsub(" ","_",model$title),'_ode_fct <- function(t, y, parms) \n  {\n')
     sode = paste0(sode,"    with( as.list(c(y,parms)), { #lets us access variables and parameters stored in y and parms by name \n")
 
     #text for equations and final list
@@ -131,7 +131,7 @@ generate_ode <- function(model, location) # Originally "location = NULL"
     smain = "  #Main function code block \n"
 
     smain = paste0(smain,'  timevec=seq(times[1],times[2],by=times[3]) \n')
-    smain = paste0(smain,'  odeout = deSolve::ode(y = vars, parms = pars, times = timevec,  func = ',gsub(" ","_",model$title),'_ode) \n')
+    smain = paste0(smain,'  odeout = deSolve::ode(y = vars, parms = pars, times = timevec,  func = ',gsub(" ","_",model$title),'_ode_fct) \n')
     smain = paste0(smain,'  result <- list() \n');
     smain = paste0(smain,'  result$ts <- as.data.frame(odeout) \n')
     smain = paste0(smain,'  return(result) \n')
