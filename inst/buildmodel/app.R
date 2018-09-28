@@ -28,29 +28,34 @@ server <- function(input, output)
         browser()
     })
 
+    #define number of variables globally, is updated based on user pressing add/delete variables
+    values = reactiveValues()
+    values$nvar <- 1
+
     #add a new variable
     observeEvent(input$addvar, {
+        values$nvar = values$nvar + 1
         insertUI(
-            selector = paste0("#var", input$addvar, 'slot'),
+            selector = paste0("#var", values$nvar - 1, 'slot'), #current variable
             where = "afterEnd",
             ## wrap element in a div with id for ease of removal
             ui = tags$div(
 
                 fluidRow( class = 'myrow',
                            column(2,
-                                  textInput(paste0("var", input$addvar), "Variable Name")
+                                  textInput(paste0("var", values$nvar), "Variable Name")
                            ),
                            column(3,
-                                  textInput(paste0("var", input$addvar,'desc'), "Variable Description")
+                                  textInput(paste0("var", values$nvar,'desc'), "Variable Description")
                            ),
                            column(2,
-                                  numericInput(paste0("var", input$addvar,'start'), "Starting value", value = 0)
+                                  numericInput(paste0("var", values$nvar,'start'), "Starting value", value = 0)
                            )
                           ),
                 fluidRow(
-                                  textInput(paste0("var", input$addvar, 'f'), "Flows")
+                                  textInput(paste0("var", values$nvar, 'f'), "Flows")
                            ),
-                id = paste0("var", input$addvar, 'slot')
+                id = paste0("var", values$nvar, 'slot')
             ) #close tags$div
         ) #close insertUI
     }) #close observeevent
@@ -58,9 +63,12 @@ server <- function(input, output)
 
     #remove the last variable
      observeEvent(input$rmvar, {
+         if (values$nvar == 1) return() #don't remove the last variable
          removeUI(
-             selector = paste0("var", input$addvar + 1, 'slot')
+             selector = paste0("#var", values$nvar, 'slot'),
+             immediate = TRUE
         )
+       values$nvar = values$nvar - 1
      })
 
 
@@ -128,8 +136,24 @@ ui <- fluidPage(
                          )
                 ),
               p('Model variable information', class='mainsectionheader'),
-              tags$div(id = 'var1slot'),
+              ## wrap element in a div with id
+              tags$div(
 
+                      fluidRow( class = 'myrow',
+                                column(2,
+                                       textInput("var1", "Variable Name")
+                                ),
+                                column(3,
+                                       textInput("var1desc", "Variable Description")
+                                ),
+                                column(2,
+                                       numericInput("var1start", "Starting value", value = 0)
+                                )
+                      ),
+                      fluidRow(
+                          textInput("var1f", "Flows")
+                      ),
+                      id = 'var1slot'),
               p('Model parameter information', class='mainsectionheader')
 
         ), #end input column
