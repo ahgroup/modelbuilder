@@ -35,6 +35,8 @@ generate_diagram <- function(model) {
     #if more, we start a new row
     cmax = 4
 
+    browser()
+
     #rep(min(cmax,nvars),ceiling(nvars/cmax)
 
     #add flow arrows to compartments
