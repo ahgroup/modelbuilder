@@ -8,11 +8,14 @@ server <- function(input, output, session) {
   stopping <- FALSE
 
 
+  #should eventually be replaced by calling the 'build module' instead of a different shiny app
+  #currently not working/existing, can be ignored for now
   observeEvent(input$buildmodel, {
       stopping <<- TRUE
       stopApp('buildmodel')
   })
 
+  #should be replaced by calling the 'analyze module' instead of a different shiny app
   observeEvent(input$analyzemodel, {
       stopping <<- TRUE
       stopApp('analyzemodel')

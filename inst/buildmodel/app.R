@@ -28,29 +28,40 @@ server <- function(input, output)
         browser()
     })
 
+    #define number of variables and parameters globally, is updated based on user pressing add/delete variables/parameters
+    values = reactiveValues()
+    values$nvar <- 1
+    values$npar <- 1
+
     #add a new variable
     observeEvent(input$addvar, {
+        values$nvar = values$nvar + 1
         insertUI(
-            selector = paste0("#var", input$addvar, 'slot'),
+            selector = paste0("#var", values$nvar - 1, 'slot'), #current variable
             where = "afterEnd",
             ## wrap element in a div with id for ease of removal
             ui = tags$div(
 
                 fluidRow( class = 'myrow',
                            column(2,
-                                  textInput(paste0("var", input$addvar), "Variable Name")
+                                  textInput(paste0("var", values$nvar), "Variable Name")
                            ),
                            column(3,
-                                  textInput(paste0("var", input$addvar,'desc'), "Variable Description")
+                                  textInput(paste0("var", values$nvar,'desc'), "Variable Description")
                            ),
                            column(2,
-                                  numericInput(paste0("var", input$addvar,'start'), "Starting value", value = 0)
+                                  numericInput(paste0("var", values$nvar,'start'), "Starting value", value = 0)
                            )
                           ),
                 fluidRow(
-                                  textInput(paste0("var", input$addvar, 'f'), "Flows")
-                           ),
-                id = paste0("var", input$addvar, 'slot')
+                        column(6,
+                                  textInput(paste0("var", values$nvar, 'f'), "Flow")
+                        ),
+                        column(6,
+                               textInput(paste0("var", values$nvar, 'fdesc'), "Flow descrpition")
+                        )
+                ),
+                id = paste0("var", values$nvar, 'slot')
             ) #close tags$div
         ) #close insertUI
     }) #close observeevent
@@ -58,9 +69,48 @@ server <- function(input, output)
 
     #remove the last variable
      observeEvent(input$rmvar, {
+         if (values$nvar == 1) return() #don't remove the last variable
          removeUI(
-             selector = paste0("var", input$addvar + 1, 'slot')
+             selector = paste0("#var", values$nvar, 'slot'),
+             immediate = TRUE
         )
+       values$nvar = values$nvar - 1
+     })
+
+
+     #add a new parameter
+     observeEvent(input$addpar, {
+         values$npar = values$npar + 1
+         insertUI(
+             selector = paste0("#par", values$npar - 1, 'slot'), #current variable
+             where = "afterEnd",
+             ## wrap element in a div with id for ease of removal
+             ui = tags$div(
+
+                 fluidRow( class = 'myrow',
+                           column(2,
+                                  textInput(paste0("par", values$nvar), "Parameter Name")
+                           ),
+                           column(3,
+                                  textInput(paste0("par", values$nvar,'desc'), "Parameter Description")
+                           ),
+                           column(2,
+                                  numericInput(paste0("par", values$nvar,'start'), "Default value", value = 0)
+                           )
+                 ),
+                 id = paste0("par", values$npar, 'slot')
+             ) #close tags$div
+         ) #close insertUI
+     }) #close observeevent
+
+     #remove the last parameter
+     observeEvent(input$rmpar, {
+         if (values$npar == 1) return() #don't remove the last variable
+         removeUI(
+             selector = paste0("#par", values$npar, 'slot'),
+             immediate = TRUE
+         )
+         values$npar = values$npar - 1
      })
 
 
@@ -84,17 +134,33 @@ ui <- fluidPage(
                downloadButton("savediagram", "Save Diagram", class="savebutton")
         ),
         column(4,
-               actionButton("saveequations", "Save Equations", class="savebutton")
+               downloadButton("saveequations", "Save Equations", class="savebutton")
         ),
         align = "center"
     ),
     tags$br(),
     fluidRow(
-        column(6,
-               actionButton("addvar", "Add Variable", class="submitbutton")
+        column(4,
+               actionButton("addvar", "Add variable", class="submitbutton")
         ),
-        column(6,
+        column(4,
+               actionButton("addpar", "Add parameter", class="submitbutton")
+        ),
+        column(4,
+               actionButton("addflow", "Add flow to variable", class="submitbutton")
+        ),
+        align = "center"
+    ),
+    fluidRow(
+        column(4,
                actionButton("rmvar", "Remove last Variable", class="submitbutton")
+        ),
+        column(4,
+               actionButton("rmpar", "Remove last Parameter", class="submitbutton")
+        ),
+        column(4,
+               actionButton("rmflow", "Remove flow of variable", class="submitbutton"),
+               numericInput("delvar", "Selected variable", value = 1)
         ),
         align = "center"
     ),
@@ -128,11 +194,40 @@ ui <- fluidPage(
                          )
                 ),
               p('Model variable information', class='mainsectionheader'),
-              tags$div(id = 'var1slot'),
+              ## wrap element in a div with id
+              tags$div(
 
-              p('Model parameter information', class='mainsectionheader')
+                      fluidRow( class = 'myrow',
+                                column(2,
+                                       textInput("var1", "Variable Name")
+                                ),
+                                column(3,
+                                       textInput("var1desc", "Variable Description")
+                                ),
+                                column(2,
+                                       numericInput("var1start", "Starting value", value = 0)
+                                )
+                      ),
+                      fluidRow(
+                          textInput("var1f", "Flows")
+                      ),
+                      id = 'var1slot'),
+              p('Model parameter information', class='mainsectionheader'),
+              tags$div(
 
-        ), #end input column
+                  fluidRow( class = 'myrow',
+                            column(2,
+                                   textInput("par1", "Parameter Name")
+                            ),
+                            column(3,
+                                   textInput("par1desc", "Parameter Description")
+                            ),
+                            column(2,
+                                   numericInput("par1start", "Default value", value = 0)
+                            )
+                  ),
+                  id = 'par1slot')
+        ) , #end input column
         #all the outcomes here
         column(
             6,

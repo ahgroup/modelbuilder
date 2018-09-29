@@ -49,7 +49,7 @@ par[[1]]$parval = 1e-4
 
 par[[2]]$parname = 'be'
 par[[2]]$partext = 'environmental transmission rate'
-par[[2]]$parval = 0.0001
+par[[2]]$parval = 0
 
 par[[3]]$parname = 'm'
 par[[3]]$partext = 'birth rate'
@@ -65,7 +65,7 @@ par[[5]]$parval =  0.2
 
 par[[6]]$parname = 'p'
 par[[6]]$partext = 'rate at which infected host shed pathogen into the environment'
-par[[6]]$parval = 1
+par[[6]]$parval = 0
 
 par[[7]]$parname = 'c'
 par[[7]]$partext = 'rate at which pathogen in the environment decays'
