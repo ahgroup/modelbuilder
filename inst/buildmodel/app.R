@@ -7,40 +7,51 @@ server <- function(input, output)
         stopApp(returnValue = NULL)
     })
 
-    # #on save button, the model should be saved to an Rdata file
-    # not working
-    # output$savemodel <- downloadHandler(
-    #     filename = function() {
-    #         #paste0(gsub(" ","_",input$modeltitle), ".Rdata")
-    #         paste("data-", Sys.Date(), ".Rdata", sep="")
-    #     },
-    #     content = function(file) {
-    #         model = list()
-    #
-    #         save(model, file)
-    #     }
-    # )
+    #writes model to Rdata file
+    #not working
+    output$savemodel <- downloadHandler(
+        filename = function() {
+            paste0(gsub(" ","_",model()$title),".Rdata")
+        },
+        content = function(file) {
+            stopifnot(!is.null(model()))
+            save(model = model(), file = file)
+        },
+        contentType = "text/plain"
+    )
 
-    #structure that holds the model
-    model = list()
 
-    #make the model, i.e. write inputs into structure
-    #also plot diagram and equations
-    mymodel <- observeEvent(input$makemodel, {
+    #when user presses the 'make model' button
+    #this function reads all the inputs and writes them into the model structure
+    #and returns the structure
+    #eventually, this button press should also trigger routines that create and
+    #plot diagram and equations
+    model <- eventReactive(input$makemodel, {
+        #structure that holds the model
+        model = list()
+
         model$title <- isolate(input$modeltitle)
         model$author <- isolate(input$modelauthor)
         model$textription <- isolate(input$modeltextription)
         model$details = isolate(input$modeldetails)
         model$date = Sys.Date()
-
         var = vector("list",values$nvar)
         for (n in 1:values$nvar)
         {
             var[[n]]$varname = isolate(eval(parse(text = paste0("input$var",n,"name") )))
             var[[n]]$vartext = isolate(eval(parse(text = paste0("input$var",n,"text") )))
             var[[n]]$varval = isolate(eval(parse(text = paste0("input$var",n,"val") )))
-            #var[[1]]$flows = c('-b*S*I')
-            #var[[1]]$flownames = c('infection of susceptibles')
+            allflows = NULL
+            allflowtext = NULL
+            for (f in 1:values$nflow[n]) #turn all flows and descriptions into vector
+            {
+               newflow = isolate(eval(parse(text = paste0("input$var", input$targetvar, 'f' , values$nflow[input$targetvar],'name'))))
+               newflowtext = isolate(eval(parse(text = paste0("input$var", input$targetvar, 'f' , values$nflow[input$targetvar],'text'))))
+            allflows = c(allflows,newflow)
+            allflowtext = c(allflowtext, newflowtext)
+            }
+            var[[n]]$flows = allflows
+            var[[n]]$flownames = allflowtext
         }
         model$var = var
 
@@ -53,10 +64,26 @@ server <- function(input, output)
 
         }
         model$par = par
-        browser()
+
+        time = vector("list",3)
+        time[[1]]$timename = "tstart"
+        time[[1]]$timetext = "Start time of simulation"
+        time[[1]]$timeval = isolate(eval(parse(text = paste0("input$tval") )))
+
+        time[[2]]$timename = "tfinal"
+        time[[2]]$timetext = "Final time of simulation"
+        time[[2]]$timeval = isolate(eval(parse(text = paste0("input$tfinal") )))
+
+        time[[3]]$timename = "dt"
+        time[[3]]$timetext = "Time step"
+        time[[3]]$timeval = isolate(eval(parse(text = paste0("input$dt") )))
+
+        model$time = time
+
+        #add call to functions somewhere here that plot diagram and make equations
+
+        return(model)
     })
-
-
 
     # just to allow debugging right now
     observeEvent(input$saveequations, {
@@ -92,10 +119,10 @@ server <- function(input, output)
                 tags$div(
                     fluidRow(
                         column(6,
-                                  textInput(paste0("var", values$nvar, 'f'), "Flow")
+                                  textInput(paste0("var", values$nvar, 'f1name'), "Flow")
                         ),
                         column(6,
-                               textInput(paste0("var", values$nvar, 'ftext'), "Flow description")
+                               textInput(paste0("var", values$nvar, 'f1text'), "Flow description")
                         )
                 ),
                 id = paste0("var", values$nvar, "flow", values$nflow[values$nvar], 'slot')
@@ -129,10 +156,10 @@ server <- function(input, output)
                  tags$div(
                      fluidRow(
                          column(6,
-                                textInput(paste0("var", values$nvar, 'f'), "Flow")
+                                textInput(paste0("var", input$targetvar, 'f' , values$nflow[input$targetvar],'name'), "Flow")
                          ),
                          column(6,
-                                textInput(paste0("var", values$nvar, 'ftext'), "Flow description")
+                                textInput(paste0("var", input$targetvar, 'f' , values$nflow[input$targetvar],'text'), "Flow description")
                          )
                      ),
                      id = paste0("var", input$targetvar, "flow", values$nflow[input$targetvar], 'slot')
