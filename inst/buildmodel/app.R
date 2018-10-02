@@ -1,6 +1,12 @@
 server <- function(input, output)
 {
 
+    # if a model exists, read it and populate UI with its values
+    if (!is.null(model))
+    {
+
+    }
+
     # Waits for the Exit Button to be pressed to stop the app and return to main menu
     observeEvent(input$exitBtn, {
         input$exitBtn
@@ -24,8 +30,10 @@ server <- function(input, output)
     #when user presses the 'make model' button
     #this function reads all the inputs and writes them into the model structure
     #and returns the structure
-    #eventually, this button press should also trigger routines that create and
-    #plot diagram and equations
+    #NEEDED: Before/while building the model, this routine needs to check all inputs and make sure everything is correct
+    #All variables and parameters and flows need to follow naming rules
+    #flows may only contain variables, parameters and math symbols
+    #any variable or parameter listed in flows needs to be specified as variable or parameter
     model <- eventReactive(input$makemodel, {
         #structure that holds the model
         model = list()
@@ -45,8 +53,8 @@ server <- function(input, output)
             allflowtext = NULL
             for (f in 1:values$nflow[n]) #turn all flows and descriptions into vector
             {
-               newflow = isolate(eval(parse(text = paste0("input$var", input$targetvar, 'f' , values$nflow[input$targetvar],'name'))))
-               newflowtext = isolate(eval(parse(text = paste0("input$var", input$targetvar, 'f' , values$nflow[input$targetvar],'text'))))
+               newflow = isolate(eval(parse(text = paste0("input$var", n, 'f' , f,'name'))))
+               newflowtext = isolate(eval(parse(text = paste0("input$var", n, 'f' , f,'text'))))
             allflows = c(allflows,newflow)
             allflowtext = c(allflowtext, newflowtext)
             }
@@ -85,10 +93,17 @@ server <- function(input, output)
         return(model)
     })
 
-    # just to allow debugging right now
-    observeEvent(input$saveequations, {
-        browser()
-    })
+    # make and display equations
+    output$equations =  renderUI( withMathJax(generate_equations(model()) ) )
+    #reactive( {
+    #    if (!is.null(model()))
+    #    {
+    #    output$equations =  renderUI( withMathJax(generate_equations(model()) ) )
+    #    }
+    #})
+
+    output$diagram = renderPlot( generate_diagram(model()))
+
 
     #define number of variables and parameters globally, is updated based on user pressing add/delete variables/parameters
     values = reactiveValues()
@@ -221,6 +236,7 @@ server <- function(input, output)
 #The UI for the app that allows building of models
 ui <- fluidPage(
     includeCSS("../media/modelbuilder.css"),
+    withMathJax(),
     #add header and title
     div( includeHTML("../media/header.html"), align = "center"),
     fluidRow(
@@ -228,18 +244,48 @@ ui <- fluidPage(
         align = "center"
     ),
     tags$br(),
+    p('General model information', class='mainsectionheader'),
     fluidRow(
         column(4,
+               textInput("modeltitle", "Model Name")
+        ),
+        column(4,
+               textInput("modelauthor", "Author")
+        ),
+        column(4,
+               textInput("modeldescription", "One sentence model description")
+        ),
+        align = "center"
+    ),
+    fluidRow(
+        textAreaInput("modeldetails", "Long model description"),
+        align = "center"
+    ),
+    p('Model time information', class='mainsectionheader'),
+    fluidRow(
+        column(4,
+               numericInput("tval", "Start time", value = 0)
+        ),
+        column(4,
+               numericInput("tfinal", "Final time", value = 100)
+        ),
+        column(4,
+               numericInput("dt", "Time step", value = 0.1)
+        )
+    ),
+
+
+    tags$p('All variables need to start with an uppercase letter, all parameters need to start with a lowercase letter. Only letters and numbers are allowed. Flows need to include variables, parameters and the following mathematical symbols: +,-,*,/,^,()'),
+    fluidRow(
+        actionButton('makemodel', "Generate model", class="savebutton"),
+        align = "center"
+    ),
+    fluidRow(
+        column(6,
                downloadButton('savemodel', "Save Model", class="savebutton")
         ),
-        column(4,
-               actionButton('makemodel', "Make model", class="savebutton")
-        ),
-        column(4,
+        column(6,
                downloadButton("savediagram", "Save Diagram", class="savebutton")
-        ),
-        column(4,
-               actionButton("saveequations", "Save Equations", class="savebutton")
         ),
         align = "center"
     ),
@@ -270,34 +316,7 @@ ui <- fluidPage(
         align = "center"
     ),
     fluidRow( class = 'myrow', #splits screen into 2 for input/output
-              column(
-                  6,
-                p('General model information', class='mainsectionheader'),
-                fluidRow(
-
-                column(6,
-                    textInput("modeltitle", "Model Name")
-                ),
-                column(6,
-                       textInput("modelauthor", "Author")
-                )),
-
-                textInput("modeldescription", "One sentence model description"),
-                textAreaInput("modeldetails", "Long model description"),
-
-              p('Model time information', class='mainsectionheader'),
-              fluidRow(
-
-                  column(4,
-                         numericInput("tval", "Start time", value = 0)
-                  ),
-                  column(4,
-                         numericInput("tfinal", "Final time", value = 100)
-                         ),
-                  column(4,
-                         numericInput("dt", "Time step", value = 0.1)
-                         )
-                ),
+              column(6,
               p('Model variable information', class='mainsectionheader'),
               ## wrap element in a div with id
               tags$div(
@@ -327,7 +346,6 @@ ui <- fluidPage(
                       id = 'var1slot'), #close var div
               p('Model parameter information', class='mainsectionheader'),
               tags$div(
-
                   fluidRow( class = 'myrow',
                             column(2,
                                    textInput("par1name", "Parameter name")
@@ -347,10 +365,10 @@ ui <- fluidPage(
 
             #################################
             h2('Model Diagram'),
-            #plotOutput(outputId = "plot", height = "500px"),
+            plotOutput(outputId = "diagram", height = "500px"),
             # PLaceholder for results of type text
-            h2('Model Equations')
-            #htmlOutput(outputId = "text"),
+            h2('Model Equations'),
+            uiOutput(outputId = "equations")
         ) #end column for outcomes
     ) #end split input/output section
 ) #end fluid page

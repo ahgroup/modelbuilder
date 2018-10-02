@@ -2,6 +2,7 @@
 
 export(generate_diagram)
 export(generate_discrete)
+export(generate_equations)
 export(generate_fctcall)
 export(generate_ode)
 export(generate_plots)
