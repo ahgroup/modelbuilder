@@ -30,14 +30,17 @@ generate_diagram <- function(model) {
     flowmatred = sub("\\+|-","",flowmat)   #strip leading +/- from flows
     signmat =  gsub("(\\+|-).*","\\1",flowmat) #extract only the + or - signs from flows so we know the direction
 
+    library(diagram)
+
+    graphics.off()
+
     #compartments are organized on a grid
     #we place a max of cmax compartments per row
     #if more, we start a new row
     cmax = 4
+    elpos = coordinates(pos = rep(min(cmax,nvars),ceiling(nvars/cmax)))
 
-    browser()
-
-    #rep(min(cmax,nvars),ceiling(nvars/cmax)
+    openplotmat(main = "model")
 
     #add flow arrows to compartments
     #want to do flows before compartments so boxes cover part of arrows
@@ -59,12 +62,12 @@ generate_diagram <- function(model) {
             #if no other variable, make a flow that goes from current compartment to nowhere
             if (length(connectvars) == 1 && currentsign == "+") #an inflow
             {
-                straightarrow(from=elpos[i,]+c(0,0.1),to=elpos[i,])
+                diagram::straightarrow(from=elpos[i,]+c(0,0.1),to=elpos[i,])
                 text(elpos[i,1],elpos[i,2]+0.12,currentflow)
             }
             if (length(connectvars) == 1 && currentsign == "-") #an outflow
             {
-                straightarrow(from=elpos[i,],to=elpos[i,]-c(0,0.1), arr.pos = 1)
+                diagram::straightarrow(from=elpos[i,],to=elpos[i,]-c(0,0.1), arr.pos = 1)
                 text(elpos[i,1],elpos[i,2]-0.14,currentflow)
             }
             #if one other variable, connect with arrow
@@ -73,7 +76,7 @@ generate_diagram <- function(model) {
                 linkvar = connectvars[which(connectvars != i)] #find number of variable to link to
                 if (abs(linkvar-i)==1) #if the variables are neighbors, make straight arrow, otherwise curved
                 {
-                    straightarrow(from=elpos[linkvar,],to=elpos[i,])
+                    diagram::straightarrow(from=elpos[linkvar,],to=elpos[i,])
                     #text(elpos[i,1]+0.1,elpos[i,2]+0.05,currentflow)
                 }
                 else
@@ -100,11 +103,9 @@ generate_diagram <- function(model) {
             #could possibly be implemented using treearrow
         } #end loop over flows for each variable
     } #end loop over all variables
-
     #place all compartments sequentially
     for (i in 1:nvars)
     {
         diagram::textrect(mid=elpos[i,],radx=0.05,shadow.size=0.01,lab=varnames[i],box.col='lightblue')
     }
-    browser()
 }
