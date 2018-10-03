@@ -17,6 +17,7 @@ server <- function(input, output, session) {
 
   #should be replaced by calling the 'analyze module' instead of a different shiny app
   observeEvent(input$analyzemodel, {
+      analyze_model(wd = wd, input = input)
       stopping <<- TRUE
       stopApp('analyzemodel')
   })
