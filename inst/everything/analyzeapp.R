@@ -53,7 +53,6 @@ server <- function(input, output, session)
             source(paste0(location,filename)) #source file
         }
 
-        print(input) # Debugging line
         #parses the model and creates the code to call/run the simulation
         fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
 
