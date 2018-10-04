@@ -3,7 +3,8 @@
 #this function is the server part of the app
 server <- function(input, output, session) {
 
-  appNames <- c('buildmodel','analyzemodel','Exit') #options
+  appNames <- c('buildmodel','Exit') #options
+  # Changed from appNames <- c('buildmodel', 'analyzemodel', 'Exit')
 
   stopping <- FALSE
 
@@ -22,11 +23,35 @@ server <- function(input, output, session) {
       # stopping <<- TRUE
       # stopApp('analyzemodel')
       insertUI(
-          selector = "#add",
+          selector = "#analyzemodel",
           where = "afterEnd",
-          ui = numericInput("decimal", "Decimal?", value = 0)
-      )
-  })
+          ui = tags$div(
+              fluidRow(
+                  column(
+                      6,
+                      h2('Simulation Settings'),
+                      column(
+                          6,
+                          uiOutput("vars"),
+                          uiOutput("time")
+                      ),
+                      column(
+                          6,
+                          uiOutput("pars"),
+                          numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
+                          selectInput("modeltype", "Models to run",c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = '1'),
+                          numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
+                          selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both"))
+                      ))
+              ) # End of fluidRow
+          ) # End of ui
+      ) # End of insertUI
+
+      # Now do analysis with analyze_model()
+      wd <- getwd()
+      analyze_model(wd = wd, modeltype = input$modeltype)
+
+  }) # End of observeEvent() for analyzemodel
 
   observeEvent(input$Exit, {
       stopping <<- TRUE
@@ -125,7 +150,7 @@ ui <- fluidPage(
              actionButton("buildmodel", "Modify current model", class="mainbutton")
       ),
       column(6,
-             actionButton("analyzemodel", "Analyze current model", class="mainbutton")
+             actionButton("analyzemodel", "Analyze current model", class = "mainbutton")
       ),
       class = "mainmenurow"
   ), #close fluidRow structure for input
