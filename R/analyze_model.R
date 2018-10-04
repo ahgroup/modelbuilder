@@ -5,7 +5,7 @@ analyze_model <- function(wd, input) {
   currentdir <- wd
   rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
   load(rdatafile)
-  
+
   # Print input
-  print(input)
+  print(input$modeltype)
 }
