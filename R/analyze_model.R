@@ -8,4 +8,5 @@ analyze_model <- function(wd, modeltype) {
 
   # Print input
   print(modeltype)
+  print(wd)
 }
