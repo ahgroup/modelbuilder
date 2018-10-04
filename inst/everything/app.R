@@ -39,19 +39,22 @@ server <- function(input, output, session) {
                           6,
                           uiOutput("pars"),
                           numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
-                          selectInput("modeltype", "Models to run",c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = '1'),
+                          selectInput("modeltype", "Models to run", c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = '1'),
                           numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
-                          selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both"))
+                          selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both")),
+                          actionButton("process", "Process inputs", class = "mainbutton")
                       ))
               ) # End of fluidRow
           ) # End of ui
       ) # End of insertUI
-
-      # Now do analysis with analyze_model()
-      wd <- getwd()
-      analyze_model(wd = wd, modeltype = input$modeltype)
-
   }) # End of observeEvent() for analyzemodel
+
+  observeEvent(input$process, {
+      wd <- getwd()
+      analyze_model(wd = wd, modeltype = input$modeltype,
+                    rngseed = input$rngseed, nreps = input$nreps,
+                    plotscale = input$plotscale)
+  })
 
   observeEvent(input$Exit, {
       stopping <<- TRUE
