@@ -20,8 +20,8 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
       source(paste0(location,filename)) #source file
   }
 
-  print(model) # Debugging line
-  # print(input[[model]]) # Debugging line
+  # print(model) # Debugging line
+  print(input[[model$var[[1]]$varname]]) # Debugging line
 
   #parses the model and creates the code to call/run the simulation
   # fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
