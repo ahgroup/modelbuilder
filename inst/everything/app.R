@@ -24,10 +24,7 @@ server <- function(input, output, session) {
       insertUI(
           selector = "#add",
           where = "afterEnd",
-          ui = tags$div(
-              textInput("hello", "Hello", value = ""),
-              numericInput("decimal", "Decimal?", value = 0)
-          )
+          ui = numericInput("decimal", "Decimal?", value = 0)
       )
   })
 
