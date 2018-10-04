@@ -1,6 +1,6 @@
 ## analyze_model.R
 
-analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale) {
+analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
   # Set current working directory and load Rdata file
   currentdir <- wd
   rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
