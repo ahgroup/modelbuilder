@@ -7,5 +7,5 @@ analyze_model <- function(wd, input) {
   load(rdatafile)
 
   # Print input
-  print(input$modeltype)
+  print(vars)
 }

@@ -17,10 +17,18 @@ server <- function(input, output, session) {
 
   #should be replaced by calling the 'analyze module' instead of a different shiny app
   observeEvent(input$analyzemodel, {
-      wd <- getwd()
-      analyze_model(wd = wd, input = input)
-      stopping <<- TRUE
-      stopApp('analyzemodel')
+      # wd <- getwd()
+      # analyze_model(wd = wd, input = input)
+      # stopping <<- TRUE
+      # stopApp('analyzemodel')
+      insertUI(
+          selector = "#add",
+          where = "afterEnd",
+          ui = tags$div(
+              textInput("hello", "Hello", value = ""),
+              numericInput("decimal", "Decimal?", value = 0)
+          )
+      )
   })
 
   observeEvent(input$Exit, {
