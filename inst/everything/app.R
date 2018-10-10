@@ -3,7 +3,8 @@
 #this function is the server part of the app
 server <- function(input, output, session) {
 
-  appNames <- c('buildmodel','analyzemodel','Exit') #options
+  appNames <- c('buildmodel','Exit') #options
+  # Changed from appNames <- c('buildmodel', 'analyzemodel', 'Exit')
 
   stopping <- FALSE
 
@@ -17,8 +18,59 @@ server <- function(input, output, session) {
 
   #should be replaced by calling the 'analyze module' instead of a different shiny app
   observeEvent(input$analyzemodel, {
-      stopping <<- TRUE
-      stopApp('analyzemodel')
+      insertUI(
+          selector = "#analyzemodel",
+          where = "afterEnd",
+          ui = tags$div(
+              fluidRow(
+                  column(
+                      12,
+                      h2('Simulation Settings'),
+                         uiOutput("pars"),
+                         numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
+                         selectInput("modeltype", "Models to run", c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = '1'),
+                         numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
+                         selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both")),
+                         actionButton("process", "Process inputs", class = "mainbutton")
+                      ) # End of column
+                  ) # End of fluidRow
+              ) # End of ui
+          ) # End of insertUI
+  }) # End of observeEvent() for analyzemodel
+
+  observeEvent(input$process, {
+      wd <- getwd()
+      r <- analyze_model(wd = wd, modeltype = input$modeltype,
+                    rngseed = input$rngseed, nreps = input$nreps,
+                    plotscale = input$plotscale, input = input,
+                    input_model = model())
+      #create plot from results
+      output$plot  <- renderPlot({
+          generate_plots(r)
+      }, width = 'auto', height = 'auto')
+
+      #create text from results
+      output$text <- renderText({
+          generate_text(r)     #create text for display with a non-reactive function
+      })
+      insertUI(selector = "#process",
+               where = "afterEnd",
+               ui = tags$div(
+                   fluidRow(
+                       column(
+                           12,
+                           #################################
+                           #Start with results on top
+                           h2('Simulation Results'),
+                           plotOutput(outputId = "plot",
+                                      width = "50%",
+                                      height = "500px"),
+                           # Placeholder for results of type text
+                           textOutput(outputId = "text"),
+                           tags$hr()
+                       ) #end main panel column with outcomes
+                   )
+               )) # End of insertUI
   })
 
   observeEvent(input$Exit, {
@@ -114,11 +166,13 @@ ui <- fluidPage(
 
   p('Work on the currently loaded model', class='mainsectionheader'),
   fluidRow(
-      column(6,
+      column(12,
              actionButton("buildmodel", "Modify current model", class="mainbutton")
-      ),
-      column(6,
-             actionButton("analyzemodel", "Analyze current model", class="mainbutton")
+      )
+  ),
+  fluidRow(
+      column(12,
+             actionButton("analyzemodel", "Analyze current model", class = "mainbutton")
       ),
       class = "mainmenurow"
   ), #close fluidRow structure for input
