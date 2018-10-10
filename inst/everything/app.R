@@ -51,9 +51,8 @@ server <- function(input, output, session) {
 
   observeEvent(input$process, {
       wd <- getwd()
-      print(d)
-      print(input[[d]])
-      print(input[[d$var[[1]]$varname]]) # Debugging line
+      print(model())
+      print(model()$var[[1]]$varname) # Debugging line
       analyze_model(wd = wd, modeltype = input$modeltype,
                     rngseed = input$rngseed, nreps = input$nreps,
                     plotscale = input$plotscale, input = input)
