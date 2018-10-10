@@ -50,10 +50,12 @@ server <- function(input, output, session) {
   }) # End of observeEvent() for analyzemodel
 
   observeEvent(input$process, {
+      print(model)
       wd <- getwd()
       analyze_model(wd = wd, modeltype = input$modeltype,
                     rngseed = input$rngseed, nreps = input$nreps,
-                    plotscale = input$plotscale, input = input)
+                    plotscale = input$plotscale, input = input,
+                    model = model)
   })
 
   observeEvent(input$Exit, {
