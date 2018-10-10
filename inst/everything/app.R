@@ -53,7 +53,7 @@ server <- function(input, output, session) {
       wd <- getwd()
       analyze_model(wd = wd, modeltype = input$modeltype,
                     rngseed = input$rngseed, nreps = input$nreps,
-                    plotscale = input$plotscale, input = input
+                    plotscale = input$plotscale, input = input,
                     input_model = model())
   })
 
