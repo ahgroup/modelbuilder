@@ -1,6 +1,6 @@
 ## analyze_model.R
 
-analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
+analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, input_model) {
   # Set current working directory and load Rdata file
   currentdir <- wd
   rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
@@ -22,6 +22,7 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
 
   # print(model) # Debugging line
   # print(input[[model$var[[1]]$varname]]) # Debugging line
+  print(input_model$var[[1]]$varname) # Debugging line
 
   #parses the model and creates the code to call/run the simulation
   fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
