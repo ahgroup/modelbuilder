@@ -24,25 +24,18 @@ server <- function(input, output, session) {
           ui = tags$div(
               fluidRow(
                   column(
-                      6,
+                      12,
                       h2('Simulation Settings'),
-                      column(
-                          6,
-                          uiOutput("vars"),
-                          uiOutput("time")
-                      ),
-                      column(
-                          6,
-                          uiOutput("pars"),
-                          numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
-                          selectInput("modeltype", "Models to run", c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = '1'),
-                          numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
-                          selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both")),
-                          actionButton("process", "Process inputs", class = "mainbutton")
-                      ))
-              ) # End of fluidRow
-          ) # End of ui
-      ) # End of insertUI
+                         uiOutput("pars"),
+                         numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
+                         selectInput("modeltype", "Models to run", c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = '1'),
+                         numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
+                         selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both")),
+                         actionButton("process", "Process inputs", class = "mainbutton")
+                      ) # End of column
+                  ) # End of fluidRow
+              ) # End of ui
+          ) # End of insertUI
   }) # End of observeEvent() for analyzemodel
 
   observeEvent(input$process, {
@@ -69,9 +62,11 @@ server <- function(input, output, session) {
                            #################################
                            #Start with results on top
                            h2('Simulation Results'),
-                           plotOutput(outputId = "plot", height = "500px"),
+                           plotOutput(outputId = "plot",
+                                      width = "50%",
+                                      height = "500px"),
                            # Placeholder for results of type text
-                           htmlOutput(outputId = "text"),
+                           textOutput(outputId = "text"),
                            tags$hr()
                        ) #end main panel column with outcomes
                    )
@@ -171,10 +166,12 @@ ui <- fluidPage(
 
   p('Work on the currently loaded model', class='mainsectionheader'),
   fluidRow(
-      column(6,
+      column(12,
              actionButton("buildmodel", "Modify current model", class="mainbutton")
-      ),
-      column(6,
+      )
+  ),
+  fluidRow(
+      column(12,
              actionButton("analyzemodel", "Analyze current model", class = "mainbutton")
       ),
       class = "mainmenurow"
