@@ -54,7 +54,7 @@ server <- function(input, output, session)
         }
 
         #parses the model and creates the code to call/run the simulation
-        print(input[[model$var[[n]]$varname]]) # Debugging line
+        print(input[[model$var[[1]]$varname]]) # Debugging line
         fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
 
 
