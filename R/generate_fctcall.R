@@ -10,7 +10,7 @@
 #' @author Andreas Handel
 #' @export
 
-generate_fctcall <- function(input,model,modeltype)
+generate_fctcall <- function(input,model,modeltype, input_model)
 {
     #process all variables, parameters and times from the model structure
     #to create the input string for the main function call
@@ -21,7 +21,8 @@ generate_fctcall <- function(input,model,modeltype)
         varstring = paste0(varstring,
                            model$var[[n]]$varname,
                            " = ",
-                           isolate(input[[model$var[[n]]$varname]]),
+                           # isolate(input[[model$var[[n]]$varname]]),
+                           input_model$var[[n]]$varname,
                            ', ')
     }
     varstring = substr(varstring, 1, nchar(varstring) - 2)
