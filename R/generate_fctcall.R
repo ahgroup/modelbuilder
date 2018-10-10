@@ -12,7 +12,6 @@
 
 generate_fctcall <- function(input,model,modeltype, input_model)
 {
-    print(input_model$time)
     #process all variables, parameters and times from the model structure
     #to create the input string for the main function call
     nvars = length(model$var)
@@ -50,7 +49,7 @@ generate_fctcall <- function(input,model,modeltype, input_model)
         timestring = paste0(timestring,
                             model$time[[n]]$timename,
                             " = ",
-                            input_model$time[[n]]$timename,
+                            input_model$time[[n]]$timeval,
                             ', ')
     }
     timestring = substr(timestring, 1, nchar(timestring) - 2)
