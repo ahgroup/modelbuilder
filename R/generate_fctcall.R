@@ -54,6 +54,7 @@ generate_fctcall <- function(input,model,modeltype, input_model)
     }
     timestring = substr(timestring, 1, nchar(timestring) - 2)
     timestring = paste0(timestring, ') ')
+    print(timestring)
 
     filename = paste0('simulate_',gsub(" ", "_", model$title), "_",modeltype) #name of function to be called
     fctargs = paste0(varstring, parstring, timestring) #arguments for function
