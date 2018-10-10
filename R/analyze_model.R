@@ -20,7 +20,7 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, input
       source(paste0(location,filename)) #source file
       print("File created")
   }
-  print(!exists(paste0("simulate_",gsub(" ","_",model$title),"_ode")))
+  print(paste0("simulate_",gsub(" ","_",model$title),"_ode"))
 
 
   #parses the model and creates the code to call/run the simulation
