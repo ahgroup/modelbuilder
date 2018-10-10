@@ -44,16 +44,7 @@ server <- function(input, output, session) {
                           selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both")),
                           actionButton("process", "Process inputs", class = "mainbutton")
                       ),
-                      column(
-                          6,
-                          #################################
-                          #Start with results on top
-                          h2('Simulation Results'),
-                          plotOutput(outputId = "plot", height = "500px"),
-                          # PLaceholder for results of type text
-                          htmlOutput(outputId = "text"),
-                          tags$hr()
-                      ) #end main panel column with outcomes)
+                      )
               ), # End of fluidRow
           ) # End of ui
       ) # End of insertUI
