@@ -22,13 +22,11 @@ generate_fctcall <- function(input,model,modeltype, input_model)
         varstring = paste0(varstring,
                            model$var[[n]]$varname,
                            " = ",
-                           # isolate(input[[model$var[[n]]$varname]]),
-                           input_model$var[[n]]$varname,
+                           input_model$var[[n]]$varval,
                            ', ')
     }
     varstring = substr(varstring, 1, nchar(varstring) - 2)
     varstring = paste0(varstring, '), ') #close parentheses
-    print(varstring) # Debugging line
 
     npars = length(model$par)
     parstring = "pars = c("
@@ -37,7 +35,7 @@ generate_fctcall <- function(input,model,modeltype, input_model)
         parstring = paste0(parstring,
                            model$par[[n]]$parname,
                            " = ",
-                           input_model$par[[n]]$parname,
+                           input_model$par[[n]]$parval,
                            ', ')
     }
     parstring = substr(parstring, 1, nchar(parstring) - 2)
@@ -55,7 +53,6 @@ generate_fctcall <- function(input,model,modeltype, input_model)
     }
     timestring = substr(timestring, 1, nchar(timestring) - 2)
     timestring = paste0(timestring, ') ')
-    print(timestring)
 
     filename = paste0('simulate_',gsub(" ", "_", model$title), "_",modeltype) #name of function to be called
     fctargs = paste0(varstring, parstring, timestring) #arguments for function
