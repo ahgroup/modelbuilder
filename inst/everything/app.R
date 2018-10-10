@@ -43,9 +43,8 @@ server <- function(input, output, session) {
                           numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
                           selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both")),
                           actionButton("process", "Process inputs", class = "mainbutton")
-                      ),
-                      )
-              ), # End of fluidRow
+                      ))
+              ) # End of fluidRow
           ) # End of ui
       ) # End of insertUI
   }) # End of observeEvent() for analyzemodel
