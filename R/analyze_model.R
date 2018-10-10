@@ -31,14 +31,30 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, input
                               input_model = input_model)
 
   #run simulation, show a 'running simulation' message
-  print(fctcall)
   withProgress(message = 'Running Simulation',
                detail = "This may take a while", value = 0,
                {
                    eval(parse(text = fctcall)) #execute function
                })
 
-  result[[1]]$dat = simresult$ts
-  print(result[[1]]$dat)
+  plotscale = isolate(input$plotscale)
 
+  #data for plots and text
+  #needs to be in the right format to be passed to generate_plots and generate_text
+  #see documentation for those functions for details
+  result[[1]]$dat = simresult$ts
+
+  #Meta-information for each plot
+  #Might not want to hard-code here, can decide later
+  result[[1]]$plottype = "Lineplot"
+  result[[1]]$xlab = "Time"
+  result[[1]]$ylab = "Numbers"
+  result[[1]]$legend = "Compartments"
+
+  result[[1]]$xscale = 'identity'
+  result[[1]]$yscale = 'identity'
+  if (plotscale == 'x' | plotscale == 'both') { result[[1]]$xscale = 'log10'}
+  if (plotscale == 'y' | plotscale == 'both') { result[[1]]$yscale = 'log10'}
+
+  return(result)
 }

@@ -43,8 +43,18 @@ server <- function(input, output, session) {
                           numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
                           selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both")),
                           actionButton("process", "Process inputs", class = "mainbutton")
-                      ))
-              ) # End of fluidRow
+                      ),
+                      column(
+                          6,
+                          #################################
+                          #Start with results on top
+                          h2('Simulation Results'),
+                          plotOutput(outputId = "plot", height = "500px"),
+                          # PLaceholder for results of type text
+                          htmlOutput(outputId = "text"),
+                          tags$hr()
+                      ) #end main panel column with outcomes)
+              ), # End of fluidRow
           ) # End of ui
       ) # End of insertUI
   }) # End of observeEvent() for analyzemodel
@@ -55,6 +65,16 @@ server <- function(input, output, session) {
                     rngseed = input$rngseed, nreps = input$nreps,
                     plotscale = input$plotscale, input = input,
                     input_model = model())
+  })
+
+  #create plot from results
+  output$plot  <- renderPlot({
+      generate_plots(result)
+  }, width = 'auto', height = 'auto')
+
+  #create text from results
+  output$text <- renderText({
+      generate_text(result)     #create text for display with a non-reactive function
   })
 
   observeEvent(input$Exit, {
