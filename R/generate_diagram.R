@@ -30,7 +30,7 @@ generate_diagram <- function(model) {
     flowmatred = sub("\\+|-","",flowmat)   #strip leading +/- from flows
     signmat =  gsub("(\\+|-).*","\\1",flowmat) #extract only the + or - signs from flows so we know the direction
 
-    library(diagram)
+
 
     graphics.off()
 
