@@ -27,7 +27,6 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, input
   #run simulation, show a 'running simulation' message
   withProgress(message = 'Running Simulation', value = 0,
                {
-                   print("Run")
                    eval(parse(text = fctcall)) #execute function
                })
 
