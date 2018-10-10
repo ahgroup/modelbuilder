@@ -18,9 +18,12 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, input
       filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
       generate_ode(model = model, location = paste0(location,filename))
       source(paste0(location,filename)) #source file
-      print("File created")
   }
-  print(paste0("simulate_",gsub(" ","_",model$title),"_ode"))
+
+  location = tempdir() #temporary directory to save file
+  filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
+  generate_ode(model = model, location = paste0(location,filename))
+  source(paste0(location,filename)) #source file
 
 
   #parses the model and creates the code to call/run the simulation
