@@ -22,8 +22,8 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, input
 
   location = tempdir() #temporary directory to save file
   filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
-  generate_ode(model = model, location = paste0(location,filename))
-  source(paste0(location,filename)) #source file
+  # generate_ode(model = model, location = paste0(location,filename))
+  source(paste0(wd, "/", filename)) #source file
 
 
   #parses the model and creates the code to call/run the simulation
@@ -33,11 +33,11 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, input
   list.files()
 
   #run simulation, show a 'running simulation' message
-  eval(parse(text = fctcall))
-  # withProgress(message = 'Running Simulation',
-  #              detail = "This may take a while", value = 0,
-  #              {
-  #                  eval(parse(text = fctcall)) #execute function
-  #              })
+  # eval(parse(text = fctcall))
+  withProgress(message = 'Running Simulation',
+               detail = "This may take a while", value = 0,
+               {
+                   eval(parse(text = fctcall)) #execute function
+               })
 
 }
