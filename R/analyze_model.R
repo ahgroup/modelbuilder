@@ -22,15 +22,14 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
 
   # print(model) # Debugging line
   # print(input[[model$var[[1]]$varname]]) # Debugging line
-  print(model$var[[1]]$varname) # Debugging line
 
   #parses the model and creates the code to call/run the simulation
   fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
 
   #run simulation, show a 'running simulation' message
-  # withProgress(message = 'Running Simulation', value = 0,
-  #              {
-  #                  eval(parse(text = fctcall)) #execute function
-  #              })
+  withProgress(message = 'Running Simulation', value = 0,
+               {
+                   eval(parse(text = fctcall)) #execute function
+               })
 
 }
