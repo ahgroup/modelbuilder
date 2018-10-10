@@ -10,6 +10,7 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
   listlength = 1
   #here we do all simulations in the same figure
   result = vector("list", listlength) #create empty list of right size for results
+  print(exists(paste0("simulate_",gsub(" ","_",model$title),"_ode")))
 
   #check if function/code is available, if not generate and source code as temp file
   if (modeltype == 'ode' & !exists( paste0("simulate_",gsub(" ","_",model$title),"_ode") ) )
