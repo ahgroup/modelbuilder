@@ -23,8 +23,8 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, input
   #parses the model and creates the code to call/run the simulation
   fctcall <- generate_fctcall(input=input,model=model,modeltype='ode',
                               input_model = input_model)
-
-  print(fctcall)
+  print(getwd())
+  list.files()
 
   #run simulation, show a 'running simulation' message
   eval(parse(text = fctcall))
