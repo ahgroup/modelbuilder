@@ -12,10 +12,11 @@
 
 generate_fctcall <- function(input,model,modeltype)
 {
-    print(input[[model$var[[1]]$varname]]) # Debugging line
+    print(model$var[[1]]$varname) # Debugging line
     #process all variables, parameters and times from the model structure
     #to create the input string for the main function call
     nvars = length(model$var)
+    print(nvars)
     varstring = "vars = c("
     for (n in 1:nvars)
     {
