@@ -18,10 +18,6 @@ server <- function(input, output, session) {
 
   #should be replaced by calling the 'analyze module' instead of a different shiny app
   observeEvent(input$analyzemodel, {
-      # wd <- getwd()
-      # analyze_model(wd = wd, input = input)
-      # stopping <<- TRUE
-      # stopApp('analyzemodel')
       insertUI(
           selector = "#analyzemodel",
           where = "afterEnd",
@@ -51,20 +47,35 @@ server <- function(input, output, session) {
 
   observeEvent(input$process, {
       wd <- getwd()
-      analyze_model(wd = wd, modeltype = input$modeltype,
+      r <- analyze_model(wd = wd, modeltype = input$modeltype,
                     rngseed = input$rngseed, nreps = input$nreps,
                     plotscale = input$plotscale, input = input,
                     input_model = model())
-  })
+      #create plot from results
+      output$plot  <- renderPlot({
+          generate_plots(r)
+      }, width = 'auto', height = 'auto')
 
-  #create plot from results
-  output$plot  <- renderPlot({
-      generate_plots(result)
-  }, width = 'auto', height = 'auto')
-
-  #create text from results
-  output$text <- renderText({
-      generate_text(result)     #create text for display with a non-reactive function
+      #create text from results
+      output$text <- renderText({
+          generate_text(r)     #create text for display with a non-reactive function
+      })
+      insertUI(selector = "#process",
+               where = "afterEnd",
+               ui = tags$div(
+                   fluidRow(
+                       column(
+                           12,
+                           #################################
+                           #Start with results on top
+                           h2('Simulation Results'),
+                           plotOutput(outputId = "plot", height = "500px"),
+                           # Placeholder for results of type text
+                           htmlOutput(outputId = "text"),
+                           tags$hr()
+                       ) #end main panel column with outcomes
+                   )
+               )) # End of insertUI
   })
 
   observeEvent(input$Exit, {

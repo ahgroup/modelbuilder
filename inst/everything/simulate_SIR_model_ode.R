@@ -38,7 +38,6 @@
 
 simulate_SIR_model_ode <- function(vars = c(S = 1000, I = 1, R = 0), pars = c(b = 0.002, g = 1), times = c(tstart = 0, tfinal = 100, dt = 0.1) )
 {
-  print("Running inside")
   #Block of ODE equations for deSolve
   SIR_model_ode <- function(t, y, parms)
   {

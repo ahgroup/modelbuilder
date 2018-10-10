@@ -56,7 +56,5 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, input
   if (plotscale == 'x' | plotscale == 'both') { result[[1]]$xscale = 'log10'}
   if (plotscale == 'y' | plotscale == 'both') { result[[1]]$yscale = 'log10'}
 
-  print(str(result))
-
   return(result)
 }
