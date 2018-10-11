@@ -1,6 +1,6 @@
 ## analyze_model.R
 
-analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, input_model) {
+analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
   # Set current working directory and load Rdata file
   currentdir <- wd
   rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
@@ -22,13 +22,11 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, input
 
   location = tempdir() #temporary directory to save file
   filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
-  # generate_ode(model = model, location = paste0(location,filename))
   source(paste0(wd, "/", filename)) #source file
 
 
   #parses the model and creates the code to call/run the simulation
-  fctcall <- generate_fctcall(input=input,model=model,modeltype='ode',
-                              input_model = input_model)
+  fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
 
   #run simulation, show a 'running simulation' message
   withProgress(message = 'Running Simulation',
