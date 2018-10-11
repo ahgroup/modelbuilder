@@ -10,9 +10,8 @@
 #' @author Andreas Handel
 #' @export
 
-generate_fctcall <- function(input,model,modeltype, input_model)
+generate_fctcall <- function(input, model, modeltype)
 {
-    print(str(model) == str(input_model))
     #process all variables, parameters and times from the model structure
     #to create the input string for the main function call
     nvars = length(model$var)
@@ -22,13 +21,11 @@ generate_fctcall <- function(input,model,modeltype, input_model)
         varstring = paste0(varstring,
                            model$var[[n]]$varname,
                            " = ",
-                           # input_model$var[[n]]$varval,
                            model$var[[n]]$varval,
                            ', ')
     }
     varstring = substr(varstring, 1, nchar(varstring) - 2)
     varstring = paste0(varstring, '), ') #close parentheses
-    print(varstring)
 
     npars = length(model$par)
     parstring = "pars = c("
@@ -37,7 +34,7 @@ generate_fctcall <- function(input,model,modeltype, input_model)
         parstring = paste0(parstring,
                            model$par[[n]]$parname,
                            " = ",
-                           input_model$par[[n]]$parval,
+                           model$par[[n]]$parval,
                            ', ')
     }
     parstring = substr(parstring, 1, nchar(parstring) - 2)
@@ -50,7 +47,7 @@ generate_fctcall <- function(input,model,modeltype, input_model)
         timestring = paste0(timestring,
                             model$time[[n]]$timename,
                             " = ",
-                            input_model$time[[n]]$timeval,
+                            model$time[[n]]$timeval,
                             ', ')
     }
     timestring = substr(timestring, 1, nchar(timestring) - 2)
