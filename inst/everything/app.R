@@ -24,7 +24,7 @@ server <- function(input, output, session) {
           ui = tags$div(
               fluidRow(
                   column(
-                      12,
+                      12, align = "center",
                       h2('Simulation Settings'),
                          uiOutput("pars"),
                          numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
@@ -63,10 +63,10 @@ server <- function(input, output, session) {
                            #Start with results on top
                            h2('Simulation Results'),
                            plotOutput(outputId = "plot",
-                                      width = "50%",
+                                      width = "45%",
                                       height = "500px"),
                            # Placeholder for results of type text
-                           textOutput(outputId = "text"),
+                           htmlOutput(outputId = "text"),
                            tags$hr()
                        ) #end main panel column with outcomes
                    )
@@ -168,7 +168,8 @@ ui <- fluidPage(
   fluidRow(
       column(12,
              actionButton("buildmodel", "Modify current model", class="mainbutton")
-      )
+      ),
+      class = "mainmenurow"
   ),
   fluidRow(
       column(12,
