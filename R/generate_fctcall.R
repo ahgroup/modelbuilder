@@ -22,11 +22,13 @@ generate_fctcall <- function(input,model,modeltype, input_model)
         varstring = paste0(varstring,
                            model$var[[n]]$varname,
                            " = ",
-                           input_model$var[[n]]$varval,
+                           # input_model$var[[n]]$varval,
+                           model$var[[n]]$varval,
                            ', ')
     }
     varstring = substr(varstring, 1, nchar(varstring) - 2)
     varstring = paste0(varstring, '), ') #close parentheses
+    print(varstring)
 
     npars = length(model$par)
     parstring = "pars = c("
