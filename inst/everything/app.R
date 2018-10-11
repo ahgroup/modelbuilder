@@ -42,8 +42,7 @@ server <- function(input, output, session) {
       wd <- getwd()
       r <- analyze_model(wd = wd, modeltype = input$modeltype,
                     rngseed = input$rngseed, nreps = input$nreps,
-                    plotscale = input$plotscale, input = input,
-                    input_model = model())
+                    plotscale = input$plotscale, input = input)
       #create plot from results
       output$plot  <- renderPlot({
           generate_plots(r)
@@ -66,7 +65,7 @@ server <- function(input, output, session) {
                                       width = "45%",
                                       height = "500px"),
                            # Placeholder for results of type text
-                           htmlOutput(outputId = "text"),
+                           uiOutput(outputId = "text"),
                            tags$hr()
                        ) #end main panel column with outcomes
                    )
