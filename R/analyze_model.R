@@ -1,14 +1,11 @@
 ## analyze_model.R
 
-analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
+analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, model) {
   # Set current working directory and load Rdata file
   print(model)
-  print("Checkpoint 1")
-  currentdir <- wd
-  rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
-  load(rdatafile)
-
-  print("Checkpoint 2")
+  # currentdir <- wd
+  # rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
+  # load(rdatafile)
 
   #save all results to a list for processing plots and text
   listlength = 1
@@ -25,13 +22,17 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
       source(paste0(location,filename)) #source file
   }
 
-  location = tempdir() #temporary directory to save file
-  filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
-  source(paste0(wd, "/", filename)) #source file
+  print("Checkpoint 1")
+
+  # location = tempdir() #temporary directory to save file
+  # filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
+  # source(paste0(wd, "/", filename)) #source file
 
 
   #parses the model and creates the code to call/run the simulation
   fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
+
+  print("Checkpoint 2")
 
   #run simulation, show a 'running simulation' message
   withProgress(message = 'Running Simulation',
