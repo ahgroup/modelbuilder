@@ -19,14 +19,34 @@ server <- function(input, output, session) {
 
     #should be replaced by calling the 'analyze module' instead of a different shiny app
     observeEvent(input$analyzemodel, {
+        generate_shinyinput(model(), output)
         insertUI(
             selector = "#analyzemodel",
             where = "afterEnd",
             ui = tags$div(
                 fluidRow(
+                    # column(
+                    #     12,
+                    #     h2('Simulation Settings'),
+                    #     column(
+                    #         6,
+                    #         uiOutput("vars"),
+                    #         uiOutput("time")
+                    #     ),
+                    #     column(
+                    #         6,
+                    #         uiOutput("pars"),
+                    #         numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
+                    #         selectInput("modeltype", "Models to run",c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = '1'),
+                    #         numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
+                    #         selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both")),
+                    #         actionButton("process", "Process inputs", class = "mainbutton")
+                    #     ))
                     column(
                         12, align = "center",
                         h2('Simulation Settings'),
+                        uiOutput("vars"),
+                        uiOutput("time"),
                         uiOutput("pars"),
                         numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
                         selectInput("modeltype", "Models to run", c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = '1'),
@@ -41,11 +61,10 @@ server <- function(input, output, session) {
 
     observeEvent(input$process, {
         wd <- getwd()
-        r <- analyze_model(wd = wd, modeltype = input$modeltype,
+        r <- analyze_model(modeltype = input$modeltype,
                            rngseed = input$rngseed, nreps = input$nreps,
                            plotscale = input$plotscale, input = input,
                            model = model())
-        print(str(r))
         #create plot from results
         output$plot  <- renderPlot({
             generate_plots(r)
