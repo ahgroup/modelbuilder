@@ -44,7 +44,7 @@ server <- function(input, output, session) {
         r <- analyze_model(wd = wd, modeltype = input$modeltype,
                            rngseed = input$rngseed, nreps = input$nreps,
                            plotscale = input$plotscale, input = input,
-                           model = model)
+                           model = model())
         print(str(r))
         #create plot from results
         output$plot  <- renderPlot({
