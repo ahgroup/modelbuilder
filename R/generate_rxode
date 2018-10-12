@@ -22,7 +22,7 @@ generate_rxode <- function(model, location = NULL)
   if(is.character(model)) {load(model)}
   
   #the name of the function produced by this script is simulate_ + "model title" + "_rxode.R"
-  savepath = location
+  savepath = location #default is current directory for saving the R function
   
   #if location is supplied, that's where the code will be saved to
   # if (!is.null(location)) {savepath = paste0(location,'/',filename)}
