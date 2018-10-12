@@ -1,10 +1,10 @@
 ## analyze_model.R
 
-analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
+analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, model) {
   # Set current working directory and load Rdata file
-  currentdir <- wd
-  rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
-  load(rdatafile)
+  # currentdir <- wd
+  # rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
+  # load(rdatafile)
 
   #save all results to a list for processing plots and text
   listlength = 1
@@ -14,15 +14,16 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
   #check if function/code is available, if not generate and source code as temp file
   if (modeltype == 'ode' & !exists( paste0("simulate_",gsub(" ","_",model$title),"_ode") ) )
   {
+      print("Running first alternative")
       location = tempdir() #temporary directory to save file
       filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
       generate_ode(model = model, location = paste0(location,filename))
       source(paste0(location,filename)) #source file
   }
 
-  location = tempdir() #temporary directory to save file
-  filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
-  source(paste0(wd, "/", filename)) #source file
+  # location = tempdir() #temporary directory to save file
+  # filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
+  # source(paste0(wd, "/", filename)) #source file
 
 
   #parses the model and creates the code to call/run the simulation
