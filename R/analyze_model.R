@@ -14,6 +14,7 @@ analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
   #check if function/code is available, if not generate and source code as temp file
   if (modeltype == 'ode' & !exists( paste0("simulate_",gsub(" ","_",model$title),"_ode") ) )
   {
+      print("Running first alternative")
       location = tempdir() #temporary directory to save file
       filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
       generate_ode(model = model, location = paste0(location,filename))
