@@ -2,6 +2,7 @@
 
 #this function is the server part of the app
 server <- function(input, output, session) {
+  process_click <- c()
 
   appNames <- c('buildmodel','Exit') #options
   # Changed from appNames <- c('buildmodel', 'analyzemodel', 'Exit')
@@ -65,7 +66,8 @@ server <- function(input, output, session) {
                                       width = "45%",
                                       height = "500px"),
                            # Placeholder for results of type text
-                           uiOutput(outputId = "text"),
+                           htmlOutput(outputId = "text"),
+                           actionButton("clear", "Clear workspace?"),
                            tags$hr()
                        ) #end main panel column with outcomes
                    )
