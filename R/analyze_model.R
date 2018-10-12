@@ -2,6 +2,7 @@
 
 analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input) {
   # Set current working directory and load Rdata file
+  print(model)
   print("Checkpoint 1")
   currentdir <- wd
   rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
