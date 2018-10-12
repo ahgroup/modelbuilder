@@ -1,6 +1,21 @@
-## analyze_model.R
+#' @title A function that analyzes the model() object created or loaded in the main menu.
+#'
+#' @description This function takes the model specified in the main menu and
+#' runs the simulation determined by the model parameters.
+#'
+#' @param modeltype A string indicating the type of model. Accepted values are "ode", "stochastic", and "discrete".
+#' @param rngseed A random number seed for the simulation.
+#' @param nreps Number of times to run the simulation.
+#' @param plotscale Log or linear scale for the x-axis, y-axis, or both.
+#' @param input The Shiny input list generated in the main menu app.
+#' @param model The Shiny model() object generated in the main menu app.
+#'
+#' @return A list named "result" with the simulated dataframe and associated metadata.
+#' @details This function is called by the Shiny server to produce the Shiny input UI elements.
+#' @author Spencer D. Hall
+#' @export
 
-analyze_model <- function(wd, modeltype, rngseed, nreps, plotscale, input, model) {
+analyze_model <- function(modeltype, rngseed, nreps, plotscale, input, model) {
   # Set current working directory and load Rdata file
   # currentdir <- wd
   # rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
