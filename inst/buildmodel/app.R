@@ -2,10 +2,10 @@ server <- function(input, output)
 {
 
     # if a model exists, read it and populate UI with its values
-    if (!is.null(model))
-    {
+    #if (!is.null(model))
+    #{
 
-    }
+   # }
 
     # Waits for the Exit Button to be pressed to stop the app and return to main menu
     observeEvent(input$exitBtn, {
