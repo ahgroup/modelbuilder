@@ -53,8 +53,19 @@ generate_shinyinput <- function(model, output)
         do.call(mainPanel, allt)
     })
 
+    output$other <- renderUI({
+        tagList(
+            numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
+            selectInput("modeltype", "Model to run",c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = 'ode'),
+            numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
+            selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both"))
+            ) #end taglist
+    }) #end renderuI
+
+
     output$title <- renderUI({
         HTML(model$title)
     }) #creates title
+
 
 }

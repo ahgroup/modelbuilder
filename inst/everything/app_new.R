@@ -6,13 +6,14 @@ server <- function(input, output, session) {
   stopping <- FALSE
 
   #code to run build model functionality needs to go here
+  observeEvent(input$buildmodel, {
+  })
+
+  #make the UI for the model, saves those into the output elements
+  generate_shinyinput(model(), output)
 
 
-#trying to make UI for analyzemodel reactive so inputs re-build when a new model is loaded.
-#currently not working
-observe({
-    generate_shinyinput(model(), output) #produce output elementes for each vriables, parameters, etc. should be reactive and update when a new model is loaded, but doesn't quite work
-    output$analyzemodel <- renderUI({
+  output$analyzemodel <- renderUI({
       fluidPage(
           #section to add buttons
           fluidRow(column(
@@ -53,26 +54,34 @@ observe({
                   htmlOutput(outputId = "text"),
                   tags$hr()
               ) #end main panel column with outcomes
-          ) #end layout with side and main panel
+          ), #end layout with side and main panel
+
+          #################################
+          #Instructions section at bottom as tabs
+          h2('Instructions')
+          #use external function to generate all tabs with instruction content
+          #browser(),
+          #do.call(tabsetPanel, generate_documentation() ),
       ) #end fluidpage for analyze tab
     }) # End renderUI for analyze tab
-    #make the UI for the model, saves those into the output elements
-    }, priority = 100) #end observe for UI construction
 
-    #runs model simulation when 'run simulation' button is pressed
-    observeEvent(input$submitBtn, {
+
+  observeEvent(input$submitBtn, {
       result <- analyze_model(modeltype = input$modeltype,
                     rngseed = input$rngseed, nreps = input$nreps,
                     plotscale = input$plotscale, input = input, model = model() )
+
       #create plot from results
       output$plot  <- renderPlot({
           generate_plots(result)
       }, width = 'auto', height = 'auto')
+
       #create text from results
       output$text <- renderText({
           generate_text(result)     #create text for display with a non-reactive function
       })
-    }) #end observe-event for analyze model submit button
+
+      }) #end observe-event for analyze model submit button
 
   observeEvent(input$Exit, {
       stopping <<- TRUE
