@@ -33,8 +33,7 @@ generate_shinyinput <- function(model, output)
                 paste0(model$par[[n]]$partext,' (',model$par[[n]]$parname,')'),
                 value = model$par[[n]]$parval,
                 min = 0,
-                step = model$par[[n]]$parval/100,
-                print(step) ### Debugging line
+                step = model$par[[n]]$parval/100
             )
         })
         do.call(mainPanel, allp)
