@@ -38,9 +38,9 @@ generate_diagram <- function(model) {
     #we place a max of cmax compartments per row
     #if more, we start a new row
     cmax = 4
-    elpos = coordinates(pos = rep(min(cmax,nvars),ceiling(nvars/cmax)))
+    elpos = diagram::coordinates(pos = rep(min(cmax,nvars),ceiling(nvars/cmax)))
 
-    openplotmat(main = "model")
+    diagram::openplotmat(main = "model")
 
     #add flow arrows to compartments
     #want to do flows before compartments so boxes cover part of arrows

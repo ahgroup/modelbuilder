@@ -4,7 +4,7 @@ Title: Building Compartmental Mechanistic Models Without Coding
 Description: A package that allows building and analysis of
     compartmental mechanistic models without the need to write code. 
 Version: 0.1.0
-Date: 2018-09-21
+Date: 2018-10-16
 Authors@R: c(
     person("Andreas", "Handel", email = "ahandel@uga.edu", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4622-1146") ),
