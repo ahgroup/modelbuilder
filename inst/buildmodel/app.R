@@ -1,31 +1,30 @@
 server <- function(input, output)
 {
 
-    # if a model exists, read it and populate UI with its values
-    if (!is.null(model))
-    {
 
-    }
-
-    # Waits for the Exit Button to be pressed to stop the app and return to main menu
-    observeEvent(input$exitBtn, {
-        input$exitBtn
-        stopApp(returnValue = NULL)
+    #store dynmodel() object as reactive value
+    #this lets me save it with code below, if i try to use dynmodel() directly in the save function it doesn't work
+    #i'm not sure why this version works and why I can't save the model directly
+    #https://stackoverflow.com/questions/23036739/downloading-rdata-files-with-shiny
+    model <- reactiveValues()
+    observe({
+        if(!is.null(dynmodel()))
+            isolate(
+                model <<- dynmodel()
+            )
     })
 
     #writes model to Rdata file
-    #not working
     output$savemodel <- downloadHandler(
         filename = function() {
-            paste0(gsub(" ","_",model()$title),".Rdata")
+            paste0(gsub(" ","_",model$title),".Rdata")
         },
         content = function(file) {
-            stopifnot(!is.null(model()))
-            save(model = model(), file = file)
+            stopifnot(!is.null(model))
+            save(model, file = file)
         },
         contentType = "text/plain"
     )
-
 
     #when user presses the 'make model' button
     #this function reads all the inputs and writes them into the model structure
@@ -34,15 +33,15 @@ server <- function(input, output)
     #All variables and parameters and flows need to follow naming rules
     #flows may only contain variables, parameters and math symbols
     #any variable or parameter listed in flows needs to be specified as variable or parameter
-    model <- eventReactive(input$makemodel, {
+    dynmodel <- eventReactive(input$makemodel, {
         #structure that holds the model
-        model = list()
+        dynmodel = list()
 
-        model$title <- isolate(input$modeltitle)
-        model$author <- isolate(input$modelauthor)
-        model$textription <- isolate(input$modeltextription)
-        model$details = isolate(input$modeldetails)
-        model$date = Sys.Date()
+        dynmodel$title <- isolate(input$modeltitle)
+        dynmodel$author <- isolate(input$modelauthor)
+        dynmodel$textription <- isolate(input$modeltextription)
+        dynmodel$details = isolate(input$modeldetails)
+        dynmodel$date = Sys.Date()
         var = vector("list",values$nvar)
         for (n in 1:values$nvar)
         {
@@ -61,7 +60,7 @@ server <- function(input, output)
             var[[n]]$flows = allflows
             var[[n]]$flownames = allflowtext
         }
-        model$var = var
+        dynmodel$var = var
 
         par = vector("list",values$npar)
         for (n in 1:values$npar)
@@ -71,7 +70,7 @@ server <- function(input, output)
             par[[n]]$parval = isolate(eval(parse(text = paste0("input$par",n,"val") )))
 
         }
-        model$par = par
+        dynmodel$par = par
 
         time = vector("list",3)
         time[[1]]$timename = "tstart"
@@ -86,15 +85,14 @@ server <- function(input, output)
         time[[3]]$timetext = "Time step"
         time[[3]]$timeval = isolate(eval(parse(text = paste0("input$dt") )))
 
-        model$time = time
+        dynmodel$time = time
 
         #add call to functions somewhere here that plot diagram and make equations
-
-        return(model)
+        return(dynmodel)
     })
 
     # make and display equations
-    output$equations =  renderUI( withMathJax(generate_equations(model()) ) )
+    output$equations =  renderUI( withMathJax(generate_equations(dynmodel()) ) )
     #reactive( {
     #    if (!is.null(model()))
     #    {
@@ -102,7 +100,7 @@ server <- function(input, output)
     #    }
     #})
 
-    output$diagram = renderPlot( generate_diagram(model()))
+    output$diagram = renderPlot( generate_diagram(dynmodel()))
 
 
     #define number of variables and parameters globally, is updated based on user pressing add/delete variables/parameters
@@ -187,7 +185,7 @@ server <- function(input, output)
      observeEvent(input$rmflow, {
          if (values$nflow[input$targetvar] == 1) return() #don't remove the last flow
          removeUI(
-             selector = paste0("#var", input$targetvar, "flow", values$nflow[values$nvar], 'slot'),
+             selector = paste0("#var", input$targetvar, "flow", values$nflow[input$targetvar], 'slot'),
              immediate = TRUE
          )
          values$nflow[input$targetvar] = values$nflow[input$targetvar] - 1
@@ -206,13 +204,13 @@ server <- function(input, output)
 
                  fluidRow( class = 'myrow',
                            column(2,
-                                  textInput(paste0("par", values$nvar, 'name'), "Parameter Name")
+                                  textInput(paste0("par", values$npar, 'name'), "Parameter Name")
                            ),
                            column(3,
-                                  textInput(paste0("par", values$nvar,'text'), "Parameter description")
+                                  textInput(paste0("par", values$npar,'text'), "Parameter description")
                            ),
                            column(2,
-                                  numericInput(paste0("par", values$nvar,'val'), "Default value", value = 0)
+                                  numericInput(paste0("par", values$npar,'val'), "Default value", value = 0)
                            )
                  ),
                  id = paste0("par", values$npar, 'slot')

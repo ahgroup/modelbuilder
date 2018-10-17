@@ -15,11 +15,11 @@ modelbuilder <- function() {
     {
         appname <- NULL
         appDir <- system.file("mainmenu", package = "modelbuilder")
-        appname = shiny::runApp(appDir = appDir)
+        appname = shiny::runApp(appDir = appDir, launch.browser= TRUE)
         if (!is.null(appname) & appname != "Exit")     #run the shiny app chosen
         {
             appDirname <- system.file(appname, package = "modelbuilder")
-            shiny::runApp(appDir = appDirname)
+            shiny::runApp(appDir = appDirname, launch.browser= TRUE)
         }
         if (appname == "Exit") {cond = 0} #leave while loop/menu
     }

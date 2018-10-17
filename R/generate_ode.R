@@ -1,6 +1,7 @@
 #' Create an ODE simulation model that uses deSolve
 #'
-#' This function takes as input a model and writes code for an ODE simulator implemented with deSolve
+#' This function takes as input a model and writes code
+#' for an ODE simulator implemented with deSolve
 #'
 #' @description The model needs to adhere to the structure specified by the modelbuilder package
 #' models built using the modelbuilder package automatically have the right structure
@@ -20,11 +21,10 @@ generate_ode <- function(model, location) # Originally "location = NULL"
 {
     #if the model is passed in as an Rdata file name, load it
     #otherwise, it is assumed that 'model' is a list structure of the right type
-    if (is.character(model)) {load(model)}
+    #if (is.character(model)) {load(model)}
 
     #the name of the function produced by this script is simulate_ + "model title" + "_ode.R"
     savepath <- location #default is current directory for saving the R function
-
 
     #if location is supplied, that's where the code will be saved to
     # if (!is.null(location)) {savepath = paste0(location,'/',filename)}

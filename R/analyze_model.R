@@ -26,23 +26,42 @@ analyze_model <- function(modeltype, rngseed, nreps, plotscale, input, model) {
   #here we do all simulations in the same figure
   result = vector("list", listlength) #create empty list of right size for results
 
-  #check if function/code is available, if not generate and source code as temp file
-  if (modeltype == 'ode' & !exists( paste0("simulate_",gsub(" ","_",model$title),"_ode") ) )
+  #temporary directory and files
+  tempdir = tempdir()
+  filename_ode=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
+  filename_discrete=paste0("simulate_",gsub(" ","_",model$title),"_discrete.R")
+  filename_stochastic=paste0("simulate_",gsub(" ","_",model$title),"_stochastic.R")
+
+  #paths and names for all temporary files
+  file_ode = file.path(tempdir,filename_ode)
+  file_discrete = file.path(tempdir,filename_discrete)
+  file_stochastic = file.path(tempdir,filename_stochastic)
+
+  #as needed create, then source code and make fct call
+  if (modeltype == 'ode')
   {
-      print("Running first alternative")
-      location = tempdir() #temporary directory to save file
-      filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
-      generate_ode(model = model, location = paste0(location,filename))
-      source(paste0(location,filename)) #source file
+      if (!exists(file_ode)) #check if function/code is available, if not generate
+      {
+          #parses the model and creates the code to call/run the simulation
+          generate_ode(model = model, location = file_ode)
+      }
+      source(file_ode) #source file
+      fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
   }
 
-  # location = tempdir() #temporary directory to save file
-  # filename=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
-  # source(paste0(wd, "/", filename)) #source file
+  #as needed create, then source code and make fct call
+  if (modeltype == 'discrete')
+  {
+      if (!exists(file_discrete)) #check if function/code is available, if not generate
+      {
+          #parses the model and creates the code to call/run the simulation
+          generate_discrete(model = model, location = file_discrete)
+      }
+      source(file_discrete) #source file
+      fctcall <- generate_fctcall(input=input,model=model,modeltype='discrete')
+  }
 
 
-  #parses the model and creates the code to call/run the simulation
-  fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
 
   #run simulation, show a 'running simulation' message
   withProgress(message = 'Running Simulation',
@@ -69,6 +88,8 @@ analyze_model <- function(modeltype, rngseed, nreps, plotscale, input, model) {
   result[[1]]$yscale = 'identity'
   if (plotscale == 'x' | plotscale == 'both') { result[[1]]$xscale = 'log10'}
   if (plotscale == 'y' | plotscale == 'both') { result[[1]]$yscale = 'log10'}
+
+  result[[1]]$maketext = TRUE #if true we want the generate_text function to process data and generate text, if 0 no result processing will occur insinde generate_text
 
   return(result)
 }

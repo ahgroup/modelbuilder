@@ -21,7 +21,7 @@ generate_fctcall <- function(input, model, modeltype)
         varstring = paste0(varstring,
                            model$var[[n]]$varname,
                            " = ",
-                           model$var[[n]]$varval,
+                           isolate(input[[model$var[[n]]$varname]]),
                            ', ')
     }
     varstring = substr(varstring, 1, nchar(varstring) - 2)
@@ -34,7 +34,7 @@ generate_fctcall <- function(input, model, modeltype)
         parstring = paste0(parstring,
                            model$par[[n]]$parname,
                            " = ",
-                           model$par[[n]]$parval,
+                           isolate(input[[model$par[[n]]$parname]]),
                            ', ')
     }
     parstring = substr(parstring, 1, nchar(parstring) - 2)
@@ -47,7 +47,7 @@ generate_fctcall <- function(input, model, modeltype)
         timestring = paste0(timestring,
                             model$time[[n]]$timename,
                             " = ",
-                            model$time[[n]]$timeval,
+                            isolate(input[[model$time[[n]]$timename]]),
                             ', ')
     }
     timestring = substr(timestring, 1, nchar(timestring) - 2)

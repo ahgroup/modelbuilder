@@ -13,9 +13,7 @@ server <- function(input, output, session)
         load(rdatafile)
     }
 
-
-
-    generate_shinyinput(model, output) #make the UI for the model
+    generate_shinyinput(model, output) #make the UI for the model, saves those into the output elements
 
 
     ###########################################
@@ -57,7 +55,6 @@ server <- function(input, output, session)
 
                      #parses the model and creates the code to call/run the simulation
                      fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
-
 
                      #run simulation, show a 'running simulation' message
                      withProgress(message = 'Running Simulation', value = 0,
@@ -137,10 +134,8 @@ ui <- fluidPage(
             column(
                 6,
                 uiOutput("pars"),
-                numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
-                selectInput("modeltype", "Models to run",c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = '1'),
-                numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
-                selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both"))
+                uiOutput("other")
+
             )),
         #end sidebar column for inputs
 

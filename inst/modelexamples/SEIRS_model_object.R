@@ -19,20 +19,20 @@ var = vector("list",4)
 var[[1]]$varname = "S"
 var[[1]]$vartext = "Susceptible"
 var[[1]]$varval = 1000
-var[[1]]$flows = c('-bE*S*E','-bI*S*I','m','-n*S')
+var[[1]]$flows = c('-bE*S*E','-bI*S*I','+m','-n*S')
 var[[1]]$flownames = c('infection by exposed','infection by symptomatic','births','natural deaths')
 
 var[[2]]$varname = "E"
 var[[2]]$vartext = "Exposed"
 var[[2]]$varval = 1
-var[[2]]$flows = c('bE*S*E','+bI*S*I','-gE*E','-n*E')
+var[[2]]$flows = c('+bE*S*E','+bI*S*I','-gE*E','-n*E')
 var[[2]]$flownames = c('infection by exposed','infection by symptomatic','progression to symptoms','natural deaths')
 
 
 var[[3]]$varname = "I"
 var[[3]]$vartext = "Infected and Symptomatic"
 var[[3]]$varval = 1
-var[[3]]$flows = c('gE*E','gI*I','-n*I')
+var[[3]]$flows = c('+gE*E','-gI*I','-n*I')
 var[[3]]$flownames = c('progression to symptoms','recovery','natural deaths')
 
 
