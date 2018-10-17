@@ -82,7 +82,6 @@ observe({
   model <- reactive({
     stopping <<- TRUE
     inFile <- input$currentmodel
-    print(is.null(inFile)) ### Debugging line
     if (is.null(inFile)) return(NULL)
     # loadRData() below was suggesed on Stack Overflow 8/22/14 by user ricardo.
     # The code was provided for general use in answer to another user's question
