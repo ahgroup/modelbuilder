@@ -27,6 +27,7 @@ server <- function(input, output, session) {
                   column(
                       12, align = "center",
                       h2('Simulation Settings'),
+                         h4("Hello"),
                          uiOutput("pars"),
                          numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
                          selectInput("modeltype", "Models to run", c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = '1'),
