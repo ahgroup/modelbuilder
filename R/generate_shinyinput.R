@@ -11,7 +11,7 @@
 
 generate_shinyinput <- function(model, output)
 {
-    # print(model) ### Debugging line
+    print(model$var[[1]]$varname) ### Debugging line
     ###########################################
     #server part that dynamically creates the UI
     output$vars <- renderUI({
