@@ -11,8 +11,7 @@ server <- function(input, output, session) {
 #trying to make UI for analyzemodel reactive so inputs re-build when a new model is loaded.
 #currently not working
 observe({
-    model()
-    # update_model <- model() ## This line makes sure the observe() statement updates with each new model
+    model() ## This line makes sure the observe() statement updates with each new model
     generate_shinyinput(model(), output) #produce output elements for each variables, parameters, etc. should be reactive and update when a new model is loaded, but doesn't quite work
     output$analyzemodel <- renderUI({
       fluidPage(
@@ -83,7 +82,6 @@ observe({
 
   model <- reactive({
     stopping <<- TRUE
-    print("model() is running") ### Debugging line
     inFile <- input$currentmodel
     if (is.null(inFile)) return(NULL)
     # loadRData() below was suggesed on Stack Overflow 8/22/14 by user ricardo.
