@@ -8,6 +8,7 @@ server <- function(input, output, session) {
   #code to run build model functionality needs to go here
 
 
+
 #trying to make UI for analyzemodel reactive so inputs re-build when a new model is loaded.
 #currently not working
 observe({
@@ -80,6 +81,11 @@ observe({
       stopApp('Exit')
   })
 
+  #currently only used to get into a browser environment
+  observeEvent(input$importsbml, {
+        browser()
+        })
+
   model <- reactive({
     stopping <<- TRUE
     inFile <- input$currentmodel
@@ -93,14 +99,18 @@ observe({
       get(ls()[ls() != "filename"])
     }
     d <- loadRData(inFile$datapath)
+    #write code somewhere here that checks that the loaded file is a proper modelbuilder model.
+    #needs to have a non-empty model$title
+    #needs to have a sub-list called var with non-empty fields
+    #most of those checks need to also happen inside the build routine, maybe write a function that can be used
+    #in both places
   })
 
   output$exportode <- downloadHandler(
-    filename = function() {
-      paste0("simulate_",gsub(" ","_",model()$title),"_ode.R")
+      filename = function() {
+        paste0("simulate_",gsub(" ","_",model()$title),"_ode.R")
     },
     content = function(file) {
-      stopifnot(!is.null(model()))
       generate_ode(model = model(), location = file)
     },
     contentType = "text/plain"
@@ -111,7 +121,6 @@ observe({
       paste0(gsub(" ","_",model$title),"_stochastic.R")
     },
     content = function(file) {
-      stopifnot(!is.null(model()))
       convert_to_rxode(model = model(), location = file)
     },
     contentType = "text/plain"
@@ -122,7 +131,6 @@ observe({
       paste0("simulate_",gsub(" ","_",model()$title),"_discrete.R")
     },
     content = function(file) {
-      stopifnot(!is.null(model()))
       generate_discrete(model = model(), location = file)
     },
     contentType = "text/plain"
@@ -133,11 +141,32 @@ observe({
           paste0(gsub(" ","_",model$title),"_rxode.R")
       },
       content = function(file) {
-          stopifnot(!is.null(model()))
           convert_to_rxode(model = model(), location = file)
       },
       contentType = "text/plain"
   )
+
+
+  # NOT WORKING
+  # these lines of code should turn on the export and analyze options off
+  # and only if a model has been loaded will they turn on
+  # see e.g. https://daattali.com/shiny/shinyjs-basic/
+  # also see https://stackoverflow.com/questions/25247852/shiny-app-disable-downloadbutton
+  shinyjs::disable("exportode")
+  shinyjs::disable("exportstochastic")
+  shinyjs::disable("exportdiscrete")
+  shinyjs::disable("exportrxode")
+
+  #if a model is loaded turn on the buttons
+  observe({
+       if (!is.null(model()$title))
+       {
+           shinyjs::enable(id = "exportode")
+           shinyjs::enable("exportstochastic")
+           shinyjs::enable("exportdiscrete")
+           shinyjs::enable("exportrxode")
+       }
+   })
 
   session$onSessionEnded(function() {
     if (!stopping) {

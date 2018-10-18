@@ -23,7 +23,7 @@ Imports:
     gridExtra (>= 2.3),
     knitr (>= 1.15),
     rmarkdown (>= 1.10),
-    RxODE,
+    shinyjs,
     stats (>= 3.4),
     tidyr (>= 0.7),
     utils (>= 3.4),
@@ -35,6 +35,7 @@ Depends:
     shiny (>= 1.0)
 Suggests: 
     covr,
+    RxODE,
     testthat
 URL: https://github.com/andreashandel/modelbuilder
 BugReports: https://github.com/andreashandel/modelbuilder/issues
