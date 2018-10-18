@@ -8,11 +8,14 @@ server <- function(input, output, session) {
   #code to run build model functionality needs to go here
 
 
+
+
+
 #trying to make UI for analyzemodel reactive so inputs re-build when a new model is loaded.
 #currently not working
 observe({
-        model()
-        generate_shinyinput(model(), output) #produce output elementes for each vriables, parameters, etc. should be reactive and update when a new model is loaded, but doesn't quite work
+    model()
+    generate_shinyinput(model(), output) #produce output elementes for each vriables, parameters, etc. should be reactive and update when a new model is loaded, but doesn't quite work
     output$analyzemodel <- renderUI({
       fluidPage(
           #section to add buttons
@@ -200,7 +203,8 @@ ui <- fluidPage(
               tabPanel("Build",
                        fluidRow(
                            column(12,
-                                  actionButton("buildmodel", "Build a new model", class="mainbutton")
+                                  #actionButton("buildmodel", "Build a new model", class="mainbutton")
+                                  uiOutput('buildmodel')
                            ),
                            class = "mainmenurow"
                        )
