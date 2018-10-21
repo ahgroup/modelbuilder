@@ -10,7 +10,7 @@ generate_diagram(model)
 \item{model}{model structure, either as list object or Rdata file name}
 }
 \value{
-The function returns the diagram as ggplot object
+The function returns the diagram stored in a variable
 }
 \description{
 The model needs to adhere to the structure specified by the modelbuilder package

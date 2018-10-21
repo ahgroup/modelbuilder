@@ -9,7 +9,7 @@
 #' if the user provides an Rdata file name, this file needs to contain an object called 'model'
 #' and contain a valid modelbuilder model structure
 #' @param model model structure, either as list object or Rdata file name
-#' @return The function returns the diagram as ggplot object
+#' @return The function returns the diagram stored in a variable
 #' @author Andreas Handel
 #' @export
 
@@ -40,7 +40,7 @@ generate_diagram <- function(model) {
     cmax = 4
     elpos = diagram::coordinates(pos = rep(min(cmax,nvars),ceiling(nvars/cmax)))
 
-    diagram::openplotmat(main = "model")
+    diagram::openplotmat(main = "")
 
     #add flow arrows to compartments
     #want to do flows before compartments so boxes cover part of arrows
@@ -50,7 +50,7 @@ generate_diagram <- function(model) {
         varflows = flowmatred[i,] #all flows for current variable
         varflowsigns = signmat[i,] #signs of flows for current variable
         varflows = varflows[!is.na(varflows)] #remove NA entries
-        #browser()
+
         for (j in 1:length(varflows))
         {
             currentflowfull = varflowsfull[j] #loop through all flows for variable
@@ -90,12 +90,12 @@ generate_diagram <- function(model) {
                 linkvar = connectvars[which(connectvars != i)] #find number of variable to link to
                 if (abs(linkvar-i)==1) #if the variables are neighbors, make straight arrow, otherwise curved
                 {
-                    straightarrow(from=elpos[i,], to=elpos[linkvar,])
+                    diagram::straightarrow(from=elpos[i,], to=elpos[linkvar,])
                     text(elpos[i,1]+0.15,elpos[i,2]+0.05,currentflow)
                 }
                 else
                 {
-                    curvedarrow(from=elpos[i,], to=elpos[linkvar,],curve=0.4)
+                    diagram::curvedarrow(from=elpos[i,], to=elpos[linkvar,],curve=0.4)
                     text(elpos[i,1]+0.1,elpos[i,2]+0.05,currentflow)
                 }
             }
@@ -108,4 +108,8 @@ generate_diagram <- function(model) {
     {
         diagram::textrect(mid=elpos[i,],radx=0.05,shadow.size=0.01,lab=varnames[i],box.col='lightblue')
     }
+
+
+    modelplot <- recordPlot()
+
 }

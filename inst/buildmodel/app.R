@@ -108,14 +108,9 @@ server <- function(input, output)
 
     # make and display equations
     output$equations =  renderUI( withMathJax(generate_equations(dynmodel()) ) )
-    #reactive( {
-    #    if (!is.null(model()))
-    #    {
-    #    output$equations =  renderUI( withMathJax(generate_equations(model()) ) )
-    #    }
-    #})
 
-    output$diagram = renderPlot( generate_diagram(dynmodel()))
+    # make and display plot
+    #output$diagram = renderPlot( replayPlot(generate_diagram(dynmodel())) )
 
 
     #define number of variables and parameters globally, is updated based on user pressing add/delete variables/parameters

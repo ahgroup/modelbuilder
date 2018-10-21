@@ -27,6 +27,7 @@ Imports:
     stats (>= 3.4),
     tidyr (>= 0.7),
     utils (>= 3.4),
+    shape,
     stringr,
     readr,
     XML
