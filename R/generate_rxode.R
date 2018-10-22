@@ -1,7 +1,7 @@
-library(RxODE)
-
 #' Create a rxode simulation model
 #'
+#' This function takes as input a modelbuilder model and writes code
+#' for an ODE simulator implemented with rxode
 #'
 #' @description The model needs to adhere to the structure specified by the modelbuilder package
 #' models built using the modelbuilder package automatically have the right structure
@@ -12,21 +12,17 @@ library(RxODE)
 #' @param location a path/folder to save the simulation code to. Default is current directory
 #' @return The function does not return anything
 #' Instead, it writes an R file into the specified directory
+#' this R file contains a rxode implementation of the model
 #' the name of the file is simulate_model$title_rxode.R
-#' @author Andreas Handel
+#' @author Ishaan Dave, Andreas Handel
 #' @export
 
-generate_rxode <- function(model, location = NULL)
+generate_rxode <- function(model, location)
 {
-  #otherwise, it is assumed that 'model' is a list structure of the right type
-  if(is.character(model)) {load(model)}
-  
+
   #the name of the function produced by this script is simulate_ + "model title" + "_rxode.R"
   savepath = location #default is current directory for saving the R function
-  
-  #if location is supplied, that's where the code will be saved to
-  # if (!is.null(location)) {savepath = paste0(location,'/',filename)}
-  
+
   #the name of the function produced by this script is  "model title" + "_RxODE.R"
   nvars = length(model$var)  #number of variables/compartments in model
   npars = length(model$par)  #number of parameters in model
@@ -70,14 +66,14 @@ generate_rxode <- function(model, location = NULL)
   sdesc=paste0(sdesc,"#' @export \n \n")
   ##############################################################################
   #the next block of commands produces the ODE function required by RxODE
-  
+
   #this creates the lines of code for the main function
   #text for head of main body of function
   varstring = "vars = c("
   varnames = ""
   varnamestring = ""
   varstartvals = ""
-  
+
 
   for (n in 1:nvars)
   {
@@ -85,12 +81,12 @@ generate_rxode <- function(model, location = NULL)
     varnamestring=paste0(varnamestring,'"',model$var[[n]]$varname,'",')
     varnames=paste0(varnames,',',model$var[[n]]$varname)
   }
-  
+
   varnamestring = substr(varnamestring,1,nchar(varnamestring)-1) #trim off final comma
   varstring = substr(varstring,1,nchar(varstring)-2)
   varstring = paste0(varstring,'), ') #close parantheses
-  
-  
+
+
   parstring = "pars = c("
   for (n in 1:npars)
   {
@@ -98,7 +94,7 @@ generate_rxode <- function(model, location = NULL)
   }
   parstring = substr(parstring,1,nchar(parstring)-2)
   parstring = paste0(parstring,'), ') #close parantheses
-  
+
   timestring = "times = c("
   for (n in 1:ntime)
   {
@@ -108,10 +104,10 @@ generate_rxode <- function(model, location = NULL)
   timestring = paste0(timestring,') ') #close parantheses
 
   ##############################################################################
-  
-  
+
+
   stitle = paste0("simulate_",modeltitle,"_RxODE <- function(",varstring, parstring, timestring,') \n{ \n')
-  
+
   sdisc = "\n "
   sdisc = paste0(sdisc," SIR_model_ode <- \n")
   sdisc = paste0(sdisc,'  \n', '"\n#Start ODE \n')
@@ -119,18 +115,18 @@ generate_rxode <- function(model, location = NULL)
   {
     sdisc = paste0(sdisc,' ',"d/dt(",model$var[[n]]$varname,")","=",paste(model$var[[n]]$flows, collapse = ' '), '; \n' )
   }
-  
-  sdisc = paste0(sdisc, "#End ODEs \n", '"'," \n \n")
-  
 
-  
+  sdisc = paste0(sdisc, "#End ODEs \n", '"'," \n \n")
+
+
+
   sdisc = paste0(sdisc,'  times=seq(times[1],times[2],by=times[3]) \n')
   sdisc = paste0(sdisc,'  ev = eventTable() \n')
   sdisc = paste0(sdisc,'  ev$add.sampling(times) \n \n')
   sdisc = paste0(sdisc,'  inits = vars \n \n')
   sdisc = paste0(sdisc,'  mod = RxODE(model = SIR_model_ode, modName = "mod1") \n \n')
   sdisc = paste0(sdisc,'  odeout<- mod$run(pars, ev, inits=inits) \n \n')
-  
+
   smain = "\n "
   smain = paste0(smain,'  result <- list() \n \n');
   smain = paste0(smain,'  result$ts <- as.data.frame(odeout) \n \n')

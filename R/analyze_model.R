@@ -61,6 +61,18 @@ analyze_model <- function(modeltype, rngseed, nreps, plotscale, input, model) {
       fctcall <- generate_fctcall(input=input,model=model,modeltype='discrete')
   }
 
+  #as needed create, then source code and make fct call
+  if (modeltype == 'stochastic')
+  {
+      if (!exists(file_stochastic)) #check if function/code is available, if not generate
+      {
+          #parses the model and creates the code to call/run the simulation
+          generate_stochastic(model = model, location = file_stochastic)
+      }
+      source(file_stochastic) #source file
+      fctcall <- generate_fctcall(input=input,model=model,modeltype='stochastic')
+  }
+
 
 
   #run simulation, show a 'running simulation' message
