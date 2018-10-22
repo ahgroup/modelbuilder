@@ -26,17 +26,17 @@
 * The generate_discrete and other functions create internal variables in the code, e.g. 'ts'. If a user happens to call one of their variables/compartments the same name, problems likely arise. Might have to rename our internal variables to something unlikely to conflict (e.g. ts_mb) and/or implement checks to prevent use of certain names.
 
 
-## Functions needed
-* A shiny app for the main menu - beginning exists in `inst\mainmenu\` subfolder.
-* A shiny app for model building/modification/saving - beginning exists in `inst\buildmodel\` 
-* A shiny app for model analysis - fairly complete one exists in `inst\analyzemodel\` 
-* Helper functions that build and show diagram and equations as model is built (can be reactive or triggered by button press).
-* Functions that take the internal model object and turn it into code/functions to be run using deSolve, adaptivetau,... Several exsit, called generate_...
-
-
 ## modelbuilder Model structure
 We'll store a model as a list, and save it as Rdata file. 
-The model list will have the following components (subject to change):
+
+
+The model list will have the components described below.
+The following constraints are currently imposed:
+
+* Variable names have to start with an upper-case letter and can only contain letters and numbers
+* Parameter names have to start with a lower-case letter and can only contain letters and numbers
+
+
 
 ### Meta-Information
 * `model$title` - model title

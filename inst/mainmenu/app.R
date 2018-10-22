@@ -281,15 +281,26 @@ server <- function(input, output, session) {
   #any variable or parameter listed in flows needs to be specified as variable or parameter
   dynmodel <- eventReactive(input$makemodel, {
 
-      #this code reads all the inputs and checks for errors that need fixing
-      #if there are errors, the function needs to terminate with an error message
+      # NOT WORKING
+      #we need code that reads all the inputs and checks for errors that need fixing
+      #if there are errors, the user needs to be told what is wrong and asked to fix
+      #the rest of this function should not execute
       #only if there are no errors should the rest of the code be executed
       #which writes the inputs into the model structure
 
       #test that no input fields are empty
-      #if any is empty, stop and alert user
+      #if any is empty, stop and alert user to fill in field
 
-      #test that all
+      #test that:
+      # Variable names have to start with an upper-case letter and can only contain letters and numbers
+      # Parameter names have to start with a lower-case letter and can only contain letters and numbers
+
+      #if a flow does not have a + or - sign in front, assume it's positive and add a + sign
+      #make sure that all flows only consist of specified variables, parameters and math symbols ( +,-,*,^,/,() ). Other math notation such as e.g. sin() or cos() is not yet supported.
+
+      #make sure every parameter listed in the flows is specified as a parameter
+
+      #if tests above are ok, save model in a structure
 
       #structure that holds the model
       dynmodel = list()
