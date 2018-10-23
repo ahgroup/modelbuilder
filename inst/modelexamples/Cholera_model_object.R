@@ -31,13 +31,13 @@ var[[2]]$flownames = c('infection of susceptibles','recovery of infected')
 var[[3]]$varname = "B"
 var[[3]]$vartext = "Bacteria"
 var[[3]]$varval = 0
-var[[3]]$flows = c('+B*nbmb','+e*I')
+var[[3]]$flows = c('+nb*B', '-mb*B', '+e*I')
 var[[3]]$flownames = c('bacteria growth','bacteria decay','bacteria shedding')
 
 model$var = var
 
 #list of elements for each model parameter.
-par = vector("list",7)
+par = vector("list",8)
 par[[1]]$parname = 'h'
 par[[1]]$partext = 'population size'
 par[[1]]$parval = 10000
@@ -58,13 +58,17 @@ par[[5]]$parname = 'r'
 par[[5]]$partext = 'recovery rate'
 par[[5]]$parval =  0.2
 
-par[[6]]$parname = 'nbmb'
-par[[6]]$partext = 'effective bacteria growth rate'
-par[[6]]$parval = -0.33
+par[[6]]$parname = 'nb'
+par[[6]]$partext = 'bacteria growth rate'
+par[[6]]$parval =  1
 
-par[[7]]$parname = 'e'
-par[[7]]$partext = 'bacteria shedding rate'
-par[[7]]$parval =  10
+par[[7]]$parname = 'mb'
+par[[7]]$partext = 'bacteria death rate'
+par[[7]]$parval =  1.33
+
+par[[8]]$parname = 'e'
+par[[8]]$partext = 'bacteria shedding rate'
+par[[8]]$parval =  10
 
 model$par = par
 
