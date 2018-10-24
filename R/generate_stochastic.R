@@ -1,7 +1,11 @@
-#' Create a stochastic simulation model
+library(adaptivetau)
+library(plyr)
+library(dplyr)
+
+#' Create an discrete time simulation model
 #'
 #' This function takes as input a modelbuilder model and writes code
-#' for a stochastic simulator function using the adpativetau package
+#' for a discrete time deterministc simulator function
 #'
 #' @description The model needs to adhere to the structure specified by the modelbuilder package
 #' models built using the modelbuilder package automatically have the right structure
@@ -9,21 +13,30 @@
 #' if the user provides an Rdata file name, this file needs to contain an object called 'model'
 #' and contain a valid modelbuilder model structure
 #' @param model model structure, either as list object or Rdata file name
-#' @param location a path/folder to save the simulation code to.
-#' @return The function does not return anything.
-#' Instead, it writes an R file into the specified directory.
-#' This R file contains a rxode implementation of the model.
-#' the name of the file is simulate_model$title_stochastic.R
-#' @author  Ishaan Dave, Andreas Handel
+#' @param location a path/folder to save the simulation code to. Default is current directory
+#' @return The function does not return anything
+#' Instead, it writes an R file into the specified directory
+#' the name of the file is simulate_model$title_adaptivetau.R
+#' @author Andreas Handel
 #' @export
 
-generate_stochastic <- function(model, location)
+
+
+generate_stochastic <- function(model, location = NULL)
 {
 
-  #the name of the function produced by this script is simulate_ + "model title" + "_stochastic.R"
-  savepath = location
+  #if the model is passed in as an Rdata file name, load it
+  #otherwise, it is assumed that 'model' is a list structure of the right type
+  if(is.character(model)) {load(model)}
 
-  #the name of the function produced by this script is  "model title" + "_stochastic.R"
+  #the name of the function produced by this script is simulate_ + "model title" + "_stochastic.R"
+  savepath = "/Users/ishaandave/Desktop/Melissa/model builder/ODE Model Conversions/stochastic.R"
+
+  #if location is supplied, that's where the code will be saved to
+  # if (!is.null(location)) {savepath = paste0(location,'/',filename)}
+
+
+  #the name of the function produced by this script is  "model title" + "_adaptivetau.R"
   nvars = length(model$var)  #number of variables/compartments in model
   npars = length(model$par)  #number of parameters in model
   ntime = length(model$time) #numer of parameters for time
@@ -108,73 +121,122 @@ generate_stochastic <- function(model, location)
 
 
   ##############################################################################
-  #the next block of commands produces the rate functions required by adaptivetau
+  #the next block of commands produces the ODE/rate functions required by adaptivetau
   varnames = unlist(sapply(model$var, '[', 1)) #extract variable names as vector
   vartext = unlist(sapply(model$var, '[', 1)) #extract variable text as vector
   allflows = sapply(model$var, '[', 4) #extract flows
+
   #turns flow list into matrix, adding NA, found it online, not sure how exactly it works
   flowmat = t(sapply(allflows, `length<-`, max(lengths(allflows))))
   flowmatred = sub("\\+|-","",flowmat)   #strip leading +/- from flows
   signmat =  gsub("(\\+|-).*","\\1",flowmat) #extract only the + or - signs from flows so we know the direction
 
+  #creating a dataframe of only the rates
   dfRates = as.data.frame(c(flowmat))
+
+  #deleting "NA"s from the dataframe
   dfRates = na.omit(cbind(rep(varnames, ncol(flowmat)), dfRates))
+
+  #extracting coefficient from the rates/flows
   dfRates$coef = paste(substr(dfRates$`c(flowmat)`,1,1), "1", sep = "")
+
+  #new variable of raw flows with no coefficients
   dfRates$noCoefs = na.omit(c(flowmatred))
 
+  #renaming variables in dataframe
   names(dfRates) = c("variable", "flows", "coefs", "rawFlows")
+
+  #ordering the raw flow rates alphabetically
   dfRates = dfRates[order(dfRates$rawFlows),]
-  countsFlows = dplyr::count(dfRates, rawFlows)
+
+  #count() creates dataframe of raw flows and number of times they occur in the model
+  countsFlows = count(dfRates, rawFlows)
   rownames(dfRates) = c()
+
+  # ordering flows by number of occurences
   countsFlows1 = countsFlows[order(-countsFlows$n),]
+
+  #removing rownames
   rownames(countsFlows1) = c()
+
+  #rates list for rate function, pasting unique flows separated by a comma
   ratesList = paste(unique(countsFlows1$rawFlows), sep = ",", collapse =", ")
 
-  sdisc = "  #Block of equations for adaptivetau \n"
-  sdisc = paste0(sdisc,"  ", gsub(" ","_",model$title),'_stochastic <- function(y, parms, t) \n  {\n')
+
+  # this block of code gives all rates/flows specified in the model structure
+  sdisc = "  #Block of ODE equations for adaptivetau \n"
+  sdisc = paste0(sdisc,"  ", gsub(" ","_",model$title),'_ode <- function(y, parms, t) \n  {\n')
   sdisc = paste0(sdisc,"    with(as.list(c(y,parms)),   \n     { \n")#lets us access variables and parameters stored in y and parms by name
   sdisc = paste0(sdisc,"       #specify each rate/transition/reaction that can happen in the system \n")
   sdisc = paste0(sdisc,"     rates = c(", ratesList, ")", "\n")
-  sdisc = paste0(sdisc,"     return(rates) \n      }\n", "\t \t \t \t)   \n   } # end function specifying rates used by adaptive tau \n")
+  sdisc = paste0(sdisc,"     return(rates) \n      }\n", "\t \t)   \n   } # end function specifying rates used by adaptive tau \n")
 
-  ## this next block of code produces the transitions between compartments required by adaptive tau
   sdisc = paste0(sdisc, "\n ")
+
+
   sdisc = paste0(sdisc, "  #specify for each reaction/rate/transition how the different variables change \n")
   sdisc = paste0(sdisc, "  #needs to be in exactly the same order as the rates listed in the rate function \n")
 
+ 
+  # this next block of code produces the transitions between compartments required by adaptive tau
   sdisc = paste0(sdisc, "   transitions = list(" )
 
+     #countFlows2 creates df of all raw flows, compartment they go into/out of and corresponding compartment/coefficientle
      countsFlows2 = merge(dfRates, countsFlows1, by.x = "rawFlows", by.y = "rawFlows")
-     uniqueFlows = countsFlows2[!duplicated(countsFlows2$rawFlows), ]
-     uniqueFlows$trans = ifelse(uniqueFlows$n == 1 , paste0("c(", uniqueFlows$variable, " = ", uniqueFlows$coefs, ")"), "NA")
+
+     # sort counts of flows in decreasing order
      countsFlows2 = countsFlows2[order(-countsFlows2$n),]
 
-     for (i in seq(from = 1, to = nrow(countsFlows2), by = 2))
-     {
-       countsFlows2$trans[i] = ifelse(countsFlows2$n > 1,
-                     paste0("c(", countsFlows2$variable[i], " = ", countsFlows2$coefs[i], ",",
-                     countsFlows2$variable[i+1], " = ", countsFlows2$coefs[i+1], ")"),
-                     uniqueFlows$trans)
+     # new dataset of only flows where it appears more than once
+     countsFlowsGT1 = countsFlows2[which(countsFlows2$n > 1), ]
+
+     # deletes all duplicate flows. we are left with rates that are unique
+     uniqueFlows = countsFlows2[!duplicated(countsFlows2$rawFlows), ]
+
+    # if there is only one flow for a compartment, paste that transition (compartment 1 to comparment 2)
+     # otherwise, replace with NA
+     uniqueFlows$trans = ifelse(uniqueFlows$n == 1 , paste0("c(", uniqueFlows$variable, " = ", uniqueFlows$coefs, ")"), "NA")
+
+
+
+     # in dataframe where rates that appear more than once, read every other line
+     #  extract coefficient of those rates from the first compartment to the next in "trans" variable
+     # if line not read by loop, replace it by a NA
+     
+     for (i in seq(from = 1, to = nrow(countsFlowsGT1)-1, by = 2)){
+
+       countsFlowsGT1$trans[i] = paste0("c(", countsFlowsGT1$variable[i], " = ", countsFlowsGT1$coefs[i], ",",
+                                        countsFlowsGT1$variable[i+1], " = ", countsFlowsGT1$coefs[i+1], ")")
+      
+       countsFlowsGT1$trans[i+1] = NA
+       
      }
 
+
+    # sort the unique flows in decreasing number of appearence
      uniqueFlows = uniqueFlows[order(-uniqueFlows$n), ]
 
-     uniqueFlows$trans = ifelse(uniqueFlows$trans == "NA", countsFlows2$trans[c(T,F)], uniqueFlows$trans)
+     # take lines where data was read in for loop in countsFlowsGT1 (every other line)
+     # and replaces NA's in unique FLow
 
-    transitionList = paste(uniqueFlows$trans, sep = ", \n \t \t \t \t\t\t\t\t\t\t", collapse =", \n \t \t \t \t\t\t\t\t\t\t")
+     uniqueFlows$trans = ifelse(uniqueFlows$trans == "NA", countsFlowsGT1$trans[c(T,F)], uniqueFlows$trans)
+
+    # printing all trans in uniqueFlows separated by a comma
+    transitionList = paste(uniqueFlows$trans, sep = ", \n \t \t \t\t\t\t", collapse =", \n \t \t \t\t\t\t")
+
 
   sdisc = paste0(sdisc, transitionList, ")")
 
-  #finish block that creates the ODE function
-  ##############################################################################
+  #finish block that creates the ODE function-----------------------------
 
-  stitle = paste0("simulate_",modeltitle,"_stochastic <- function(",varstring, parstring, timestring,') \n { \n')
 
-  smain = "\n"
-  smain = paste0(smain, "\n  \t set.seed(100) # to allow reproducibility \n \n")
-  smain = paste0(smain,' \t #this line runs the simulation using the SSA algorithm in the adaptivetau package \n')
+
+  stitle = paste0("simulate_",modeltitle,"_adaptivetau <- function(",varstring, parstring, timestring,') \n { \n')
+
+  smain = "\n\n"
+  smain = paste0(smain,'  #this line runs the simulation using the SSA algorithm in the adaptivetau package \n')
   smain = paste0(smain,'  odeout = adaptivetau::ssa.adaptivetau(init.values = vars, transitions = transitions,
-                \t \t \t rateFunc = ',gsub(" ","_",model$title),'_stochastic, params = pars, tf = times[2]) \n')
+                \t \t \t rateFunc = ',gsub(" ","_",model$title),'_ode, params = pars, tf = times[2]) \n')
   smain = paste0(smain,'  result <- list() \n \n');
   smain = paste0(smain,'  result$ts <- as.data.frame(odeout) \n \n')
   smain = paste0(smain,'  return(result) \n \n')
