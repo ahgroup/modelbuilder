@@ -31,16 +31,38 @@ generate_diagram <- function(model) {
     signmat =  gsub("(\\+|-).*","\\1",flowmat) #extract only the + or - signs from flows so we know the direction
 
 
-
-    graphics.off()
-
-    #compartments are organized on a grid
+    #compartments are organized on a grid with values between 0 and 1
     #we place a max of cmax compartments per row
     #if more, we start a new row
     cmax = 4
-    elpos = diagram::coordinates(pos = rep(min(cmax,nvars),ceiling(nvars/cmax)))
+
+    yfull =  (nvars %/% cmax)     #number of full rows of compartments
+    yfinal = (nvars %% cmax) #number of compartments in final row
+
+    xmin = seq(0, ,length=cmax) #min coordinates for boxes
+    xmax = xmin
 
     diagram::openplotmat(main = "")
+
+
+
+    d=data.frame(xmin=, xmax=seq(0,1,length=nvars), y1=c(1,1,4,1,3), y2=c(2,2,5,3,5), t=c('a','a','a','b','b'), r=c(1,2,3,4,5))
+    ggplot() +
+        scale_x_continuous(name="x") +
+        scale_y_continuous(name="y") +
+        geom_rect(data=d, mapping=aes(xmin=x1, xmax=x2, ymin=y1, ymax=y2), color="black", alpha=0.5) +  geom_text(data=d, aes(x=x1+(x2-x1)/2, y=y1+(y2-y1)/2, label=r), size=4) +
+
+    plot1 <- ggplot2::ggplot()
+
+    #loop over all compartments and plot them as boxes
+    for (i in 1:nvars)
+    {
+
+        #plot1 <- plot1 +  ggplot2::geom_rect(aes(NULL, NULL), fill="yellow", alpha=0.1, xmin = log10(8.6), xmax = log10(259.2), ymin = log10(2.9e-7), ymax = log10(2.1e-4), data = exp1)
+
+
+        #diagram::textrect(mid=elpos[i,],radx=0.05,shadow.size=0.01,lab=varnames[i],box.col='lightblue')
+    }
 
     #add flow arrows to compartments
     #want to do flows before compartments so boxes cover part of arrows
@@ -62,6 +84,13 @@ generate_diagram <- function(model) {
             #if no other variable, make a flow that goes from current compartment to nowhere
             if (length(connectvars) == 1 && currentsign == "+") #an inflow
             {
+                xcords=10^log10( c(5,142,142,5));
+                ycords=10^log10( c(2.1e-7, 2.1e-7, 2.5e-7, 2.5e-7))
+                exp2=as.data.frame(cbind(xcords,ycords,rep(2,4)));
+                names(exp2)=c("km","kp","Fitness")
+
+
+                #plot1 <- plot1 +  ggplot2::
                 diagram::straightarrow(from=elpos[i,]+c(0,0.1),to=elpos[i,])
                 text(elpos[i,1],elpos[i,2]+0.12,currentflow)
             }
@@ -104,10 +133,6 @@ generate_diagram <- function(model) {
         } #end loop over flows for each variable
     } #end loop over all variables
     #place all compartments sequentially
-    for (i in 1:nvars)
-    {
-        diagram::textrect(mid=elpos[i,],radx=0.05,shadow.size=0.01,lab=varnames[i],box.col='lightblue')
-    }
 
 
     modelplot <- recordPlot()
