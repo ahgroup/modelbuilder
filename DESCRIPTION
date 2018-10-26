@@ -19,8 +19,6 @@ Imports:
     deSolve (>= 1.13),
     dplyr (>= 0.7.4),
     ggplot2 (>= 2.2),
-    Gmisc,
-    grid,
     gridExtra (>= 2.3),
     knitr (>= 1.15),
     rmarkdown (>= 1.10),

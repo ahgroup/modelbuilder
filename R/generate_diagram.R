@@ -39,33 +39,29 @@ generate_diagram <- function(model) {
     yfull =  (nvars %/% cmax)     #number of full rows of compartments
     yfinal = (nvars %% cmax) #number of compartments in final row
 
-    xmin = seq(0, ,length=cmax) #min coordinates for boxes
-    xmax = xmin
+    nrows = ceiling(nvars/cmax) #number of rows for grid
 
-    diagram::openplotmat(main = "")
+    xmin = rep(seq(0,1,by=1/(2*cmax-1))[c(TRUE,FALSE)], nrows) #min coordinates for boxes
+    xmax = rep(seq(0,1,by=1/(2*cmax-1))[c(FALSE,TRUE)], nrows) #max coordinates for boxes
 
+    yplotmin = 0.2
+    yplotmax = 0.8 #max range for y - doesn't seem to make a difference
+    ymin = sort(rep(seq(yplotmin,yplotmax,by=(yplotmax-yplotmin)/(2*nrows-1))[c(TRUE,FALSE)], cmax)) #sort gets the x and y values in the right configuration
+    ymax = sort(rep(seq(yplotmin,yplotmax,by=(yplotmax-yplotmin)/(2*nrows-1))[c(FALSE,TRUE)], cmax))
 
+    #data frame with all compartments and their positions
+    d=data.frame(xmin=xmin[1:nvars], xmax=xmax[1:nvars], ymin=ymin[1:nvars], ymax=ymax[1:nvars], vartext=vartext)
+    d <- dplyr::mutate(d, xcenter = xmin+(xmax-xmin)/2, ycenter = ymin+(ymax-ymin)/2)
 
-    d=data.frame(xmin=, xmax=seq(0,1,length=nvars), y1=c(1,1,4,1,3), y2=c(2,2,5,3,5), t=c('a','a','a','b','b'), r=c(1,2,3,4,5))
-    ggplot() +
-        scale_x_continuous(name="x") +
-        scale_y_continuous(name="y") +
-        geom_rect(data=d, mapping=aes(xmin=x1, xmax=x2, ymin=y1, ymax=y2), color="black", alpha=0.5) +  geom_text(data=d, aes(x=x1+(x2-x1)/2, y=y1+(y2-y1)/2, label=r), size=4) +
+    #plot compartments
+    plot1 <- ggplot2::ggplot() + scale_x_continuous(name="",limits=c(0,1)) + scale_y_continuous(name="",limits=c(0,1))
+    plot2 <- plot1 + geom_rect(data=d, mapping=aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), fill = 'white',color = 'black')
+    plot3 <- plot2 + geom_text(data=d, aes(x=xcenter, y=ycenter, label=vartext), size=4)
+    plot4 <- plot3 + theme_void()
 
-    plot1 <- ggplot2::ggplot()
-
-    #loop over all compartments and plot them as boxes
-    for (i in 1:nvars)
-    {
-
-        #plot1 <- plot1 +  ggplot2::geom_rect(aes(NULL, NULL), fill="yellow", alpha=0.1, xmin = log10(8.6), xmax = log10(259.2), ymin = log10(2.9e-7), ymax = log10(2.1e-4), data = exp1)
-
-
-        #diagram::textrect(mid=elpos[i,],radx=0.05,shadow.size=0.01,lab=varnames[i],box.col='lightblue')
-    }
 
     #add flow arrows to compartments
-    #want to do flows before compartments so boxes cover part of arrows
+    arrs=1.4; #arrowsize
     for (i in 1:nvars)
     {
         varflowsfull = flowmat[i,] #all flows with sign for current variable
@@ -82,22 +78,17 @@ generate_diagram <- function(model) {
             #find which variables this flow shows up in
             connectvars = unname(which(flowmatred == currentflow, arr.ind = TRUE)[,1])
             #if no other variable, make a flow that goes from current compartment to nowhere
-            if (length(connectvars) == 1 && currentsign == "+") #an inflow
+            if (length(connectvars) == 1 && currentsign == "+") #an inflow, coming from top
             {
-                xcords=10^log10( c(5,142,142,5));
-                ycords=10^log10( c(2.1e-7, 2.1e-7, 2.5e-7, 2.5e-7))
-                exp2=as.data.frame(cbind(xcords,ycords,rep(2,4)));
-                names(exp2)=c("km","kp","Fitness")
-
-
-                #plot1 <- plot1 +  ggplot2::
-                diagram::straightarrow(from=elpos[i,]+c(0,0.1),to=elpos[i,])
-                text(elpos[i,1],elpos[i,2]+0.12,currentflow)
+                browser()
+                #plot4 = plot4 + ggplot2::geom_segment(aes(x = d$xcenter[i], y = d$ymax[i]+0.1, xend = d$xcenter[i], yend = d$ymax[i] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
+                browser()
             }
             if (length(connectvars) == 1 && currentsign == "-") #an outflow
             {
-                diagram::straightarrow(from=elpos[i,],to=elpos[i,]-c(0,0.1), arr.pos = 1)
-                text(elpos[i,1],elpos[i,2]-0.14,currentflow)
+                browser()
+                #plot4 = plot4 + ggplot2::geom_segment(aes(x = d$xcenter[i], y = d$ymin[i], xend = d$xcenter[i], yend = d$ymin[i]-0.1), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
+                browser()
             }
             #if one other variable, connect with arrow
             if (length(connectvars) == 2 && currentsign == "+") #an inflow
@@ -105,13 +96,13 @@ generate_diagram <- function(model) {
                 linkvar = connectvars[which(connectvars != i)] #find number of variable to link to
                 if (abs(linkvar-i)==1) #if the variables are neighbors, make straight arrow, otherwise curved
                 {
-                    diagram::straightarrow(from=elpos[linkvar,],to=elpos[i,])
-                    #text(elpos[i,1]+0.1,elpos[i,2]+0.05,currentflow)
+                    browser()
+                    #plot4 = plot4 + geom_segment(aes(x = d$xmax[linkvar], y = d$ycenter[linkvar], xend = d$xmin[i], yend = d$ycenter[i] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
+                    browser()
                 }
                 else
                 {
-                    curvedarrow(from=elpos[linkvar,],to=elpos[i,],curve=0.4)
-                    #text(elpos[i,1]+0.1,elpos[i,2]+0.05,currentflow)
+                    #curvedarrow(from=elpos[linkvar,],to=elpos[i,],curve=0.4)
                 }
             }
             if (length(connectvars) == 2 && currentsign == "-") #an outflow
@@ -119,13 +110,14 @@ generate_diagram <- function(model) {
                 linkvar = connectvars[which(connectvars != i)] #find number of variable to link to
                 if (abs(linkvar-i)==1) #if the variables are neighbors, make straight arrow, otherwise curved
                 {
-                    diagram::straightarrow(from=elpos[i,], to=elpos[linkvar,])
-                    text(elpos[i,1]+0.15,elpos[i,2]+0.05,currentflow)
+                    browser()
+                    #plot4 = plot4 + geom_segment(aes(x = d$xmax[i], y = d$ycenter[i], xend = d$xmin[linkvar], yend = d$ycenter[linkvar] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"))
+                    plot5 = plot4 + geom_segment(aes(x = d$xmax[i], y = d$ycenter[i], xend = d$xmin[linkvar], yend = d$ycenter[linkvar] ))
+                    browser()
                 }
                 else
                 {
-                    diagram::curvedarrow(from=elpos[i,], to=elpos[linkvar,],curve=0.4)
-                    text(elpos[i,1]+0.1,elpos[i,2]+0.05,currentflow)
+                    #diagram::curvedarrow(from=elpos[i,], to=elpos[linkvar,],curve=0.4)
                 }
             }
             #more than one variable, i.e. a splitting flow, is currently not allowed
@@ -134,7 +126,5 @@ generate_diagram <- function(model) {
     } #end loop over all variables
     #place all compartments sequentially
 
-
-    modelplot <- recordPlot()
-
+    return(plot4)
 }

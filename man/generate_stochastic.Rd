@@ -2,20 +2,19 @@
 % Please edit documentation in R/generate_stochastic.R
 \name{generate_stochastic}
 \alias{generate_stochastic}
-\title{Create a stochastic simulation model}
+\title{Create an discrete time simulation model}
 \usage{
-generate_stochastic(model, location)
+generate_stochastic(model, location = NULL)
 }
 \arguments{
 \item{model}{model structure, either as list object or Rdata file name}
 
-\item{location}{a path/folder to save the simulation code to.}
+\item{location}{a path/folder to save the simulation code to. Default is current directory}
 }
 \value{
-The function does not return anything.
-Instead, it writes an R file into the specified directory.
-This R file contains a rxode implementation of the model.
-the name of the file is simulate_model$title_stochastic.R
+The function does not return anything
+Instead, it writes an R file into the specified directory
+the name of the file is simulate_model$title_adaptivetau.R
 }
 \description{
 The model needs to adhere to the structure specified by the modelbuilder package
@@ -26,8 +25,8 @@ and contain a valid modelbuilder model structure
 }
 \details{
 This function takes as input a modelbuilder model and writes code
-for a stochastic simulator function using the adpativetau package
+for a discrete time deterministc simulator function
 }
 \author{
-Ishaan Dave, Andreas Handel
+Andreas Handel
 }
