@@ -3,13 +3,403 @@
 #this function is the server part of the app
 server <- function(input, output, session) {
 
-  stopping <- FALSE
+  #######################################################
+  #start code blocks that contain the build functionality
+  #######################################################
 
-  #code to run build model functionality needs to go here
+
+    #define number of variables and parameters for model globally, is updated based on user pressing add/delete variables/parameters
+    values = reactiveValues()
+    values$nvar <- 1
+    values$npar <- 1
+    values$nflow <- rep(1,50) #number of flows for each variable, currently assuming model does not have more than 50 vars
 
 
-#trying to make UI for analyzemodel reactive so inputs re-build when a new model is loaded.
-#currently not working
+  observe({
+      output$buildmodel <- renderUI({
+          fluidPage(
+              p('General model information', class='mainsectionheader'),
+              fluidRow(
+                  column(4,
+                         textInput("modeltitle", "Model Name")
+                  ),
+                  column(4,
+                         textInput("modelauthor", "Author")
+                  ),
+                  column(4,
+                         textInput("modeldescription", "One sentence model description")
+                  ),
+                  align = "center"
+              ),
+              fluidRow(
+                  textAreaInput("modeldetails", "Long model description"),
+                  align = "center"
+              ),
+              p('Model time information', class='mainsectionheader'),
+              fluidRow(
+                  column(4,
+                         numericInput("tval", "Start time", value = 0)
+                  ),
+                  column(4,
+                         numericInput("tfinal", "Final time", value = 100)
+                  ),
+                  column(4,
+                         numericInput("dt", "Time step", value = 0.1)
+                  )
+              ),
+
+
+              tags$p('All variables need to start with an uppercase letter, all parameters need to start with a lowercase letter. Only letters and numbers are allowed. Flows need to include variables, parameters and the following mathematical symbols: +,-,*,/,^,()'),
+              fluidRow(
+                  actionButton('makemodel', "Generate model", class="savebutton"),
+                  align = "center"
+              ),
+              fluidRow(
+                  column(6,
+                         downloadButton('savemodel', "Save Model", class="savebutton")
+                  ),
+                  column(6,
+                         downloadButton("savediagram", "Save Diagram", class="savebutton")
+                  ),
+                  align = "center"
+              ),
+              tags$br(),
+              fluidRow(
+                  column(4,
+                         actionButton("addvar", "Add variable", class="submitbutton")
+                  ),
+                  column(4,
+                         actionButton("addpar", "Add parameter", class="submitbutton")
+                  ),
+                  column(4,
+                         actionButton("addflow", "Add flow to variable", class="submitbutton")
+                  ),
+                  align = "center"
+              ),
+              fluidRow(
+                  column(4,
+                         actionButton("rmvar", "Remove last Variable", class="submitbutton")
+                  ),
+                  column(4,
+                         actionButton("rmpar", "Remove last Parameter", class="submitbutton")
+                  ),
+                  column(4,
+                         actionButton("rmflow", "Remove flow of variable", class="submitbutton"),
+                         numericInput("targetvar", "Selected variable", value = 1)
+                  ),
+                  align = "center"
+              ),
+              fluidRow( class = 'myrow', #splits screen into 2 for input/output
+                        column(6,
+                               p('Model variable information', class='mainsectionheader'),
+                               ## wrap element in a div with id
+                               tags$div(
+                                   h3(paste("Variable 1")),
+
+                                   fluidRow( class = 'myrow',
+                                             column(2,
+                                                    textInput("var1name", "Variable name")
+                                             ),
+                                             column(3,
+                                                    textInput("var1text", "Variable description")
+                                             ),
+                                             column(2,
+                                                    numericInput("var1val", "Starting value", value = 0)
+                                             )
+                                   ),
+                                   tags$div(
+                                       fluidRow(
+                                           column(6,
+                                                  textInput("var1f1name", "Flow")
+                                           ),
+                                           column(6,
+                                                  textInput("var1f1text", "Flow description")
+                                           )
+                                       ),
+                                       id = 'var1flow1slot'), #close flow div
+                                   id = 'var1slot'), #close var div
+                               p('Model parameter information', class='mainsectionheader'),
+                               tags$div(
+                                   fluidRow( class = 'myrow',
+                                             column(2,
+                                                    textInput("par1name", "Parameter name")
+                                             ),
+                                             column(3,
+                                                    textInput("par1text", "Parameter description")
+                                             ),
+                                             column(2,
+                                                    numericInput("par1val", "Default value", value = 0)
+                                             )
+                                   ),
+                                   id = 'par1slot')
+                        ) , #end input column
+                        #all the outcomes here
+                        column(
+                            6,
+
+                            #################################
+                            h2('Model Diagram'),
+                            plotOutput(outputId = "diagram", height = "500px"),
+                            # PLaceholder for results of type text
+                            h2('Model Equations'),
+                            uiOutput(outputId = "equations")
+                        ) #end column for outcomes
+              ) #end split input/output section
+          ) #end fluid page for build tab
+      }) # End renderUI for build tab
+  }, priority = 100) #end observe for build UI construction
+
+
+
+
+  #add a new variable
+  observeEvent(input$addvar, {
+      values$nvar = values$nvar + 1
+      insertUI(
+          selector = paste0("#var", values$nvar - 1, 'slot'), #current variable
+          where = "afterEnd",
+          ## wrap element in a div with id for ease of removal
+          ui = tags$div(
+              h3(paste("Variable", values$nvar)),
+              fluidRow( class = 'myrow',
+                        column(2,
+                               textInput(paste0("var", values$nvar,'name'), "Variable name")
+                        ),
+                        column(3,
+                               textInput(paste0("var", values$nvar,'text'), "Variable description")
+                        ),
+                        column(2,
+                               numericInput(paste0("var", values$nvar,'val'), "valing value", value = 0)
+                        )
+              ),
+              tags$div(
+                  fluidRow(
+                      column(6,
+                             textInput(paste0("var", values$nvar, 'f1name'), "Flow")
+                      ),
+                      column(6,
+                             textInput(paste0("var", values$nvar, 'f1text'), "Flow description")
+                      )
+                  ),
+                  id = paste0("var", values$nvar, "flow", values$nflow[values$nvar], 'slot')
+              ), #close flow tag
+              id = paste0("var", values$nvar, 'slot')
+          ) #close tags$div
+      ) #close insertUI
+  }) #close observeevent
+
+
+  #remove the last variable
+  observeEvent(input$rmvar, {
+      if (values$nvar == 1) return() #don't remove the last variable
+      removeUI(
+          selector = paste0("#var", values$nvar, 'slot'),
+          immediate = TRUE
+      )
+      values$nvar = values$nvar - 1
+  })
+
+
+  #add a new flow
+  observeEvent(input$addflow, {
+      values$nflow[input$targetvar] = values$nflow[input$targetvar] + 1
+      #browser()
+      insertUI(
+          selector = paste0("#var", input$targetvar, "flow", values$nflow[input$targetvar]-1, 'slot'), #current variable
+          where = "afterEnd",
+          ## wrap element in a div with id for ease of removal
+          ui =
+              tags$div(
+                  fluidRow(
+                      column(6,
+                             textInput(paste0("var", input$targetvar, 'f' , values$nflow[input$targetvar],'name'), "Flow")
+                      ),
+                      column(6,
+                             textInput(paste0("var", input$targetvar, 'f' , values$nflow[input$targetvar],'text'), "Flow description")
+                      )
+                  ),
+                  id = paste0("var", input$targetvar, "flow", values$nflow[input$targetvar], 'slot')
+              ) #close flow tag
+      ) #close insertUI
+  }) #close observeevent
+
+
+  #remove flow from specified variable
+  observeEvent(input$rmflow, {
+      if (values$nflow[input$targetvar] == 1) return() #don't remove the last flow
+      removeUI(
+          selector = paste0("#var", input$targetvar, "flow", values$nflow[input$targetvar], 'slot'),
+          immediate = TRUE
+      )
+      values$nflow[input$targetvar] = values$nflow[input$targetvar] - 1
+  })
+
+
+
+  #add a new parameter
+  observeEvent(input$addpar, {
+      values$npar = values$npar + 1
+      insertUI(
+          selector = paste0("#par", values$npar - 1, 'slot'), #current variable
+          where = "afterEnd",
+          ## wrap element in a div with id for ease of removal
+          ui = tags$div(
+
+              fluidRow( class = 'myrow',
+                        column(2,
+                               textInput(paste0("par", values$npar, 'name'), "Parameter Name")
+                        ),
+                        column(3,
+                               textInput(paste0("par", values$npar,'text'), "Parameter description")
+                        ),
+                        column(2,
+                               numericInput(paste0("par", values$npar,'val'), "Default value", value = 0)
+                        )
+              ),
+              id = paste0("par", values$npar, 'slot')
+          ) #close tags$div
+      ) #close insertUI
+  }) #close observeevent
+
+  #remove the last parameter
+  observeEvent(input$rmpar, {
+      if (values$npar == 1) return() #don't remove the last variable
+      removeUI(
+          selector = paste0("#par", values$npar, 'slot'),
+          immediate = TRUE
+      )
+      values$npar = values$npar - 1
+  })
+
+
+  #when user presses the 'make model' button
+  #this function reads all the inputs and writes them into the model structure
+  #and returns the structure
+  #NEEDED: Before/while building the model, this routine needs to check all inputs and make sure everything is correct
+  #All variables and parameters and flows need to follow naming rules
+  #flows may only contain variables, parameters and math symbols
+  #any variable or parameter listed in flows needs to be specified as variable or parameter
+  dynmodel <- eventReactive(input$makemodel, {
+
+      # NOT WORKING
+      #we need code that reads all the inputs and checks for errors that need fixing
+      #if there are errors, the user needs to be told what is wrong and asked to fix
+      #the rest of this function should not execute
+      #only if there are no errors should the rest of the code be executed
+      #which writes the inputs into the model structure
+
+      #test that no input fields are empty
+      #if any is empty, stop and alert user to fill in field
+
+      #test that:
+      # Variable names have to start with an upper-case letter and can only contain letters and numbers
+      # Parameter names have to start with a lower-case letter and can only contain letters and numbers
+
+      #if a flow does not have a + or - sign in front, assume it's positive and add a + sign
+      #make sure that all flows only consist of specified variables, parameters and math symbols ( +,-,*,^,/,() ). Other math notation such as e.g. sin() or cos() is not yet supported.
+
+      #make sure every parameter listed in the flows is specified as a parameter
+
+      #if tests above are ok, save model in a structure
+
+      #structure that holds the model
+      dynmodel = list()
+
+      dynmodel$title <- isolate(input$modeltitle)
+      dynmodel$author <- isolate(input$modelauthor)
+      dynmodel$textription <- isolate(input$modeltextription)
+      dynmodel$details = isolate(input$modeldetails)
+      dynmodel$date = Sys.Date()
+      var = vector("list",values$nvar)
+      for (n in 1:values$nvar)
+      {
+          var[[n]]$varname = isolate(eval(parse(text = paste0("input$var",n,"name") )))
+          var[[n]]$vartext = isolate(eval(parse(text = paste0("input$var",n,"text") )))
+          var[[n]]$varval = isolate(eval(parse(text = paste0("input$var",n,"val") )))
+          allflows = NULL
+          allflowtext = NULL
+          for (f in 1:values$nflow[n]) #turn all flows and descriptions into vector
+          {
+              newflow = isolate(eval(parse(text = paste0("input$var", n, 'f' , f,'name'))))
+              newflowtext = isolate(eval(parse(text = paste0("input$var", n, 'f' , f,'text'))))
+              allflows = c(allflows,newflow)
+              allflowtext = c(allflowtext, newflowtext)
+          }
+          var[[n]]$flows = allflows
+          var[[n]]$flownames = allflowtext
+      }
+      dynmodel$var = var
+
+      par = vector("list",values$npar)
+      for (n in 1:values$npar)
+      {
+          par[[n]]$parname = isolate(eval(parse(text = paste0("input$par",n,"name") )))
+          par[[n]]$partext = isolate(eval(parse(text = paste0("input$par",n,"text") )))
+          par[[n]]$parval = isolate(eval(parse(text = paste0("input$par",n,"val") )))
+
+      }
+      dynmodel$par = par
+
+      time = vector("list",3)
+      time[[1]]$timename = "tstart"
+      time[[1]]$timetext = "Start time of simulation"
+      time[[1]]$timeval = isolate(eval(parse(text = paste0("input$tval") )))
+
+      time[[2]]$timename = "tfinal"
+      time[[2]]$timetext = "Final time of simulation"
+      time[[2]]$timeval = isolate(eval(parse(text = paste0("input$tfinal") )))
+
+      time[[3]]$timename = "dt"
+      time[[3]]$timetext = "Time step"
+      time[[3]]$timeval = isolate(eval(parse(text = paste0("input$dt") )))
+
+      dynmodel$time = time
+
+      #add call to functions somewhere here that plot diagram and make equations
+      return(dynmodel)
+  })
+
+  # make and display equations
+  output$equations =  renderUI( withMathJax(generate_equations(dynmodel()) ) )
+
+  # make and display plot
+  #output$diagram = renderPlot( replayPlot(generate_diagram(dynmodel())) )
+
+  #store dynmodel() object as reactive value
+  #this lets me save it with code below, if i try to use dynmodel() directly in the save function it doesn't work
+  #i'm not sure why this version works and why I can't save the model directly
+  #https://stackoverflow.com/questions/23036739/downloading-rdata-files-with-shiny
+  tmpmodel <- reactiveValues()
+  observe({
+      if(!is.null(dynmodel()))
+          isolate(
+              tmpmodel <<- dynmodel()
+          )
+  })
+  #writes model to Rdata file
+  output$savemodel <- downloadHandler(
+      filename = function() {
+          paste0(gsub(" ","_",tmpmodel$title),".Rdata")
+      },
+      content = function(file) {
+          stopifnot(!is.null(tmpmodel))
+          save(tmpmodel, file = file)
+      },
+      contentType = "text/plain"
+  )
+
+
+  #######################################################
+  #end code blocks that contain the build functionality
+  #######################################################
+
+
+  #######################################################
+  #start code blocks that contain the analyze functionality
+  #######################################################
+
+
+
 observe({
     model() ## This line makes sure the observe() statement updates with each new model
     generate_shinyinput(model(), output) #produce output elements for each variables, parameters, etc. should be reactive and update when a new model is loaded, but doesn't quite work
@@ -60,7 +450,9 @@ observe({
     #make the UI for the model, saves those into the output elements
     }, priority = 100) #end observe for UI construction
 
-    #runs model simulation when 'run simulation' button is pressed
+
+
+  #runs model simulation when 'run simulation' button is pressed
     observeEvent(input$submitBtn, {
       result <- analyze_model(modeltype = input$modeltype,
                     rngseed = input$rngseed, nreps = input$nreps,
@@ -75,10 +467,23 @@ observe({
       })
     }) #end observe-event for analyze model submit button
 
-  observeEvent(input$Exit, {
-      stopping <<- TRUE
-      stopApp('Exit')
-  })
+
+    #######################################################
+    #end code blocks that contain the analyze functionality
+    #######################################################
+
+
+
+
+    #######################################################
+    #start code blocks that contain the load/import/export functionality
+    #######################################################
+
+
+  #currently only used to get into a browser environment
+  observeEvent(input$importsbml, {
+        browser()
+        })
 
   model <- reactive({
     stopping <<- TRUE
@@ -93,59 +498,92 @@ observe({
       get(ls()[ls() != "filename"])
     }
     d <- loadRData(inFile$datapath)
+    #write code somewhere here that checks that the loaded file is a proper modelbuilder model.
+    #needs to have a non-empty model$title
+    #needs to have a sub-list called var with non-empty fields
+    #most of those checks need to also happen inside the build routine, maybe write a function that can be used
+    #in both places
   })
 
   output$exportode <- downloadHandler(
-    filename = function() {
-      paste0("simulate_",gsub(" ","_",model()$title),"_ode.R")
+      filename = function() {
+        paste0("simulate_",gsub(" ","_",model()$title),"_ode.R")
     },
     content = function(file) {
-      stopifnot(!is.null(model()))
       generate_ode(model = model(), location = file)
     },
     contentType = "text/plain"
   )
 
   output$exportstochastic <- downloadHandler(
-    filename = function() {
-      paste0(gsub(" ","_",model$title),"_stochastic.R")
-    },
-    content = function(file) {
-      stopifnot(!is.null(model()))
-      convert_to_rxode(model = model(), location = file)
-    },
-    contentType = "text/plain"
+      filename = function() {
+          paste0("simulate_",gsub(" ","_",model()$title),"_stochastic.R")
+      },
+      content = function(file) {
+          generate_stochastic(model = model(), location = file)
+      },
+      contentType = "text/plain"
   )
+
 
   output$exportdiscrete <- downloadHandler(
     filename = function() {
       paste0("simulate_",gsub(" ","_",model()$title),"_discrete.R")
     },
     content = function(file) {
-      stopifnot(!is.null(model()))
       generate_discrete(model = model(), location = file)
     },
     contentType = "text/plain"
   )
 
-  output$rxode <- downloadHandler(
+  output$exportrxode <- downloadHandler(
       filename = function() {
-          paste0(gsub(" ","_",model$title),"_rxode.R")
+          paste0("simulate_",gsub(" ","_",model()$title),"_rxode.R")
       },
       content = function(file) {
-          stopifnot(!is.null(model()))
-          convert_to_rxode(model = model(), location = file)
+          generate_rxode(model = model(), location = file)
       },
       contentType = "text/plain"
   )
 
-  session$onSessionEnded(function() {
-    if (!stopping) {
+
+  # NOT WORKING
+  # these lines of code should turn on the export and analyze options off
+  # and only if a model has been loaded will they turn on
+  # see e.g. https://daattali.com/shiny/shinyjs-basic/
+  # also see https://stackoverflow.com/questions/25247852/shiny-app-disable-downloadbutton
+  shinyjs::disable("exportode")
+  shinyjs::disable("exportstochastic")
+  shinyjs::disable("exportdiscrete")
+  shinyjs::disable("exportrxode")
+  #if a model is loaded turn on the buttons
+  observe({
+       if (!is.null(model()$title))
+       {
+           shinyjs::enable(id = "exportode")
+           shinyjs::enable("exportstochastic")
+           shinyjs::enable("exportdiscrete")
+           shinyjs::enable("exportrxode")
+       }
+   })
+
+  #######################################################
+  #end code blocks that contain the load/import/export functionality
+  #######################################################
+
+  observeEvent(input$Exit, {
+      stopping <<- TRUE
       stopApp('Exit')
-    }
   })
 
-}
+  session$onSessionEnded(function() {
+      if (!stopping) {
+          stopApp('Exit')
+      }
+  })
+
+
+} #ends the server function for the app
 
 
 #This is the UI for the Main Menu of modelbuilder
@@ -200,7 +638,8 @@ ui <- fluidPage(
               tabPanel("Build",
                        fluidRow(
                            column(12,
-                                  actionButton("buildmodel", "Build a new model", class="mainbutton")
+                                  #actionButton("buildmodel", "Build a new model", class="mainbutton")
+                                  uiOutput('buildmodel')
                            ),
                            class = "mainmenurow"
                        )

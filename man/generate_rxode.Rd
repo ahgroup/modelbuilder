@@ -4,7 +4,7 @@
 \alias{generate_rxode}
 \title{Create a rxode simulation model}
 \usage{
-generate_rxode(model, location = NULL)
+generate_rxode(model, location)
 }
 \arguments{
 \item{model}{model structure, either as list object or Rdata file name}
@@ -14,6 +14,7 @@ generate_rxode(model, location = NULL)
 \value{
 The function does not return anything
 Instead, it writes an R file into the specified directory
+this R file contains a rxode implementation of the model
 the name of the file is simulate_model$title_rxode.R
 }
 \description{
@@ -23,6 +24,10 @@ a user can also build a model list structure themselves following the specificat
 if the user provides an Rdata file name, this file needs to contain an object called 'model'
 and contain a valid modelbuilder model structure
 }
+\details{
+This function takes as input a modelbuilder model and writes code
+for an ODE simulator implemented with rxode
+}
 \author{
-Andreas Handel
+Ishaan Dave, Andreas Handel
 }

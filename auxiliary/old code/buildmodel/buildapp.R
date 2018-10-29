@@ -26,6 +26,8 @@ server <- function(input, output)
         contentType = "text/plain"
     )
 
+
+
     #when user presses the 'make model' button
     #this function reads all the inputs and writes them into the model structure
     #and returns the structure
@@ -34,6 +36,19 @@ server <- function(input, output)
     #flows may only contain variables, parameters and math symbols
     #any variable or parameter listed in flows needs to be specified as variable or parameter
     dynmodel <- eventReactive(input$makemodel, {
+
+
+        #this code reads all the inputs and checks for errors that need fixing
+        #if there are errors, the function needs to terminate with an error message
+        #only if there are no errors should the rest of the code be executed
+        #which writes the inputs into the model structure
+
+        #test that no input fields are empty
+        #if any is empty, stop and alert user
+
+        #test that all
+
+
         #structure that holds the model
         dynmodel = list()
 
@@ -93,14 +108,9 @@ server <- function(input, output)
 
     # make and display equations
     output$equations =  renderUI( withMathJax(generate_equations(dynmodel()) ) )
-    #reactive( {
-    #    if (!is.null(model()))
-    #    {
-    #    output$equations =  renderUI( withMathJax(generate_equations(model()) ) )
-    #    }
-    #})
 
-    output$diagram = renderPlot( generate_diagram(dynmodel()))
+    # make and display plot
+    #output$diagram = renderPlot( replayPlot(generate_diagram(dynmodel())) )
 
 
     #define number of variables and parameters globally, is updated based on user pressing add/delete variables/parameters
