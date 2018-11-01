@@ -284,7 +284,16 @@ server <- function(input, output, session) {
       # and the number of parameters for each variable, and then
       # check to make sure that none of them are empty; i.e.,
       # that none of them equal "".
-      print(values$nflow) ### Debugging line
+
+      # print(values$nflow[1:values$nvar]) ### Debugging line
+
+      # Function to get the variables and flows
+      vp_strings <- sapply(1:values$nvar,
+                           function(x) paste0("var", x, "f",
+                                              1:values$nflow[x]))
+      print(vp_strings)
+
+
 
       # NOT WORKING
       #we need code that reads all the inputs and checks for errors that need fixing
