@@ -308,7 +308,8 @@ server <- function(input, output, session) {
                        sapply(vp_texts,
                               function(x) ifelse(x == "", 1, 0))) %>%
           sum(.) %>%
-          ifelse(sum > 0, TRUE, FALSE)
+          is_greater_than(0) %>%
+          ifelse(., TRUE, FALSE)
 
       try(if(vp_problem == TRUE) stop("Problem"))
 
