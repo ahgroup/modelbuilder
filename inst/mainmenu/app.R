@@ -285,7 +285,9 @@ server <- function(input, output, session) {
       # and the number of parameters for each variable, and then
       # check to make sure that none of them are empty; i.e.,
       # that none of them equal "".
-      print(input$var1flow1)
+      print(values$nvar)
+      print(values$npar)
+      print(input$var1f1name)
 
       # NOT WORKING
       #we need code that reads all the inputs and checks for errors that need fixing
