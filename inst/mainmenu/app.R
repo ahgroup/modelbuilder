@@ -1,5 +1,7 @@
 #This is the Shiny App for the main menu of the modelbuilder package
 
+library(magrittr)
+
 #this function is the server part of the app
 server <- function(input, output, session) {
 
