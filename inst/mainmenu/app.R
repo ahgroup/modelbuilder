@@ -311,6 +311,8 @@ server <- function(input, output, session) {
           is_greater_than(0) %>%
           ifelse(., TRUE, FALSE)
 
+      print(vp_problem) ### Debugging line
+
       try(if(vp_problem == TRUE) stop("Problem"))
 
 
