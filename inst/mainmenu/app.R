@@ -287,11 +287,24 @@ server <- function(input, output, session) {
 
       # print(values$nflow[1:values$nvar]) ### Debugging line
 
-      # Function to get the variables and flows
-      vp_strings <- sapply(1:values$nvar,
+      # Function to get the variables and flows, returns
+      # prefixes for the individual variable and parameter
+      # combinations, e.g., "var1f2" "var2f3"
+      vp_prefixes <- sapply(1:values$nvar,
                            function(x) paste0("var", x, "f",
-                                              1:values$nflow[x]))
-      print(vp_strings)
+                                              1:values$nflow[x])) %>%
+          unlist(.)
+
+      # name, text
+      vp_names <- paste
+
+
+
+      # This block of code checks to make sure all the variable
+      # flows that have been initialized are actually filled.
+      check_flows <- ifelse(unlist(vp_prefixes))
+
+
 
 
 
