@@ -240,7 +240,6 @@ server <- function(input, output, session) {
   #add a new parameter
   observeEvent(input$addpar, {
       values$npar = values$npar + 1
-      print(values$npar) ### Debugging line
       insertUI(
           selector = paste0("#par", values$npar - 1, 'slot'), #current variable
           where = "afterEnd",
@@ -282,8 +281,11 @@ server <- function(input, output, session) {
   #flows may only contain variables, parameters and math symbols
   #any variable or parameter listed in flows needs to be specified as variable or parameter
   dynmodel <- eventReactive(input$makemodel, {
-      print(input$modeltitle) ### Debugging line
-      print(values$nvar) ### Debugging line
+      # What I need to do is figure out the number of variables,
+      # and the number of parameters for each variable, and then
+      # check to make sure that none of them are empty; i.e.,
+      # that none of them equal "".
+      print(input$var1flow1)
 
       # NOT WORKING
       #we need code that reads all the inputs and checks for errors that need fixing
