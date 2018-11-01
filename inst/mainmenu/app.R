@@ -299,13 +299,18 @@ server <- function(input, output, session) {
 
       # name, text
       vp_names <- paste0(vp_prefixes, "name")
-      print(input[[vp_names[1]]]) ### Debugging line
-
-
+      vp_texts <- paste0(vp_prefixes, "text")
 
       # This block of code checks to make sure all the variable
       # flows that have been initialized are actually filled.
-      check_flows <- ifelse(unlist(vp_prefixes))
+      vp_problem <- c(sapply(vp_names,
+                            function(x) ifelse(x == "", 1, 0)),
+                       sapply(vp_texts,
+                              function(x) ifelse(x == "", 1, 0))) %>%
+          sum(.) %>%
+          ifelse(sum > 0, TRUE, FALSE)
+
+      try(if(vp_problem == TRUE) stop("Problem"))
 
 
 
