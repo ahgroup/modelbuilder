@@ -304,9 +304,9 @@ server <- function(input, output, session) {
       # This block of code checks to make sure all the variable
       # flows that have been initialized are actually filled.
       vp_problem <- c(sapply(vp_names,
-                            function(x) ifelse(x == "", 1, 0)),
+                            function(x) ifelse(input[[x]] == "", 1, 0)),
                        sapply(vp_texts,
-                              function(x) ifelse(x == "", 1, 0))) %>%
+                              function(x) ifelse(input[[x]] == "", 1, 0))) %>%
           sum(.) %>%
           is_greater_than(0) %>%
           ifelse(., TRUE, FALSE)
