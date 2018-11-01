@@ -155,7 +155,6 @@ server <- function(input, output, session) {
   #add a new variable
   observeEvent(input$addvar, {
       values$nvar = values$nvar + 1
-      print(values$nvar) ### Debugging line
       insertUI(
           selector = paste0("#var", values$nvar - 1, 'slot'), #current variable
           where = "afterEnd",
@@ -285,9 +284,7 @@ server <- function(input, output, session) {
       # and the number of parameters for each variable, and then
       # check to make sure that none of them are empty; i.e.,
       # that none of them equal "".
-      print(values$nvar)
-      print(values$npar)
-      print(input$var1f1name)
+      print(values$nflow) ### Debugging line
 
       # NOT WORKING
       #we need code that reads all the inputs and checks for errors that need fixing
