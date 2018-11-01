@@ -1,5 +1,7 @@
 #This is the Shiny App for the main menu of the modelbuilder package
 
+library(magrittr)
+
 #this function is the server part of the app
 server <- function(input, output, session) {
 
@@ -140,7 +142,7 @@ server <- function(input, output, session) {
                             #################################
                             h2('Model Diagram'),
                             plotOutput(outputId = "diagram", height = "500px"),
-                            # PLaceholder for results of type text
+                            # Placeholder for results of type text
                             h2('Model Equations'),
                             uiOutput(outputId = "equations")
                         ) #end column for outcomes
@@ -280,6 +282,62 @@ server <- function(input, output, session) {
   #flows may only contain variables, parameters and math symbols
   #any variable or parameter listed in flows needs to be specified as variable or parameter
   dynmodel <- eventReactive(input$makemodel, {
+      # Function to get the variables and flows, returns
+      # prefixes for the individual variable and parameter
+      # combinations, e.g., "var1f2" "var2f3"
+      vp_prefixes <- sapply(1:values$nvar,
+                           function(x) paste0("var", x, "f",
+                                              1:values$nflow[x])) %>%
+          unlist(.)
+
+      vp_names <- paste0(vp_prefixes, "name")
+      vp_texts <- paste0(vp_prefixes, "text")
+
+      # This block of code checks to make sure all the variable
+      # flows that have been initialized are actually filled.
+      vp_problem <- c(sapply(vp_names,
+                            function(x) ifelse(input[[x]] == "", 1, 0)),
+                       sapply(vp_texts,
+                              function(x) ifelse(input[[x]] == "", 1, 0))) %>%
+          sum(.) %>%
+          is_greater_than(0) %>%
+          ifelse(., TRUE, FALSE)
+
+      # This try() statement checks to see if any variable flow
+      # names or texts are missing.
+      try(if(vp_problem == TRUE)
+          stop("Variable flow name(s) and / or text(s) missing"))
+
+      # name, text, var
+      par_prefixes <- sapply(1:values$npar,
+                           function(x) paste0("par", x))
+      par_names <- paste0(par_prefixes, "name")
+      par_text <- paste0(par_prefixes, "text")
+      par_var <- paste0(par_prefixes, "var")
+
+      par_problem <- c(sapply(par_names,
+                              function(x) ifelse(input[[x]] == "", 1, 0)),
+                       sapply(par_text,
+                              function(x) ifelse(input[[x]] == "", 1, 0)),
+                       sapply(par_var,
+                              function(x) ifelse(input[[x]] == "", 1, 0))) %>%
+          sum(.) %>%
+          is_greater_than(0) %>%
+          ifelse(., TRUE, FALSE)
+
+      # This try() statement checks to see if any parameter names,
+      # text, or variables are missing.
+      try(if(par_problem == TRUE)
+          stop("Parameter values are missing"))
+
+
+
+
+
+
+
+
+
 
       # NOT WORKING
       #we need code that reads all the inputs and checks for errors that need fixing
