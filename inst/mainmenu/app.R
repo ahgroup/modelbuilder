@@ -239,6 +239,7 @@ server <- function(input, output, session) {
   #add a new parameter
   observeEvent(input$addpar, {
       values$npar = values$npar + 1
+      print(values$npar) ### Debugging line
       insertUI(
           selector = paste0("#par", values$npar - 1, 'slot'), #current variable
           where = "afterEnd",
@@ -281,6 +282,7 @@ server <- function(input, output, session) {
   #any variable or parameter listed in flows needs to be specified as variable or parameter
   dynmodel <- eventReactive(input$makemodel, {
       print(input$modeltitle) ### Debugging line
+      print(values$npar) ### Debugging line
 
       # NOT WORKING
       #we need code that reads all the inputs and checks for errors that need fixing
