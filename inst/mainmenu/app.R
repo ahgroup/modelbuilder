@@ -299,7 +299,7 @@ server <- function(input, output, session) {
 
       # name, text
       vp_names <- paste0(vp_prefixes, "name")
-      print(vp_names) ### Debugging line
+      print(input[[vp_names[1]]]) ### Debugging line
 
 
 
