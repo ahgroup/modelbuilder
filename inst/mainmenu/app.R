@@ -140,7 +140,7 @@ server <- function(input, output, session) {
                             #################################
                             h2('Model Diagram'),
                             plotOutput(outputId = "diagram", height = "500px"),
-                            # PLaceholder for results of type text
+                            # Placeholder for results of type text
                             h2('Model Equations'),
                             uiOutput(outputId = "equations")
                         ) #end column for outcomes
@@ -280,6 +280,7 @@ server <- function(input, output, session) {
   #flows may only contain variables, parameters and math symbols
   #any variable or parameter listed in flows needs to be specified as variable or parameter
   dynmodel <- eventReactive(input$makemodel, {
+      print(input$modeltitle) ### Debugging line
 
       # NOT WORKING
       #we need code that reads all the inputs and checks for errors that need fixing
