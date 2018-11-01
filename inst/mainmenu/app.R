@@ -282,13 +282,6 @@ server <- function(input, output, session) {
   #flows may only contain variables, parameters and math symbols
   #any variable or parameter listed in flows needs to be specified as variable or parameter
   dynmodel <- eventReactive(input$makemodel, {
-      # What I need to do is figure out the number of variables,
-      # and the number of parameters for each variable, and then
-      # check to make sure that none of them are empty; i.e.,
-      # that none of them equal "".
-
-      # print(values$nflow[1:values$nvar]) ### Debugging line
-
       # Function to get the variables and flows, returns
       # prefixes for the individual variable and parameter
       # combinations, e.g., "var1f2" "var2f3"
@@ -297,7 +290,6 @@ server <- function(input, output, session) {
                                               1:values$nflow[x])) %>%
           unlist(.)
 
-      # name, text
       vp_names <- paste0(vp_prefixes, "name")
       vp_texts <- paste0(vp_prefixes, "text")
 
@@ -311,7 +303,37 @@ server <- function(input, output, session) {
           is_greater_than(0) %>%
           ifelse(., TRUE, FALSE)
 
-      try(if(vp_problem == TRUE) stop("Problem"))
+      # This try() statement checks to see if any variable flow
+      # names or texts are missing.
+      try(if(vp_problem == TRUE)
+          stop("Variable flow name(s) and / or text(s) missing"))
+
+      # name, text, var
+      par_prefixes <- sapply(1:values$npar,
+                           function(x) paste0("par", x))
+      par_names <- paste0(par_prefixes, "name")
+      par_text <- paste0(par_prefixes, "text")
+      par_var <- paste0(par_prefixes, "var")
+
+      par_problem <- c(sapply(par_names,
+                              function(x) ifelse(input[[x]] == "", 1, 0)),
+                       sapply(par_text,
+                              function(x) ifelse(input[[x]] == "", 1, 0)),
+                       sapply(par_var,
+                              function(x) ifelse(input[[x]] == "", 1, 0))) %>%
+          sum(.) %>%
+          is_greater_than(0) %>%
+          ifelse(., TRUE, FALSE)
+
+      # This try() statement checks to see if any parameter names,
+      # text, or variables are missing.
+      try(if(par_problem == TRUE)
+          stop("Parameter values are missing"))
+
+
+
+
+
 
 
 
