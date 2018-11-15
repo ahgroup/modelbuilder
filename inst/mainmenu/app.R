@@ -282,24 +282,34 @@ server <- function(input, output, session) {
   #flows may only contain variables, parameters and math symbols
   #any variable or parameter listed in flows needs to be specified as variable or parameter
   dynmodel <- eventReactive(input$makemodel, {
-      # Function to get the variables and flows, returns
-      # prefixes for the individual variable and parameter
+      # Function to get the variable prefixes
+      # for individual variables, e.g.,
+      # "var1", "var2"
+      var_prefixes <- sapply(1:values$nvar,
+                             function(x) paste0("var", x)) %>%
+          unlist(.)
+
+      var_names <- paste0(var_prefixes, "name")
+      var_texts <- paste0(var_prefixes, "text")
+
+      print(input[[var_names[1]]]) ### Debugging line
+
+      # Function to get the variable flow prefixes
+      # for the individual variable and parameter
       # combinations, e.g., "var1f2" "var2f3"
-      vp_prefixes <- sapply(1:values$nvar,
+      varflow_prefixes <- sapply(1:values$nvar,
                            function(x) paste0("var", x, "f",
                                               1:values$nflow[x])) %>%
           unlist(.)
 
-      vp_names <- paste0(vp_prefixes, "name")
-      vp_texts <- paste0(vp_prefixes, "text")
-
-      print(vp_names) ### Debugging line
+      varflow_names <- paste0(vp_prefixes, "name")
+      varflow_texts <- paste0(vp_prefixes, "text")
 
       # This block of code checks to make sure all the variable
       # flows that have been initialized are actually filled.
-      vp_problem <- c(sapply(vp_names,
+      varflow_problem <- c(sapply(varflow_names,
                             function(x) ifelse(input[[x]] == "", 1, 0)),
-                       sapply(vp_texts,
+                       sapply(varflow_texts,
                               function(x) ifelse(input[[x]] == "", 1, 0))) %>%
           sum(.) %>%
           is_greater_than(0) %>%
@@ -307,7 +317,7 @@ server <- function(input, output, session) {
 
       # This try() statement checks to see if any variable flow
       # names or texts are missing.
-      try(if(vp_problem == TRUE)
+      try(if(varflow_problem == TRUE)
           stop("Variable flow name(s) and / or text(s) missing"))
 
       # name, text, var
