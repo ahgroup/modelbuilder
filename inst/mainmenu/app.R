@@ -293,6 +293,8 @@ server <- function(input, output, session) {
       vp_names <- paste0(vp_prefixes, "name")
       vp_texts <- paste0(vp_prefixes, "text")
 
+      print(vp_names) ### Debugging line
+
       # This block of code checks to make sure all the variable
       # flows that have been initialized are actually filled.
       vp_problem <- c(sapply(vp_names,
@@ -335,38 +337,30 @@ server <- function(input, output, session) {
       ## 2. All parameter names begin with a lower-case letter
       ## 3. Variable and parameter names contain only letters and numbers
 
-      # All the letters of the alphabet, upper-case and
-      # lower-case.
-      all_letters <- c(letters, toupper(letters))
-
-      # A function that checks whether a given string
-      # is a letter or a number; returns a 1 if
-      # the string is neither, and a 0 if the string
-      # is a letter or number.
-      check_character <- function(s) {
-          condition <- ifelse(sum(
-              grepl(pattern = s, x = all_letters)) > 0,
-              FALSE, TRUE) |
-              suppressWarnings(is.na(as.numeric(s)))
-
-          return(condition)
-      }
-
       # Function that uses sapply() to check all characters
       # in a string to make sure the string contains only
-      # numbers and letters.
+      # numbers and letters. Returns a boolean with
+      # TRUE if the string contains only numbers and
+      # letters, and FALSE if it contains an element
+      # that doesn't fall into those two categories.
       check_string <- function(string) {
-          condition <- strsplit(string, split = "") %>%
-              unlist(.) %>%
-              sapply(., check_character) %>%
-              print(.)
-              # sum(.) %>%
-              # is_weakly_less_than(0) %>%
-              # ifelse(., TRUE, FALSE)
-
-          return(condition)
+          # All the letters of the alphabet, upper-case and
+          # lower-case.
+          all_letters <- c(letters, toupper(letters))
+          # Split the string into each atomic part
+          elements <- unlist(strsplit(string, split = ""))
+          # For each string part, check to see if it can
+          # be converted to numeric, or if it is contained
+          # in the vector of all upper-case and lower-case
+          # letters
+          condition <- sapply(elements,
+                              function(x) suppressWarnings(!is.na(as.numeric(x))) |
+                                  x %in% all_letters)
+          # is_special_character is a boolean that determines
+          # whether there are any special characters in string
+          is_special_character <- !(FALSE %in% condition)
+          return(is_special_character)
       }
-      blah <- check_string("Hello")
 
 
 
