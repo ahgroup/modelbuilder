@@ -292,8 +292,6 @@ server <- function(input, output, session) {
       var_names <- paste0(var_prefixes, "name")
       var_texts <- paste0(var_prefixes, "text")
 
-      print(input[[var_names[1]]]) ### Debugging line
-
       # Function to get the variable flow prefixes
       # for the individual variable and parameter
       # combinations, e.g., "var1f2" "var2f3"
@@ -302,8 +300,8 @@ server <- function(input, output, session) {
                                               1:values$nflow[x])) %>%
           unlist(.)
 
-      varflow_names <- paste0(vp_prefixes, "name")
-      varflow_texts <- paste0(vp_prefixes, "text")
+      varflow_names <- paste0(varflow_prefixes, "name")
+      varflow_texts <- paste0(varflow_prefixes, "text")
 
       # This block of code checks to make sure all the variable
       # flows that have been initialized are actually filled.
