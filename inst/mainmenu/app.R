@@ -273,7 +273,7 @@ server <- function(input, output, session) {
       values$npar = values$npar - 1
   })
 
-
+  #
   #when user presses the 'make model' button
   #this function reads all the inputs and writes them into the model structure
   #and returns the structure
@@ -329,6 +329,45 @@ server <- function(input, output, session) {
       # text, or variables are missing.
       try(if(par_problem == TRUE)
           stop("Parameter values are missing"))
+
+      ## This block of code below checks three things:
+      ## 1. All variable names begin with an upper-case letter
+      ## 2. All parameter names begin with a lower-case letter
+      ## 3. Variable and parameter names contain only letters and numbers
+
+      # All the letters of the alphabet, upper-case and
+      # lower-case.
+      all_letters <- c(letters, toupper(letters))
+
+      # A function that checks whether a given string
+      # is a letter or a number; returns a 1 if
+      # the string is neither, and a 0 if the string
+      # is a letter or number.
+      check_character <- function(s) {
+          condition <- ifelse(sum(
+              grepl(pattern = s, x = all_letters)) > 0,
+              FALSE, TRUE) |
+              suppressWarnings(is.na(as.numeric(s)))
+
+          return(condition)
+      }
+
+      # Function that uses sapply() to check all characters
+      # in a string to make sure the string contains only
+      # numbers and letters.
+      check_string <- function(string) {
+          condition <- strsplit(string, split = "") %>%
+              unlist(.) %>%
+              sapply(., check_character) %>%
+              print(.)
+              # sum(.) %>%
+              # is_weakly_less_than(0) %>%
+              # ifelse(., TRUE, FALSE)
+
+          return(condition)
+      }
+      blah <- check_string("Hello")
+
 
 
 
