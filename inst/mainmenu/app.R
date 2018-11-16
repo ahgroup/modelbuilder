@@ -667,31 +667,33 @@ ui <- fluidPage(
                        ),
                        p('Get the R code for the currently loaded model', class='mainsectionheader'),
                        fluidRow(
-                           column(3,
+                           column(4,
                                   downloadButton("exportode", "Export ODE code")
                            ),
-                           column(3,
+                           column(4,
                                   downloadButton("exportstochastic", "Export stochastic code")
                            ),
-                           column(3,
+                           column(4,
                                   downloadButton("exportdiscrete", "Export discrete-time code")
                            ),
-                           column(3,
-                                  downloadButton("exportrxode", "Export RxODE code")
-                           ),
+                           #hide for now
+                           #column(3,
+                            #      downloadButton("exportrxode", "Export RxODE code")
+                           #),
                            class = "mainmenurow"
                        ), #close fluidRow structure for input
 
-                       p('Import or Export SBML models', class='mainsectionheader'),
-                       fluidRow(
-                           column(6,
-                                  actionButton("importsbml", "Import a SBML model", class="mainbutton")
-                           ),
-                           column(6,
-                                  actionButton("exportsbml", "Export to SMBL model", class="mainbutton")
-                           ),
-                           class = "mainmenurow"
-                       ) #close fluidRow structure for input
+                       #Hide for now unitl implemented
+                       # p('Import or Export SBML models', class='mainsectionheader'),
+                       # fluidRow(
+                       #     column(6,
+                       #            actionButton("importsbml", "Import a SBML model", class="mainbutton")
+                       #     ),
+                       #     column(6,
+                       #            actionButton("exportsbml", "Export to SMBL model", class="mainbutton")
+                       #     ),
+                       #     class = "mainmenurow"
+                       # ) #close fluidRow structure for input
                ), #close "Main" tab
               tabPanel("Build",
                        fluidRow(
