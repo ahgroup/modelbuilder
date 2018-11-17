@@ -365,10 +365,12 @@ server <- function(input, output, session) {
       # TRUE if the string contains only numbers and
       # letters, and FALSE if it contains an element
       # that doesn't fall into those two categories.
-      check_string <- function(string) {
+
+      # +,-,*,^,/,()
+      check_string <- function(string, add_characters = vector()) {
           # All the letters of the alphabet, upper-case and
           # lower-case
-          all_letters <- c(letters, toupper(letters))
+          all_letters <- c(letters, toupper(letters), add_characters)
           # Split the string into each atomic part
           elements <- unlist(strsplit(string, split = ""))
           # For each string part, check to see if it can
@@ -411,18 +413,19 @@ server <- function(input, output, session) {
                                function(x) (!first_letter_uppercase(input[[x]]) &
                                                 check_string(input[[x]])))
 
-      print(okay_par_names) ### Debugging line
+      # Check to see that the parameter flows meet proper criteria, namely:
+      # 1. They contain only numbers, letters, and mathematical symbols
+      #    (+,-,*,^,/,()).
+      # 2. They begin with a "+" or "-".
+      # 3. They only contain parameters that have been defined.
 
+      # Condition 1.
+      math_symbols <- c("+", "-", "*", "^", "/", "(", ")")
+      okay_varflow_names <- sapply(varflow_names,
+                                   function(x) check_string(input[[x]],
+                                                            math_symbols))
 
-
-
-
-
-
-
-
-
-
+      print(okay_varflow_names) ### Debugging line
 
 
 
