@@ -323,13 +323,13 @@ server <- function(input, output, session) {
                            function(x) paste0("par", x))
       par_names <- paste0(par_prefixes, "name")
       par_text <- paste0(par_prefixes, "text")
-      par_var <- paste0(par_prefixes, "var")
+      par_val <- paste0(par_prefixes, "val")
 
       par_problem <- c(sapply(par_names,
                               function(x) ifelse(input[[x]] == "", 1, 0)),
                        sapply(par_text,
                               function(x) ifelse(input[[x]] == "", 1, 0)),
-                       sapply(par_var,
+                       sapply(par_val,
                               function(x) ifelse(input[[x]] == "", 1, 0))) %>%
           sum(.) %>%
           is_greater_than(0) %>%
