@@ -292,6 +292,20 @@ server <- function(input, output, session) {
       var_names <- paste0(var_prefixes, "name")
       var_texts <- paste0(var_prefixes, "text")
 
+      # This block of code checks to make sure all the
+      # variables that have been initialized are actually
+      # filled.
+      var_problem <- c(sapply(var_names,
+                              function(x) ifelse(input[[x]] == "", 1, 0)),
+                       sapply(var_texts,
+                              function(x) ifelse(input[[x]] == "", 1, 0))) %>%
+          sum(.) %>%
+          is_greater_than(0) %>%
+          ifelse(., TRUE, FALSE)
+
+      try(if(var_problem == TRUE)
+          stop("Variable names or text missing"))
+
       # Function to get the variable flow prefixes
       # for the individual variable and parameter
       # combinations, e.g., "var1f2" "var2f3"
