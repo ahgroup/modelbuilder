@@ -367,7 +367,7 @@ server <- function(input, output, session) {
       # that doesn't fall into those two categories.
       check_string <- function(string) {
           # All the letters of the alphabet, upper-case and
-          # lower-case.
+          # lower-case
           all_letters <- c(letters, toupper(letters))
           # Split the string into each atomic part
           elements <- unlist(strsplit(string, split = ""))
@@ -383,6 +383,33 @@ server <- function(input, output, session) {
           is_special_character <- !(FALSE %in% condition)
           return(is_special_character)
       }
+
+      # This function checks to make sure that the first
+      # element of a string is an uppercase letter.
+      first_letter_uppercase <- function(x) {
+          # All letters of the alphabet, upper case and lower case
+          first_element <- unlist(strsplit(x, split = ""))[1]
+          condition <- ifelse(first_element %in% all_letters,
+                              ifelse(toupper(first_element) == first_element,
+                                     TRUE, FALSE), FALSE)
+          return(condition)
+      }
+
+      # Check to see that variable names meet proper criteria, namely:
+      # 1. Starts with an upper-case letter
+      # 2. Contains only letters and numbers
+
+      okay_var_names <- sapply(var_names,
+                               function(x) (first_letter_uppercase(x) &
+                                                check_string(x)))
+
+      print(okay_var_names) ### Debugging line
+
+
+
+
+
+
 
 
 
