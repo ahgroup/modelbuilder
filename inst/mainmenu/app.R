@@ -437,17 +437,17 @@ server <- function(input, output, session) {
 
       # Function to make sure flow begins with a "+" or "-"
       check_flow <- function(x) {
-          first_element <- unlist(strsplit(x, split = ""))[1]
-          x <- ifelse((first_element == "+" | first_element == "-"),
-                      x, paste0("+", x))
-          return(x)
+          first_element <- unlist(strsplit(input[[x]], split = ""))[1]
+          input[[x]] <- ifelse((first_element == "+" | first_element == "-"),
+                      input[[x]], paste0("+", input[[x]]))
+          return(input[[x]])
       }
 
       print(input[[varflow_names[1]]]) ### Debugging line
       varflow_names <- sapply(varflow_names,
-                               function(x) check_flow(input[[x]]))
+                               function(x) check_flow(x))
       print(varflow_names) ### Debugging line
-      print(input[[varflow_names[1]]]) ### Debugging line
+
 
 
       # NOT WORKING
