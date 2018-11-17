@@ -354,6 +354,27 @@ server <- function(input, output, session) {
       try(if(par_problem == TRUE)
           stop("Parameter values are missing"))
 
+      # Checks to see whether any variable or parameter names
+      # are repeated.
+
+      # Variables
+      var_names_content <- sapply(var_names,
+                                  function(x) input[[x]])
+      var_names_repeat <- ifelse(length(var_names_content) >
+                                     length(unique(var_names_content)),
+                                 TRUE, FALSE)
+      try(if(var_names_repeat == TRUE)
+          stop("A variable name has been duplicated"))
+
+      # Parameters
+      par_names_content <- sapply(par_names,
+                                 function(x) input[[x]])
+      par_names_repeat <- ifelse(length(par_names_content) >
+                                     length(unique(par_names_content)),
+                                 TRUE, FALSE)
+      try(if(par_names_repeat == TRUE)
+          stop("A parameter name has been duplicated"))
+
       ## This block of code below checks three things:
       ## 1. All variable names begin with an upper-case letter
       ## 2. All parameter names begin with a lower-case letter
@@ -451,21 +472,25 @@ server <- function(input, output, session) {
 
       check_params <- function(x) {
           # x is a variable flow equation
+          split_x <- strsplit(x, split = "") %>%
+              unlist(.)
           # All the letters of the alphabet, upper-case and
           # lower-case
           all_letters <- c(letters, toupper(letters))
-          # First we get the all of the letter elements
-          # in x, which correspond to parameters.
-          split_x <- strsplit(x, split = "") %>%
-              unlist(.)
-          which_letters <- which(split_x %in% all_letters)
-          params_in_flow <- split_x[which_letters]
+          defined_variables <- sapply(var_names,
+                                      function(x) input[[x]])
+          defined_parameters <- sapply(par_names,
+                                       function(x) input[[x]])
+          # First we remove any letters in x which
+          # correspond to variables.
+          which_variables <- split_x %in% defined_variables
+          potential_params <- split_x[!which_variables] %>%
+              is_in(all_letters)
+          params_in_flow <- unname((split_x[!which_variables])[potential_params])
 
           # Now check each parameter in the flow
           # to see if it's one of the defined
           # parameters.
-          defined_parameters <- sapply(par_names,
-                                       function(x) input[[x]])
           sapply(params_in_flow,
                  function(x) x %in% defined_parameters) %>%
               return(.)
