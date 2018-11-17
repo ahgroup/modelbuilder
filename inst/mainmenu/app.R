@@ -400,10 +400,20 @@ server <- function(input, output, session) {
       # 2. Contains only letters and numbers
 
       okay_var_names <- sapply(var_names,
-                               function(x) (first_letter_uppercase(x) &
-                                                check_string(x)))
+                               function(x) (first_letter_uppercase(input[[x]]) &
+                                                check_string(input[[x]])))
 
-      print(okay_var_names) ### Debugging line
+      # Check to see that parameter names meet proper criteria, namely:
+      # 1. Starts with a lower-case letter
+      # 2. Contains only letters and numbers
+
+      okay_par_names <- sapply(par_names,
+                               function(x) (!first_letter_uppercase(input[[x]]) &
+                                                check_string(input[[x]])))
+
+      print(okay_par_names) ### Debugging line
+
+
 
 
 
