@@ -420,7 +420,7 @@ server <- function(input, output, session) {
       # 3. They only contain parameters that have been defined.
 
       # Condition 1.
-      math_symbols <- c("+", "-", "*", "^", "/", "(", ")")
+      math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ")
       okay_varflow_names <- sapply(varflow_names,
                                    function(x) check_string(input[[x]],
                                                             math_symbols))
