@@ -471,6 +471,13 @@ server <- function(input, output, session) {
               return(.)
       }
 
+      # Use check_params to make sure only defined parameters are
+      # used in the flows
+      defined_params_in_flows <- sapply(varflow_names,
+                                        function(x) check_params(input[[x]]))
+      try(if(FALSE %in% defined_params_in_flows)
+          stop("One or more parameters in flows are undefined"))
+
       # NOT WORKING
       #we need code that reads all the inputs and checks for errors that need fixing
       #if there are errors, the user needs to be told what is wrong and asked to fix
