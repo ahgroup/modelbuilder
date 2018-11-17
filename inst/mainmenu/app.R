@@ -453,7 +453,7 @@ server <- function(input, output, session) {
           # x is a variable flow equation
           # All the letters of the alphabet, upper-case and
           # lower-case
-          all_letters <- c(letters, toupper(letters), add_characters)
+          all_letters <- c(letters, toupper(letters))
           # First we get the all of the letter elements
           # in x, which correspond to parameters.
           split_x <- strsplit(x, split = "") %>%
