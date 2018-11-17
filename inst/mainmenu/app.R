@@ -410,6 +410,9 @@ server <- function(input, output, session) {
       # This function checks to make sure that the first
       # element of a string is an uppercase letter.
       first_letter_uppercase <- function(x) {
+          # All the letters of the alphabet, upper-case and
+          # lower-case
+          all_letters <- c(letters, toupper(letters))
           # All letters of the alphabet, upper case and lower case
           first_element <- unlist(strsplit(x, split = ""))[1]
           condition <- ifelse(first_element %in% all_letters,
