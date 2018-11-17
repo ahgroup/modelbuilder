@@ -433,7 +433,7 @@ server <- function(input, output, session) {
       try(if(FALSE %in% okay_varflow_names)
           stop("Make sure flows contain only letters, numbers, and mathematical symbols"))
 
-      # Condition 2
+      # Condition 2 - confused about what needs to be done here
 
       # Function to make sure flow begins with a "+" or "-"
       check_flow <- function(x) {
@@ -443,12 +443,35 @@ server <- function(input, output, session) {
           return(input[[x]])
       }
 
-      print(input[[varflow_names[1]]]) ### Debugging line
-      varflow_names <- sapply(varflow_names,
-                               function(x) check_flow(x))
-      print(varflow_names) ### Debugging line
+      # Condition 3
+      # To check to make sure that only parameters already defined
+      # are found in the flow, we first extract the letters, which
+      # represent the parameters. Then we see if those letters
+      # are found in the defined parameter names.
 
+      check_params <- function(x) {
+          # x is a variable flow equation
+          # All the letters of the alphabet, upper-case and
+          # lower-case
+          all_letters <- c(letters, toupper(letters), add_characters)
+          # First we get the all of the letter elements
+          # in x, which correspond to parameters.
+          split_x <- strsplit(x, split = "") %>%
+              unlist(.)
+          which_letters <- which(split_x %in% all_letters)
+          params_in_flow <- split_x[which_letters]
 
+          # Now check each parameter in the flow
+          # to see if it's one of the defined
+          # parameters.
+          defined_parameters <- sapply(par_names,
+                                       function(x) input[[x]])
+          sapply(params_in_flow,
+                 function(x) x %in% defined_parameters) %>%
+              return(.)
+      }
+
+      print(check_params(input[[varflow_names[1]]])) ### Debugging line
 
       # NOT WORKING
       #we need code that reads all the inputs and checks for errors that need fixing
