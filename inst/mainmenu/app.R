@@ -405,6 +405,9 @@ server <- function(input, output, session) {
                                function(x) (first_letter_uppercase(input[[x]]) &
                                                 check_string(input[[x]])))
 
+      try(if(FALSE %in% okay_var_names)
+          stop("Make sure variable name starts with upper case letter and contains only letters and numbers"))
+
       # Check to see that parameter names meet proper criteria, namely:
       # 1. Starts with a lower-case letter
       # 2. Contains only letters and numbers
@@ -413,25 +416,37 @@ server <- function(input, output, session) {
                                function(x) (!first_letter_uppercase(input[[x]]) &
                                                 check_string(input[[x]])))
 
+      try(if(FALSE %in% okay_par_names)
+          stop("Make sure parameter name starts with lower case letter and contains only letters and numbers"))
+
       # Check to see that the parameter flows meet proper criteria, namely:
       # 1. They contain only numbers, letters, and mathematical symbols
       #    (+,-,*,^,/,()).
       # 2. They begin with a "+" or "-".
       # 3. They only contain parameters that have been defined.
 
-      # Condition 1.
+      # Condition 1
       math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ")
       okay_varflow_names <- sapply(varflow_names,
                                    function(x) check_string(input[[x]],
                                                             math_symbols))
+      try(if(FALSE %in% okay_varflow_names)
+          stop("Make sure flows contain only letters, numbers, and mathematical symbols"))
 
-      print(okay_varflow_names) ### Debugging line
+      # Condition 2
 
+      # Function to make sure flow begins with a "+" or "-"
+      check_flow <- function(x) {
+          first_element <- unlist(strsplit(x, split = ""))[1]
+          x <- ifelse((first_element == "+" | first_element == "-"),
+                      x, paste0("+", x))
+          return(x)
+      }
 
-
-
-
-
+      print(varflow_names) ### Debugging line
+      varflow_names <- sapply(varflow_names,
+                               function(x) check_flow(x))
+      print(varflow_names) ### Debugging line
 
 
       # NOT WORKING
