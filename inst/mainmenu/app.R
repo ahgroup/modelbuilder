@@ -471,8 +471,6 @@ server <- function(input, output, session) {
               return(.)
       }
 
-      print(check_params(input[[varflow_names[1]]])) ### Debugging line
-
       # NOT WORKING
       #we need code that reads all the inputs and checks for errors that need fixing
       #if there are errors, the user needs to be told what is wrong and asked to fix
