@@ -446,6 +446,7 @@ server <- function(input, output, session) {
       print(input[[varflow_names[1]]]) ### Debugging line
       varflow_names <- sapply(varflow_names,
                                function(x) check_flow(input[[x]]))
+      print(varflow_names) ### Debugging line
       print(input[[varflow_names[1]]]) ### Debugging line
 
 
