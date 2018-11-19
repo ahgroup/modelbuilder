@@ -1,7 +1,3 @@
-library(adaptivetau)
-library(plyr)
-library(dplyr)
-
 #' Create an discrete time simulation model
 #'
 #' This function takes as input a modelbuilder model and writes code
@@ -150,7 +146,7 @@ generate_stochastic <- function(model, location = NULL)
   dfRates = dfRates[order(dfRates$rawFlows),]
 
   #count() creates dataframe of raw flows and number of times they occur in the model
-  countsFlows = count(dfRates, rawFlows)
+  countsFlows = dplyr::count(dfRates, rawFlows)
   rownames(dfRates) = c()
 
   # ordering flows by number of occurences
@@ -177,7 +173,7 @@ generate_stochastic <- function(model, location = NULL)
   sdisc = paste0(sdisc, "  #specify for each reaction/rate/transition how the different variables change \n")
   sdisc = paste0(sdisc, "  #needs to be in exactly the same order as the rates listed in the rate function \n")
 
- 
+
   # this next block of code produces the transitions between compartments required by adaptive tau
   sdisc = paste0(sdisc, "   transitions = list(" )
 
@@ -202,14 +198,14 @@ generate_stochastic <- function(model, location = NULL)
      # in dataframe where rates that appear more than once, read every other line
      #  extract coefficient of those rates from the first compartment to the next in "trans" variable
      # if line not read by loop, replace it by a NA
-     
+
      for (i in seq(from = 1, to = nrow(countsFlowsGT1)-1, by = 2)){
 
        countsFlowsGT1$trans[i] = paste0("c(", countsFlowsGT1$variable[i], " = ", countsFlowsGT1$coefs[i], ",",
                                         countsFlowsGT1$variable[i+1], " = ", countsFlowsGT1$coefs[i+1], ")")
-      
+
        countsFlowsGT1$trans[i+1] = NA
-       
+
      }
 
 

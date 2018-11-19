@@ -1,7 +1,5 @@
 #This is the Shiny App for the main menu of the modelbuilder package
 
-library(magrittr)
-
 #this function is the server part of the app
 server <- function(input, output, session) {
 
@@ -15,7 +13,6 @@ server <- function(input, output, session) {
     values$nvar <- 1
     values$npar <- 1
     values$nflow <- rep(1,50) #number of flows for each variable, currently assuming model does not have more than 50 vars
-
 
   observe({
       output$buildmodel <- renderUI({
@@ -273,7 +270,6 @@ server <- function(input, output, session) {
       values$npar = values$npar - 1
   })
 
-  #
   #when user presses the 'make model' button
   #this function reads all the inputs and writes them into the model structure
   #and returns the structure
@@ -780,11 +776,11 @@ observe({
 ui <- fluidPage(
   includeCSS("../media/modelbuilder.css"),
   #add header and title
-  div( includeHTML("../media/header.html"), align = "center"),
+  tags$div( includeHTML("../media/header.html"), align = "center"),
   p(paste('This is modelbuilder version ',utils::packageVersion("modelbuilder"),' last updated ', utils::packageDescription('modelbuilder')$Date,sep=''), class='infotext'),
 
-  navbarPage("modelbuilder",
-              tabPanel("Main",
+  navbarPage(title = "modelbuilder",
+              tabPanel(title = "Main",
                        fluidRow(
                            column(12,
                                   fileInput("currentmodel", label = "Load a Model", accept = ".Rdata", buttonLabel = "Load Model", placeholder = "No model selected"),
@@ -798,6 +794,7 @@ ui <- fluidPage(
                            class = "mainmenurow"
                        ),
                        p('Get the R code for the currently loaded model', class='mainsectionheader'),
+
                        fluidRow(
                            column(4,
                                   downloadButton("exportode", "Export ODE code")
@@ -810,23 +807,25 @@ ui <- fluidPage(
                            ),
                            #hide for now
                            #column(3,
-                            #      downloadButton("exportrxode", "Export RxODE code")
+                            #     downloadButton("exportrxode", "Export RxODE code")
                            #),
                            class = "mainmenurow"
-                       ), #close fluidRow structure for input
+                       ) #close fluidRow structure for input
 
                        #Hide for now unitl implemented
-                       # p('Import or Export SBML models', class='mainsectionheader'),
-                       # fluidRow(
-                       #     column(6,
-                       #            actionButton("importsbml", "Import a SBML model", class="mainbutton")
-                       #     ),
-                       #     column(6,
-                       #            actionButton("exportsbml", "Export to SMBL model", class="mainbutton")
-                       #     ),
-                       #     class = "mainmenurow"
-                       # ) #close fluidRow structure for input
+                        #p('Import or Export SBML models', class='mainsectionheader'),
+                        #fluidRow(
+                         #   column(6,
+                          #         actionButton("importsbml", "Import a SBML model", class="mainbutton")
+                           # ),
+                            #column(6,
+                             #      actionButton("exportsbml", "Export to SMBL model", class="mainbutton")
+                            #),
+                            #class = "mainmenurow"
+                        #) #close fluidRow structure for input
                ), #close "Main" tab
+             #browser(),
+
               tabPanel("Build",
                        fluidRow(
                            column(12,
@@ -837,7 +836,7 @@ ui <- fluidPage(
                        )
 
                ), #close "Build" tab
-              tabPanel("Analyze",
+             tabPanel("Analyze",
                        fluidRow(
                            column(12,
                                   #actionButton("analyzemodel", "Analyze current model", class = "mainbutton")

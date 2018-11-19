@@ -35,7 +35,6 @@ Depends:
     shiny (>= 1.0)
 Suggests: 
     covr,
-    RxODE,
     testthat
 URL: https://github.com/andreashandel/modelbuilder
 BugReports: https://github.com/andreashandel/modelbuilder/issues
