@@ -665,31 +665,30 @@ observe({
     #start code blocks that contain the load/import/export functionality
     #######################################################
 
+    #would like to have a load_model function that contains the code below
+    #not quite working
+    #model <- load_model(currentmodel = input$currentmodel)
 
-  #currently only used to get into a browser environment
-  observeEvent(input$importsbml, {
-        browser()
-        })
+    # Code to load a model saved as an Rdata file. Based on
+    # https://stackoverflow.com/questions/5577221/how-can-i-load-an-object-into-a-variable-name-that-i-specify-from-an-r-data-file#
 
-  model <- reactive({
-    stopping <<- TRUE
-    inFile <- input$currentmodel
-    if (is.null(inFile)) return(NULL)
-    # loadRData() below was suggesed on Stack Overflow 8/22/14 by user ricardo.
-    # The code was provided for general use in answer to another user's question
-    # about loading data into R. The original source for the code can be found
-    # here: https://stackoverflow.com/questions/5577221/how-can-i-load-an-object-into-a-variable-name-that-i-specify-from-an-r-data-file
-    loadRData <- function(filename) {
-      load(filename)
-      get(ls()[ls() != "filename"])
-    }
-    d <- loadRData(inFile$datapath)
+   model <- reactive({
+     stopping <<- TRUE
+     inFile <- input$currentmodel
+     if (is.null(inFile)) return(NULL)
+     loadRData <- function(filename) {
+       load(filename)
+       get(ls()[ls() != "filename"])
+     }
+     d <- loadRData(inFile$datapath)
+   })
+
     #write code somewhere here that checks that the loaded file is a proper modelbuilder model.
-    #needs to have a non-empty model$title
-    #needs to have a sub-list called var with non-empty fields
-    #most of those checks need to also happen inside the build routine, maybe write a function that can be used
-    #in both places
-  })
+  #   #needs to have a non-empty model$title
+  #   #needs to have a sub-list called var with non-empty fields
+  #   #most of those checks need to also happen inside the build routine, maybe write a function that can be used
+  #   #in both places
+
 
   output$exportode <- downloadHandler(
       filename = function() {
@@ -757,6 +756,23 @@ observe({
   #end code blocks that contain the load/import/export functionality
   #######################################################
 
+  #######################################################
+  #start code blocks for SBML import/export functionality
+  #######################################################
+
+  #currently only used to get into a browser environment
+  observeEvent(input$importsbml, {
+    browser()
+  })
+
+  #######################################################
+  #end code blocks for SBML import/export functionality
+  #######################################################
+
+  #######################################################
+  #start code that shuts down the app upon Exit button press
+  #######################################################
+
   observeEvent(input$Exit, {
       stopping <<- TRUE
       stopApp('Exit')
@@ -767,6 +783,10 @@ observe({
           stopApp('Exit')
       }
   })
+
+  #######################################################
+  #end code that shuts down the app upon Exit button press
+  #######################################################
 
 
 } #ends the server function for the app
@@ -782,8 +802,9 @@ ui <- fluidPage(
   navbarPage(title = "modelbuilder",
               tabPanel(title = "Main",
                        fluidRow(
-                           column(12,
-                                  fileInput("currentmodel", label = "Load a Model", accept = ".Rdata", buttonLabel = "Load Model", placeholder = "No model selected"),
+                         p('Load a Model', class='mainsectionheader'),
+                         column(12,
+                                  fileInput("currentmodel", label = "", accept = ".Rdata", buttonLabel = "Load Model", placeholder = "No model selected"),
                                   align = 'center' )
                        ),
 
@@ -810,7 +831,16 @@ ui <- fluidPage(
                             #     downloadButton("exportrxode", "Export RxODE code")
                            #),
                            class = "mainmenurow"
+                       ), #close fluidRow structure for input
+
+                       fluidRow(
+
+                         column(12,
+                                actionButton("Exit", "Exit", class="exitbutton")
+                         ),
+                         class = "mainmenurow"
                        ) #close fluidRow structure for input
+
 
                        #Hide for now unitl implemented
                         #p('Import or Export SBML models', class='mainsectionheader'),
