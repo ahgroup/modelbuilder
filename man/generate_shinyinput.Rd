@@ -12,7 +12,7 @@ generate_shinyinput(model, output)
 \item{output}{shiny output structure}
 }
 \value{
-HTML formatted text for display in a Shiny UI
+No direct return. output structure is modified to contain text for display in a Shiny UI
 }
 \description{
 This function generates input buttons and sliders for a supplied model.

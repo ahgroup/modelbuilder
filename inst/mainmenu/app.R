@@ -273,7 +273,7 @@ server <- function(input, output, session) {
   #the other function checks the created model object for errors
   dynmodel <- eventReactive(input$makemodel,
                             {
-                             model <- generate_model(input)
+                             model <- generate_model(input, values)
                              #errors <- check_model(model)
                             })
 
@@ -289,21 +289,21 @@ server <- function(input, output, session) {
   #this lets me save it with code below, if i try to use dynmodel() directly in the save function it doesn't work
   #i'm not sure why this version works and why I can't save the model directly
   #https://stackoverflow.com/questions/23036739/downloading-rdata-files-with-shiny
-  tmpmodel <- reactiveValues()
+  model <- reactiveValues()
   observe({
       if(!is.null(dynmodel()))
           isolate(
-              tmpmodel <<- dynmodel()
+            model <<- dynmodel()
           )
   })
   #writes model to Rdata file
   output$savemodel <- downloadHandler(
       filename = function() {
-          paste0(gsub(" ","_",tmpmodel$title),".Rdata")
+          paste0(gsub(" ","_",model$title),".Rdata")
       },
       content = function(file) {
-          stopifnot(!is.null(tmpmodel))
-          save(tmpmodel, file = file)
+          stopifnot(!is.null(model))
+          save(model, file = file)
       },
       contentType = "text/plain"
   )
@@ -311,26 +311,6 @@ server <- function(input, output, session) {
 
   #######################################################
   #end code blocks that contain the build functionality
-  #######################################################
-
-  #######################################################
-  #start code blocks that contain the modify functionality
-  #######################################################
-
-
-
-  observe({
-    model() ## This line makes sure the observe() statement updates with each new model
-    #if no model has been loaded yet, display a message
-    if (is.null(model()$title))
-    {
-      output$modifymodel <- renderUI({h1('Please load a model')})
-      return()
-    }
-  }) #end modify observe statement
-
-  #######################################################
-  #end code  that contain the modify functionality
   #######################################################
 
 
@@ -401,9 +381,11 @@ observe({
 
   #runs model simulation when 'run simulation' button is pressed
     observeEvent(input$submitBtn, {
-      result <- analyze_model(modeltype = input$modeltype,
-                    rngseed = input$rngseed, nreps = input$nreps,
-                    plotscale = input$plotscale, input = input, model = model() )
+      #extract current model settings from UI input element
+      modelsettings <- find_modelsettings( input = input, mbmodel = model() )
+      #run model with specified settings
+      set.seed(modelsettings$rngseed) #set rngseed
+      result <- analyze_model(modelsettings = modelsettings, mbmodel = model() )
       #create plot from results
       output$plot  <- renderPlot({
           generate_plots(result)
@@ -624,16 +606,6 @@ ui <- fluidPage(
                        )
 
                ), #close "Build" tab
-
-             tabPanel("Modify",
-                      fluidRow(
-                        column(12,
-                               uiOutput('modifymodel')
-                        ),
-                        class = "mainmenurow"
-                      )
-
-             ), #close "MOdify" tab
 
              tabPanel("Analyze",
                        fluidRow(

@@ -4,13 +4,14 @@
 #' and writes them inot a model object
 #'
 #' @param input Shiny UI inputs to be read
+#' @param values Shiny UI variable that contains needed counters
 #'
 #' @return A modelbuilder model structure.
 #' @details This function is a helper function
 #' @author Spencer D. Hall, Andreas Handel
 #' @export
 
-generate_model <- function(input) {
+generate_model <- function(input, values) {
 
 
     #structure that holds the model
@@ -33,7 +34,7 @@ generate_model <- function(input) {
         {
             newflow = isolate(eval(parse(text = paste0("input$var", n, 'f' , f,'name'))))
             #if a flow does not have a + or - sign in front, assume it's positive and add a + sign
-            if (newflow[1]!='-') { newflow = paste0('+',newflow) }
+            if (substr(newflow,1,1)!='-') { newflow = paste0('+',newflow)}
             newflowtext = isolate(eval(parse(text = paste0("input$var", n, 'f' , f,'text'))))
             allflows = c(allflows,newflow)
             allflowtext = c(allflowtext, newflowtext)

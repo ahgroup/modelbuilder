@@ -17,7 +17,7 @@
 #' @author Andreas Handel
 #' @export
 
-generate_ode <- function(model, location = NULL) # Originally "location = NULL"
+generate_ode <- function(model, location = NULL)
 {
     #if the model is passed in as an Rdata file name, load it
     #otherwise, it is assumed that 'model' is a list structure of the right type

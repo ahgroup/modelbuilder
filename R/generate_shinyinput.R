@@ -4,7 +4,7 @@
 #' This is a helper function called by the shiny app.
 #' @param model a modelbuilder model structure
 #' @param output shiny output structure
-#' @return HTML formatted text for display in a Shiny UI
+#' @return No direct return. output structure is modified to contain text for display in a Shiny UI
 #' @details This function is called by the Shiny server to produce the Shiny input UI elements.
 #' @author Andreas Handel
 #' @export

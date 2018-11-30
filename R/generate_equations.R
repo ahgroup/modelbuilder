@@ -7,23 +7,23 @@
 #' a user can also build a model list structure themselves following the specifications
 #' if the user provides an Rdata file name, this file needs to contain an object called 'model'
 #' and contain a valid modelbuilder model structure
-#' @param model model structure, either as list object or Rdata file name
+#' @param mbmodel modelbuilder model structure, either as list object or Rdata file name
 #' @return The function returns equations as an html object
 #' @author Andreas Handel
 #' @export
 
-generate_equations <- function(model)
+generate_equations <- function(mbmodel)
 {
     #if the model is passed in as an Rdata file name, load it
     #otherwise, it is assumed that 'model' is a list structure of the right type
-    if (is.character(model)) {load(model)}
+    if (is.character(mbmodel)) {load(mbmodel)}
 
-    nvars = length(model$var)  #number of variables/compartments in model
+    nvars = length(mbmodel$var)  #number of variables/compartments in model
     #text for equations
     seqs= "$$ \n\\begin{aligned} \n"
     for (n in 1:nvars)
     {
-        seqs = paste0(seqs,'\\dot ', model$var[[n]]$varname,' & = ',paste(model$var[[n]]$flows, collapse = ' '), ' \\\\ \n' )
+        seqs = paste0(seqs,'\\dot ', mbmodel$var[[n]]$varname,' & = ',paste(mbmodel$var[[n]]$flows, collapse = ' '), ' \\\\ \n' )
     }
     seqs=paste0(seqs,'\\end{aligned} \n$$')
     #strip any * signs from equation for display

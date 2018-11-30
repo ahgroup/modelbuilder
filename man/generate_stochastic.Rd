@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate_stochastic.R
 \name{generate_stochastic}
 \alias{generate_stochastic}
-\title{Create an discrete time simulation model}
+\title{Create a stochastic compartmental simulation model}
 \usage{
 generate_stochastic(model, location = NULL)
 }
@@ -25,7 +25,7 @@ and contain a valid modelbuilder model structure
 }
 \details{
 This function takes as input a modelbuilder model and writes code
-for a discrete time deterministc simulator function
+for a stochastic simulator function implemented with adaptivetau
 }
 \author{
 Andreas Handel

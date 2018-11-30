@@ -18,21 +18,19 @@
 
 
 
-generate_stochastic <- function(model, location)
+generate_stochastic <- function(model, location = NULL)
 {
-
   #if the model is passed in as an Rdata file name, load it
   #otherwise, it is assumed that 'model' is a list structure of the right type
   if(is.character(model)) {load(model)}
 
   #the name of the function produced by this script is simulate_ + "model title" + "_stochastic.R"
-  savepath = "/Users/ishaandave/Desktop/Melissa/model builder/ODE Model Conversions/stochastic.R"
+  savepath <- location #default is current directory for saving the R function
 
   #if location is supplied, that's where the code will be saved to
   # if (!is.null(location)) {savepath = paste0(location,'/',filename)}
 
-
-  #the name of the function produced by this script is  "model title" + "_adaptivetau.R"
+  #the name of the function produced by this script is  "model title" + "_stochastic.R"
   nvars = length(model$var)  #number of variables/compartments in model
   npars = length(model$par)  #number of parameters in model
   ntime = length(model$time) #numer of parameters for time
@@ -227,7 +225,7 @@ generate_stochastic <- function(model, location)
 
 
 
-  stitle = paste0("simulate_",modeltitle,"_adaptivetau <- function(",varstring, parstring, timestring,') \n { \n')
+  stitle = paste0("simulate_",modeltitle,"_stochastic <- function(",varstring, parstring, timestring,') \n { \n')
 
   smain = "\n\n"
   smain = paste0(smain,'  #this line runs the simulation using the SSA algorithm in the adaptivetau package \n')

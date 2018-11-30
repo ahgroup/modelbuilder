@@ -1,79 +1,62 @@
-#' @title A function that analyzes the model() object created or loaded in the main menu.
+#' @title A function that analyzes a modelbuilder model object.
 #'
-#' @description This function takes the model specified in the main menu and
-#' runs the simulation determined by the model parameters.
+#' @description This function takes a modelbuilder model.
+#' It runs the simulation determined by the model settings and returns simulation results.
 #'
-#' @param modeltype A string indicating the type of model. Accepted values are "ode", "stochastic", and "discrete".
-#' @param rngseed A random number seed for the simulation.
-#' @param nreps Number of times to run the simulation.
-#' @param plotscale Log or linear scale for the x-axis, y-axis, or both.
-#' @param input The Shiny input list generated in the main menu app.
-#' @param model The Shiny model() object generated in the main menu app.
-#'
+#' @param modelsettings vector of model settings:
+#' \itemize{
+#' \item modeltype : A string indicating the type of model. Accepted values are "ode", "stochastic", and "discrete".
+#' \item rngseed : A random number seed for the simulation.
+#' \item nreps : Number of times to run the simulation.
+#' \item plotscale : Log or linear scale for the x-axis, y-axis, or both.
+#' \item vars : initial condition for variables
+#' \item pars : initial condition for parameters
+#' \item times : settings for time
+#' }
+#' @param mbmodel A modelbuilder model object.
 #' @return A list named "result" with the simulated dataframe and associated metadata.
-#' @details This function is called by the Shiny server to produce the Shiny input UI elements.
-#' @author Spencer D. Hall
+#' @details This function runs a modelbuilder model for specific settings.
+#' @author Spencer D. Hall, Andreas Handel
 #' @export
 
-analyze_model <- function(modeltype, rngseed, nreps, plotscale, input, model) {
-  # Set current working directory and load Rdata file
-  # currentdir <- wd
-  # rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
-  # load(rdatafile)
+analyze_model <- function(modelsettings, mbmodel) {
 
-  #save all results to a list for processing plots and text
-  listlength = 1
-  #here we do all simulations in the same figure
-  result = vector("list", listlength) #create empty list of right size for results
-
+  #if not present, create code for all 3 simulators
   #temporary directory and files
   tempdir = tempdir()
-  filename_ode=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
-  filename_discrete=paste0("simulate_",gsub(" ","_",model$title),"_discrete.R")
-  filename_stochastic=paste0("simulate_",gsub(" ","_",model$title),"_stochastic.R")
+  filename_ode=paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode.R")
+  filename_discrete=paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete.R")
+  filename_stochastic=paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic.R")
 
   #paths and names for all temporary files
   file_ode = file.path(tempdir,filename_ode)
   file_discrete = file.path(tempdir,filename_discrete)
   file_stochastic = file.path(tempdir,filename_stochastic)
 
-  #as needed create, then source code and make fct call
-  if (modeltype == 'ode')
+  #if not present, create code for all 3 simulators
+  if (!exists(file_ode)) #check if function/code is available, if not generate
   {
-      if (!exists(file_ode)) #check if function/code is available, if not generate
-      {
-          #parses the model and creates the code to call/run the simulation
-          generate_ode(model = model, location = file_ode)
-      }
-      source(file_ode) #source file
-      fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
+    generate_ode(model = mbmodel, location = file_ode)
   }
-
-  #as needed create, then source code and make fct call
-  if (modeltype == 'discrete')
+  if (!exists(file_discrete))
   {
-      if (!exists(file_discrete)) #check if function/code is available, if not generate
-      {
-          #parses the model and creates the code to call/run the simulation
-          generate_discrete(model = model, location = file_discrete)
-      }
-      source(file_discrete) #source file
-      fctcall <- generate_fctcall(input=input,model=model,modeltype='discrete')
+    generate_discrete(model = mbmodel, location = file_discrete)
   }
-
-  #as needed create, then source code and make fct call
-  if (modeltype == 'stochastic')
+  if (!exists(file_stochastic))
   {
-      if (!exists(file_stochastic)) #check if function/code is available, if not generate
-      {
-          #parses the model and creates the code to call/run the simulation
-          generate_stochastic(model = model, location = file_stochastic)
-      }
-      source(file_stochastic) #source file
-      fctcall <- generate_fctcall(input=input,model=model,modeltype='stochastic')
+    generate_stochastic(model = mbmodel, location = file_stochastic)
   }
+  #source files
+  source(file_ode)
+  source(file_discrete)
+  source(file_stochastic)
 
+  fctcall <- generate_fctcall(modelsettings = modelsettings, mbmodel = mbmodel)
 
+  #save all results to a list for processing plots and text
+  listlength = 1
+  #here we do all simulations in the same figure
+  result = vector("list", listlength) #create empty list of right size for results
 
   #run simulation, show a 'running simulation' message
   withProgress(message = 'Running Simulation',
@@ -81,8 +64,6 @@ analyze_model <- function(modeltype, rngseed, nreps, plotscale, input, model) {
                {
                    eval(parse(text = fctcall)) #execute function
                })
-
-  plotscale = isolate(input$plotscale)
 
   #data for plots and text
   #needs to be in the right format to be passed to generate_plots and generate_text
@@ -95,6 +76,8 @@ analyze_model <- function(modeltype, rngseed, nreps, plotscale, input, model) {
   result[[1]]$xlab = "Time"
   result[[1]]$ylab = "Numbers"
   result[[1]]$legend = "Compartments"
+
+  plotscale = modelsettings$plotscale
 
   result[[1]]$xscale = 'identity'
   result[[1]]$yscale = 'identity'

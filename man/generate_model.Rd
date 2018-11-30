@@ -4,10 +4,12 @@
 \alias{generate_model}
 \title{A helper function that reads the shiny model builder UI inputs and saves information in a model object}
 \usage{
-generate_model(input)
+generate_model(input, values)
 }
 \arguments{
 \item{input}{Shiny UI inputs to be read}
+
+\item{values}{Shiny UI variable that contains needed counters}
 }
 \value{
 A modelbuilder model structure.
