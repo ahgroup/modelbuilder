@@ -1,7 +1,7 @@
-#' Create an discrete time simulation model
+#' Create a stochastic compartmental simulation model
 #'
 #' This function takes as input a modelbuilder model and writes code
-#' for a discrete time deterministc simulator function
+#' for a stochastic simulator function implemented with adaptivetau
 #'
 #' @description The model needs to adhere to the structure specified by the modelbuilder package
 #' models built using the modelbuilder package automatically have the right structure
@@ -18,7 +18,7 @@
 
 
 
-generate_stochastic <- function(model, location = NULL)
+generate_stochastic <- function(model, location)
 {
 
   #if the model is passed in as an Rdata file name, load it

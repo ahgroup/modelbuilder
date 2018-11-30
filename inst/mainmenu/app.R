@@ -49,16 +49,14 @@ server <- function(input, output, session) {
 
 
               tags$p('All variables need to start with an uppercase letter, all parameters need to start with a lowercase letter. Only letters and numbers are allowed. Flows need to include variables, parameters and the following mathematical symbols: +,-,*,/,^,()'),
-              fluidRow(
-                  actionButton('makemodel', "Generate model", class="savebutton"),
-                  align = "center"
-              ),
+              #fluidRow(
               fluidRow(
                   column(6,
-                         downloadButton('savemodel', "Save Model", class="savebutton")
+                         actionButton('makemodel', "Generate model", class="savebutton")
                   ),
                   column(6,
-                         downloadButton("savediagram", "Save Diagram", class="savebutton")
+                         downloadButton('savemodel', "Save Model", class="savebutton")
+                         #downloadButton("savediagram", "Save Diagram", class="savebutton")
                   ),
                   align = "center"
               ),
@@ -234,7 +232,6 @@ server <- function(input, output, session) {
   })
 
 
-
   #add a new parameter
   observeEvent(input$addpar, {
       values$npar = values$npar + 1
@@ -271,279 +268,16 @@ server <- function(input, output, session) {
   })
 
   #when user presses the 'make model' button
-  #this function reads all the inputs and writes them into the model structure
+  #one function reads all the inputs and writes them into the model structure
   #and returns the structure
-  #NEEDED: Before/while building the model, this routine needs to check all inputs and make sure everything is correct
-  #All variables and parameters and flows need to follow naming rules
-  #flows may only contain variables, parameters and math symbols
-  #any variable or parameter listed in flows needs to be specified as variable or parameter
-  dynmodel <- eventReactive(input$makemodel, {
-      # Function to get the variable prefixes
-      # for individual variables, e.g.,
-      # "var1", "var2"
-      var_prefixes <- sapply(1:values$nvar,
-                             function(x) paste0("var", x)) %>%
-          unlist(.)
+  #the other function checks the created model object for errors
+  dynmodel <- eventReactive(input$makemodel,
+                            {
+                             model <- generate_model(input)
+                             #errors <- check_model(model)
+                            })
 
-      var_names <- paste0(var_prefixes, "name")
-      var_texts <- paste0(var_prefixes, "text")
 
-      # This block of code checks to make sure all the
-      # variables that have been initialized are actually
-      # filled.
-      var_problem <- c(sapply(var_names,
-                              function(x) ifelse(input[[x]] == "", 1, 0)),
-                       sapply(var_texts,
-                              function(x) ifelse(input[[x]] == "", 1, 0))) %>%
-          sum(.) %>%
-          is_greater_than(0) %>%
-          ifelse(., TRUE, FALSE)
-
-      try(if(var_problem == TRUE)
-          stop("Variable names or text missing"))
-
-      # Function to get the variable flow prefixes
-      # for the individual variable and parameter
-      # combinations, e.g., "var1f2" "var2f3"
-      varflow_prefixes <- sapply(1:values$nvar,
-                           function(x) paste0("var", x, "f",
-                                              1:values$nflow[x])) %>%
-          unlist(.)
-
-      varflow_names <- paste0(varflow_prefixes, "name")
-      varflow_texts <- paste0(varflow_prefixes, "text")
-
-      # This block of code checks to make sure all the variable
-      # flows that have been initialized are actually filled.
-      varflow_problem <- c(sapply(varflow_names,
-                            function(x) ifelse(input[[x]] == "", 1, 0)),
-                       sapply(varflow_texts,
-                              function(x) ifelse(input[[x]] == "", 1, 0))) %>%
-          sum(.) %>%
-          is_greater_than(0) %>%
-          ifelse(., TRUE, FALSE)
-
-      # This try() statement checks to see if any variable flow
-      # names or texts are missing.
-      try(if(varflow_problem == TRUE)
-          stop("Variable flow name(s) and / or text(s) missing"))
-
-      # name, text, var
-      par_prefixes <- sapply(1:values$npar,
-                           function(x) paste0("par", x))
-      par_names <- paste0(par_prefixes, "name")
-      par_text <- paste0(par_prefixes, "text")
-      par_val <- paste0(par_prefixes, "val")
-
-      par_problem <- c(sapply(par_names,
-                              function(x) ifelse(input[[x]] == "", 1, 0)),
-                       sapply(par_text,
-                              function(x) ifelse(input[[x]] == "", 1, 0)),
-                       sapply(par_val,
-                              function(x) ifelse(input[[x]] == "", 1, 0))) %>%
-          sum(.) %>%
-          is_greater_than(0) %>%
-          ifelse(., TRUE, FALSE)
-
-      # This try() statement checks to see if any parameter names,
-      # text, or variables are missing.
-      try(if(par_problem == TRUE)
-          stop("Parameter values are missing"))
-
-      ## This block of code below checks three things:
-      ## 1. All variable names begin with an upper-case letter
-      ## 2. All parameter names begin with a lower-case letter
-      ## 3. Variable and parameter names contain only letters and numbers
-
-      # Function that uses sapply() to check all characters
-      # in a string to make sure the string contains only
-      # numbers and letters. Returns a boolean with
-      # TRUE if the string contains only numbers and
-      # letters, and FALSE if it contains an element
-      # that doesn't fall into those two categories.
-
-      # +,-,*,^,/,()
-      check_string <- function(string, add_characters = vector()) {
-          # All the letters of the alphabet, upper-case and
-          # lower-case
-          all_letters <- c(letters, toupper(letters), add_characters)
-          # Split the string into each atomic part
-          elements <- unlist(strsplit(string, split = ""))
-          # For each string part, check to see if it can
-          # be converted to numeric, or if it is contained
-          # in the vector of all upper-case and lower-case
-          # letters
-          condition <- sapply(elements,
-                              function(x) suppressWarnings(!is.na(as.numeric(x))) |
-                                  x %in% all_letters)
-          # is_special_character is a boolean that determines
-          # whether there are any special characters in string
-          is_special_character <- !(FALSE %in% condition)
-          return(is_special_character)
-      }
-
-      # This function checks to make sure that the first
-      # element of a string is an uppercase letter.
-      first_letter_uppercase <- function(x) {
-          # All letters of the alphabet, upper case and lower case
-          first_element <- unlist(strsplit(x, split = ""))[1]
-          condition <- ifelse(first_element %in% all_letters,
-                              ifelse(toupper(first_element) == first_element,
-                                     TRUE, FALSE), FALSE)
-          return(condition)
-      }
-
-      # Check to see that variable names meet proper criteria, namely:
-      # 1. Starts with an upper-case letter
-      # 2. Contains only letters and numbers
-
-      okay_var_names <- sapply(var_names,
-                               function(x) (first_letter_uppercase(input[[x]]) &
-                                                check_string(input[[x]])))
-
-      try(if(FALSE %in% okay_var_names)
-          stop("Make sure variable name starts with upper case letter and contains only letters and numbers"))
-
-      # Check to see that parameter names meet proper criteria, namely:
-      # 1. Starts with a lower-case letter
-      # 2. Contains only letters and numbers
-
-      okay_par_names <- sapply(par_names,
-                               function(x) (!first_letter_uppercase(input[[x]]) &
-                                                check_string(input[[x]])))
-
-      try(if(FALSE %in% okay_par_names)
-          stop("Make sure parameter name starts with lower case letter and contains only letters and numbers"))
-
-      # Check to see that the parameter flows meet proper criteria, namely:
-      # 1. They contain only numbers, letters, and mathematical symbols
-      #    (+,-,*,^,/,()).
-      # 2. They begin with a "+" or "-".
-      # 3. They only contain parameters that have been defined.
-
-      # Condition 1
-      math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ")
-      okay_varflow_names <- sapply(varflow_names,
-                                   function(x) check_string(input[[x]],
-                                                            math_symbols))
-      try(if(FALSE %in% okay_varflow_names)
-          stop("Make sure flows contain only letters, numbers, and mathematical symbols"))
-
-      # Condition 2 - confused about what needs to be done here
-
-      # Function to make sure flow begins with a "+" or "-"
-      check_flow <- function(x) {
-          first_element <- unlist(strsplit(input[[x]], split = ""))[1]
-          input[[x]] <- ifelse((first_element == "+" | first_element == "-"),
-                      input[[x]], paste0("+", input[[x]]))
-          return(input[[x]])
-      }
-
-      # Condition 3
-      # To check to make sure that only parameters already defined
-      # are found in the flow, we first extract the letters, which
-      # represent the parameters. Then we see if those letters
-      # are found in the defined parameter names.
-
-      check_params <- function(x) {
-          # x is a variable flow equation
-          # All the letters of the alphabet, upper-case and
-          # lower-case
-          all_letters <- c(letters, toupper(letters))
-          # First we get the all of the letter elements
-          # in x, which correspond to parameters.
-          split_x <- strsplit(x, split = "") %>%
-              unlist(.)
-          which_letters <- which(split_x %in% all_letters)
-          params_in_flow <- split_x[which_letters]
-
-          # Now check each parameter in the flow
-          # to see if it's one of the defined
-          # parameters.
-          defined_parameters <- sapply(par_names,
-                                       function(x) input[[x]])
-          sapply(params_in_flow,
-                 function(x) x %in% defined_parameters) %>%
-              return(.)
-      }
-
-      # NOT WORKING
-      #we need code that reads all the inputs and checks for errors that need fixing
-      #if there are errors, the user needs to be told what is wrong and asked to fix
-      #the rest of this function should not execute
-      #only if there are no errors should the rest of the code be executed
-      #which writes the inputs into the model structure
-
-      #test that no input fields are empty
-      #if any is empty, stop and alert user to fill in field
-
-      #test that:
-      # Variable names have to start with an upper-case letter and can only contain letters and numbers
-      # Parameter names have to start with a lower-case letter and can only contain letters and numbers
-
-      #if a flow does not have a + or - sign in front, assume it's positive and add a + sign
-      #make sure that all flows only consist of specified variables, parameters and math symbols ( +,-,*,^,/,() ). Other math notation such as e.g. sin() or cos() is not yet supported.
-
-      #make sure every parameter listed in the flows is specified as a parameter
-
-      #if tests above are ok, save model in a structure
-
-      #structure that holds the model
-      dynmodel = list()
-
-      dynmodel$title <- isolate(input$modeltitle)
-      dynmodel$author <- isolate(input$modelauthor)
-      dynmodel$textription <- isolate(input$modeltextription)
-      dynmodel$details = isolate(input$modeldetails)
-      dynmodel$date = Sys.Date()
-      var = vector("list",values$nvar)
-      for (n in 1:values$nvar)
-      {
-          var[[n]]$varname = isolate(eval(parse(text = paste0("input$var",n,"name") )))
-          var[[n]]$vartext = isolate(eval(parse(text = paste0("input$var",n,"text") )))
-          var[[n]]$varval = isolate(eval(parse(text = paste0("input$var",n,"val") )))
-          allflows = NULL
-          allflowtext = NULL
-          for (f in 1:values$nflow[n]) #turn all flows and descriptions into vector
-          {
-              newflow = isolate(eval(parse(text = paste0("input$var", n, 'f' , f,'name'))))
-              newflowtext = isolate(eval(parse(text = paste0("input$var", n, 'f' , f,'text'))))
-              allflows = c(allflows,newflow)
-              allflowtext = c(allflowtext, newflowtext)
-          }
-          var[[n]]$flows = allflows
-          var[[n]]$flownames = allflowtext
-      }
-      dynmodel$var = var
-
-      par = vector("list",values$npar)
-      for (n in 1:values$npar)
-      {
-          par[[n]]$parname = isolate(eval(parse(text = paste0("input$par",n,"name") )))
-          par[[n]]$partext = isolate(eval(parse(text = paste0("input$par",n,"text") )))
-          par[[n]]$parval = isolate(eval(parse(text = paste0("input$par",n,"val") )))
-
-      }
-      dynmodel$par = par
-
-      time = vector("list",3)
-      time[[1]]$timename = "tstart"
-      time[[1]]$timetext = "Start time of simulation"
-      time[[1]]$timeval = isolate(eval(parse(text = paste0("input$tval") )))
-
-      time[[2]]$timename = "tfinal"
-      time[[2]]$timetext = "Final time of simulation"
-      time[[2]]$timeval = isolate(eval(parse(text = paste0("input$tfinal") )))
-
-      time[[3]]$timename = "dt"
-      time[[3]]$timetext = "Time step"
-      time[[3]]$timeval = isolate(eval(parse(text = paste0("input$dt") )))
-
-      dynmodel$time = time
-
-      #add call to functions somewhere here that plot diagram and make equations
-      return(dynmodel)
-  })
 
   # make and display equations
   output$equations =  renderUI( withMathJax(generate_equations(dynmodel()) ) )
@@ -579,6 +313,26 @@ server <- function(input, output, session) {
   #end code blocks that contain the build functionality
   #######################################################
 
+  #######################################################
+  #start code blocks that contain the modify functionality
+  #######################################################
+
+
+
+  observe({
+    model() ## This line makes sure the observe() statement updates with each new model
+    #if no model has been loaded yet, display a message
+    if (is.null(model()$title))
+    {
+      output$modifymodel <- renderUI({h1('Please load a model')})
+      return()
+    }
+  }) #end modify observe statement
+
+  #######################################################
+  #end code  that contain the modify functionality
+  #######################################################
+
 
   #######################################################
   #start code blocks that contain the analyze functionality
@@ -588,6 +342,13 @@ server <- function(input, output, session) {
 
 observe({
     model() ## This line makes sure the observe() statement updates with each new model
+    #if no model has been loaded yet, display a message
+    if (is.null(model()$title))
+    {
+      output$analyzemodel <- renderUI({h1('Please load a model')})
+      return()
+    }
+
     generate_shinyinput(model(), output) #produce output elements for each variables, parameters, etc. should be reactive and update when a new model is loaded, but doesn't quite work
     output$analyzemodel <- renderUI({
       fluidPage(
@@ -655,7 +416,7 @@ observe({
 
 
     #######################################################
-    #end code blocks that contain the analyze functionality
+    #end code that contain the analyze functionality
     #######################################################
 
 
@@ -667,7 +428,7 @@ observe({
 
     #would like to have a load_model function that contains the code below
     #not quite working
-    #model <- load_model(currentmodel = input$currentmodel)
+    #model <- load_model()
 
     # Code to load a model saved as an Rdata file. Based on
     # https://stackoverflow.com/questions/5577221/how-can-i-load-an-object-into-a-variable-name-that-i-specify-from-an-r-data-file#
@@ -683,12 +444,8 @@ observe({
      d <- loadRData(inFile$datapath)
    })
 
-    #write code somewhere here that checks that the loaded file is a proper modelbuilder model.
-  #   #needs to have a non-empty model$title
-  #   #needs to have a sub-list called var with non-empty fields
-  #   #most of those checks need to also happen inside the build routine, maybe write a function that can be used
-  #   #in both places
-
+    #code somewhere here that checks that the loaded file is a proper modelbuilder model.
+    #errors <- check_model(model)
 
   output$exportode <- downloadHandler(
       filename = function() {
@@ -709,7 +466,6 @@ observe({
       },
       contentType = "text/plain"
   )
-
 
   output$exportdiscrete <- downloadHandler(
     filename = function() {
@@ -760,9 +516,11 @@ observe({
   #start code blocks for SBML import/export functionality
   #######################################################
 
-  #currently only used to get into a browser environment
+  #currently not implemented and disabled in GUI
   observeEvent(input$importsbml, {
-    browser()
+  })
+
+  observeEvent(input$exportsbml, {
   })
 
   #######################################################
@@ -798,6 +556,7 @@ ui <- fluidPage(
   #add header and title
   tags$div( includeHTML("../media/header.html"), align = "center"),
   p(paste('This is modelbuilder version ',utils::packageVersion("modelbuilder"),' last updated ', utils::packageDescription('modelbuilder')$Date,sep=''), class='infotext'),
+  p('Have fun building and analyzing models!', class='maintext'),
 
   navbarPage(title = "modelbuilder",
               tabPanel(title = "Main",
@@ -859,17 +618,26 @@ ui <- fluidPage(
               tabPanel("Build",
                        fluidRow(
                            column(12,
-                                  #actionButton("buildmodel", "Build a new model", class="mainbutton")
                                   uiOutput('buildmodel')
                            ),
                            class = "mainmenurow"
                        )
 
                ), #close "Build" tab
+
+             tabPanel("Modify",
+                      fluidRow(
+                        column(12,
+                               uiOutput('modifymodel')
+                        ),
+                        class = "mainmenurow"
+                      )
+
+             ), #close "MOdify" tab
+
              tabPanel("Analyze",
                        fluidRow(
                            column(12,
-                                  #actionButton("analyzemodel", "Analyze current model", class = "mainbutton")
                                   uiOutput('analyzemodel')
                            ),
                            class = "mainmenurow"
@@ -877,7 +645,6 @@ ui <- fluidPage(
               ) #close "Analyze" tab
   ),
 
-  p('Have fun building and analyzing models!', class='maintext'),
   div(includeHTML("../media/footer.html"), align="center", style="font-size:small") #footer
 ) #end fluidpage
 
