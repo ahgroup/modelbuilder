@@ -5,14 +5,14 @@
 
 
 #main list structure
-model = list()
+mbmodel = list()
 
 #some meta-information
-model$title = "SIR model"
-model$description = "A basic SIR model with 3 compartments and infection and recovery processes"
-model$author = "Andreas Handel"
-model$date = Sys.Date()
-model$details = 'The model includes susceptible, infected, and recovered compartments. The two processes that are modeled are infection and recovery.'
+mbmodel$title = "SIR model"
+mbmodel$description = "A basic SIR model with 3 compartments and infection and recovery processes"
+mbmodel$author = "Andreas Handel"
+mbmodel$date = Sys.Date()
+mbmodel$details = 'The model includes susceptible, infected, and recovered compartments. The two processes that are modeled are infection and recovery.'
 
 #list of elements for each model variable. So a 3-variable model will have var[[1]], var[[2]] and var[[3]]
 var = vector("list",3)
@@ -34,7 +34,7 @@ var[[3]]$varval = 0
 var[[3]]$flows = c('+g*I')
 var[[3]]$flownames = c('recovery of infected')
 
-model$var = var
+mbmodel$var = var
 
 #list of elements for each model parameter.
 par = vector("list",2)
@@ -46,7 +46,7 @@ par[[2]]$parname = c('g')
 par[[2]]$partext = 'recovery rate'
 par[[2]]$parval = 1
 
-model$par = par
+mbmodel$par = par
 
 #time parvals
 time = vector("list",3)
@@ -62,8 +62,8 @@ time[[3]]$timename = "dt"
 time[[3]]$timetext = "Time step"
 time[[3]]$timeval = 0.1
 
-model$time = time
+mbmodel$time = time
 
-modelname = gsub(" ","_",model$title)
+modelname = gsub(" ","_",mbmodel$title)
 rdatafile = paste0(modelname,'.Rdata')
-save(model,file = rdatafile)
+save(mbmodel,file = rdatafile)

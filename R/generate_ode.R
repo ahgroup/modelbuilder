@@ -8,7 +8,7 @@
 #' a user can also build a model list structure themselves following the specifications
 #' if the user provides an Rdata file name, this file needs to contain an object called 'model'
 #' and contain a valid modelbuilder model structure
-#' @param model model structure, either as list object or Rdata file name
+#' @param mbmodel modelbuilder model structure, either as list object or Rdata file name
 #' @param location a path/folder to save the simulation code to. Default is current directory
 #' @return The function does not return anything
 #' Instead, it writes an R file into the specified directory
@@ -17,11 +17,11 @@
 #' @author Andreas Handel
 #' @export
 
-generate_ode <- function(model, location = NULL)
+generate_ode <- function(mbmodel, location = NULL)
 {
     #if the model is passed in as an Rdata file name, load it
-    #otherwise, it is assumed that 'model' is a list structure of the right type
-    if (is.character(model)) {load(model)}
+    #otherwise, it is assumed that 'mbmodel' is a list structure of the right type
+    if (is.character(mbmodel)) {load(mbmodel)}
 
     #the name of the function produced by this script is simulate_ + "model title" + "_ode.R"
     savepath <- location #default is current directory for saving the R function
@@ -29,14 +29,14 @@ generate_ode <- function(model, location = NULL)
     #if location is supplied, that's where the code will be saved to
     # if (!is.null(location)) {savepath = paste0(location,'/',filename)}
 
-    nvars = length(model$var)  #number of variables/compartments in model
-    npars = length(model$par)  #number of parameters in model
-    ntime = length(model$time) #numer of parameters for time
+    nvars = length(mbmodel$var)  #number of variables/compartments in model
+    npars = length(mbmodel$par)  #number of parameters in model
+    ntime = length(mbmodel$time) #numer of parameters for time
     #text for model description
     #all this should be provided in the model sctructure
-    sdesc=paste0("#' ",model$title,"\n#' \n")
-    sdesc=paste0(sdesc,"#' ",model$description,"\n#' \n")
-    sdesc=paste0(sdesc,"#' @details ",model$details, "\n")
+    sdesc=paste0("#' ",mbmodel$title,"\n#' \n")
+    sdesc=paste0(sdesc,"#' ",mbmodel$description,"\n#' \n")
+    sdesc=paste0(sdesc,"#' @details ",mbmodel$details, "\n")
     sdesc=paste0(sdesc,"#' This code is based on a dynamical systems model created by the modelbuilder package.  \n")
     sdesc=paste0(sdesc,"#' The model is implemented here as a set of ordinary differential equations, \n")
     sdesc=paste0(sdesc,"#' using the deSolve package. \n")
@@ -44,21 +44,21 @@ generate_ode <- function(model, location = NULL)
     sdesc=paste0(sdesc,"#' \\itemize{ \n")
     for (n in 1:nvars)
     {
-        sdesc=paste0(sdesc,"#' \\item ", model$var[[n]]$varname, ' : starting value for ',model$var[[n]]$vartext, "\n")
+        sdesc=paste0(sdesc,"#' \\item ", mbmodel$var[[n]]$varname, ' : starting value for ',mbmodel$var[[n]]$vartext, "\n")
     }
     sdesc=paste0(sdesc,"#' } \n")
     sdesc=paste0(sdesc,"#' @param pars vector of values for model parameters: \n")
     sdesc=paste0(sdesc,"#' \\itemize{ \n")
     for (n in 1:npars)
     {
-        sdesc=paste0(sdesc,"#' \\item ", model$par[[n]]$parname," : ", model$par[[n]]$partext, "\n")
+        sdesc=paste0(sdesc,"#' \\item ", mbmodel$par[[n]]$parname," : ", mbmodel$par[[n]]$partext, "\n")
     }
     sdesc=paste0(sdesc,"#' } \n")
     sdesc=paste0(sdesc,"#' @param times vector of values for model times: \n")
     sdesc=paste0(sdesc,"#' \\itemize{ \n")
     for (n in 1:ntime)
     {
-        sdesc=paste0(sdesc,"#' \\item ", model$time[[n]]$timename," : ", model$time[[n]]$timetext, "\n")
+        sdesc=paste0(sdesc,"#' \\item ", mbmodel$time[[n]]$timename," : ", mbmodel$time[[n]]$timetext, "\n")
     }
     sdesc=paste0(sdesc,"#' } \n")
     sdesc=paste0(sdesc,"#' @return The function returns the output as a list. \n")
@@ -66,10 +66,10 @@ generate_ode <- function(model, location = NULL)
     sdesc=paste0(sdesc,"#' The \\code{ts} dataframe has one column per compartment/variable. The first column is time.   \n")
     sdesc=paste0(sdesc,"#' @examples  \n")
     sdesc=paste0(sdesc,"#' # To run the simulation with default parameters:  \n")
-    sdesc=paste0(sdesc,"#' result <- simulate_",gsub(" ","_",model$title),"_ode()", " \n")
+    sdesc=paste0(sdesc,"#' result <- simulate_",gsub(" ","_",mbmodel$title),"_ode()", " \n")
     sdesc=paste0(sdesc,"#' @section Warning: ","This function does not perform any error checking. So if you try to do something nonsensical (e.g. have negative values for parameters), the code will likely abort with an error message.", "\n")
-    sdesc=paste0(sdesc,"#' @section Model Author: ",model$author, "\n")
-    sdesc=paste0(sdesc,"#' @section Model creation date: ",model$date, "\n")
+    sdesc=paste0(sdesc,"#' @section Model Author: ",mbmodel$author, "\n")
+    sdesc=paste0(sdesc,"#' @section Model creation date: ",mbmodel$date, "\n")
     sdesc=paste0(sdesc,"#' @section Code Author: generated by the \\code{generate_ode} function \n")
     sdesc=paste0(sdesc,"#' @section Code creation date: ",Sys.Date(), "\n")
     sdesc=paste0(sdesc,"#' @export \n \n")
@@ -77,7 +77,7 @@ generate_ode <- function(model, location = NULL)
     ##############################################################################
     #the next block of commands produces the ODE function required by deSolve
     sode = "  #Block of ODE equations for deSolve \n"
-    sode = paste0(sode,"  ", gsub(" ","_",model$title),'_ode_fct <- function(t, y, parms) \n  {\n')
+    sode = paste0(sode,"  ", gsub(" ","_",mbmodel$title),'_ode_fct <- function(t, y, parms) \n  {\n')
     sode = paste0(sode,"    with( as.list(c(y,parms)), { #lets us access variables and parameters stored in y and parms by name \n")
 
     #text for equations and final list
@@ -85,9 +85,9 @@ generate_ode <- function(model, location = NULL)
     slist="    list(c("
     for (n in 1:nvars)
     {
-        seqs = paste0(seqs,"    #",model$var[[n]]$vartext,' : ', paste(model$var[[n]]$flownames, collapse = ' : '),' :\n')
-        seqs = paste0(seqs,'    d',model$var[[n]]$varname,' = ',paste(model$var[[n]]$flows, collapse = ' '), '\n' )
-        slist = paste0(slist, paste0('d',model$var[[n]]$varname,','))
+        seqs = paste0(seqs,"    #",mbmodel$var[[n]]$vartext,' : ', paste(mbmodel$var[[n]]$flownames, collapse = ' : '),' :\n')
+        seqs = paste0(seqs,'    d',mbmodel$var[[n]]$varname,' = ',paste(mbmodel$var[[n]]$flows, collapse = ' '), '\n' )
+        slist = paste0(slist, paste0('d',mbmodel$var[[n]]$varname,','))
     }
     sode=paste0(sode,seqs)
     sode = paste0(sode,"    #EndODES\n")
@@ -105,7 +105,7 @@ generate_ode <- function(model, location = NULL)
     varstring = "vars = c("
     for (n in 1:nvars)
     {
-        varstring=paste0(varstring, model$var[[n]]$varname," = ", model$var[[n]]$varval,', ')
+        varstring=paste0(varstring, mbmodel$var[[n]]$varname," = ", mbmodel$var[[n]]$varval,', ')
     }
     varstring = substr(varstring,1,nchar(varstring)-2)
     varstring = paste0(varstring,'), ') #close parantheses
@@ -113,7 +113,7 @@ generate_ode <- function(model, location = NULL)
     parstring = "pars = c("
     for (n in 1:npars)
     {
-        parstring=paste0(parstring, model$par[[n]]$parname," = ", model$par[[n]]$parval,', ')
+        parstring=paste0(parstring, mbmodel$par[[n]]$parname," = ", mbmodel$par[[n]]$parval,', ')
     }
     parstring = substr(parstring,1,nchar(parstring)-2)
     parstring = paste0(parstring,'), ') #close parantheses
@@ -121,17 +121,17 @@ generate_ode <- function(model, location = NULL)
     timestring = "times = c("
     for (n in 1:ntime)
     {
-        timestring=paste0(timestring, model$time[[n]]$timename," = ", model$time[[n]]$timeval,', ')
+        timestring=paste0(timestring, mbmodel$time[[n]]$timename," = ", mbmodel$time[[n]]$timeval,', ')
     }
     timestring = substr(timestring,1,nchar(timestring)-2)
     timestring = paste0(timestring,') ') #close parantheses
 
-    stitle = paste0('simulate_',gsub(" ","_",model$title),"_ode <- function(",varstring, parstring, timestring,') \n{ \n')
+    stitle = paste0('simulate_',gsub(" ","_",mbmodel$title),"_ode <- function(",varstring, parstring, timestring,') \n{ \n')
 
     smain = "  #Main function code block \n"
 
     smain = paste0(smain,'  timevec=seq(times[1],times[2],by=times[3]) \n')
-    smain = paste0(smain,'  odeout = deSolve::ode(y = vars, parms = pars, times = timevec,  func = ',gsub(" ","_",model$title),'_ode_fct) \n')
+    smain = paste0(smain,'  odeout = deSolve::ode(y = vars, parms = pars, times = timevec,  func = ',gsub(" ","_",mbmodel$title),'_ode_fct) \n')
     smain = paste0(smain,'  result <- list() \n');
     smain = paste0(smain,'  result$ts <- as.data.frame(odeout) \n')
     smain = paste0(smain,'  return(result) \n')

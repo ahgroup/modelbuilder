@@ -385,7 +385,12 @@ observe({
       modelsettings <- find_modelsettings( input = input, mbmodel = model() )
       #run model with specified settings
       set.seed(modelsettings$rngseed) #set rngseed
-      result <- analyze_model(modelsettings = modelsettings, mbmodel = model() )
+      #run simulation, show a 'running simulation' message
+      result <- withProgress(message = 'Running Simulation',
+                   detail = "This may take a while", value = 0,
+                   {
+                     analyze_model(modelsettings = modelsettings, mbmodel = model() )
+                   })
       #create plot from results
       output$plot  <- renderPlot({
           generate_plots(result)
@@ -415,7 +420,7 @@ observe({
     # Code to load a model saved as an Rdata file. Based on
     # https://stackoverflow.com/questions/5577221/how-can-i-load-an-object-into-a-variable-name-that-i-specify-from-an-r-data-file#
 
-   model <- reactive({
+   dynmbmodel <- reactive({
      stopping <<- TRUE
      inFile <- input$currentmodel
      if (is.null(inFile)) return(NULL)
@@ -427,14 +432,14 @@ observe({
    })
 
     #code somewhere here that checks that the loaded file is a proper modelbuilder model.
-    #errors <- check_model(model)
+    #errors <- check_model(dynmbmodel() )
 
   output$exportode <- downloadHandler(
       filename = function() {
-        paste0("simulate_",gsub(" ","_",model()$title),"_ode.R")
+        paste0("simulate_",gsub(" ","_",dynmbmodel()$title),"_ode.R")
     },
     content = function(file) {
-      generate_ode(model = model(), location = file)
+      generate_ode(model = dynmbmodel(), location = file)
     },
     contentType = "text/plain"
   )

@@ -36,15 +36,15 @@ analyze_model <- function(modelsettings, mbmodel) {
   #if not present, create code for all 3 simulators
   if (!exists(file_ode)) #check if function/code is available, if not generate
   {
-    generate_ode(model = mbmodel, location = file_ode)
+    generate_ode(mbmodel = mbmodel, location = file_ode)
   }
   if (!exists(file_discrete))
   {
-    generate_discrete(model = mbmodel, location = file_discrete)
+    generate_discrete(mbmodel = mbmodel, location = file_discrete)
   }
   if (!exists(file_stochastic))
   {
-    generate_stochastic(model = mbmodel, location = file_stochastic)
+    generate_stochastic(mbmodel = mbmodel, location = file_stochastic)
   }
   #source files
   source(file_ode)
@@ -59,11 +59,7 @@ analyze_model <- function(modelsettings, mbmodel) {
   result = vector("list", listlength) #create empty list of right size for results
 
   #run simulation, show a 'running simulation' message
-  withProgress(message = 'Running Simulation',
-               detail = "This may take a while", value = 0,
-               {
-                   eval(parse(text = fctcall)) #execute function
-               })
+  eval(parse(text = fctcall)) #execute function
 
   #data for plots and text
   #needs to be in the right format to be passed to generate_plots and generate_text
@@ -84,7 +80,7 @@ analyze_model <- function(modelsettings, mbmodel) {
   if (plotscale == 'x' | plotscale == 'both') { result[[1]]$xscale = 'log10'}
   if (plotscale == 'y' | plotscale == 'both') { result[[1]]$yscale = 'log10'}
 
-  result[[1]]$maketext = TRUE #if true we want the generate_text function to process data and generate text, if 0 no result processing will occur insinde generate_text
+  result[[1]]$maketext = TRUE #if true we want the generate_text function to process data and generate text, if 0 no result processing will occur inside generate_text
 
   return(result)
 }

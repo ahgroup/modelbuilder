@@ -4,14 +4,14 @@
 
 
 #main list structure
-model = list()
+mbmodel = list()
 
 #some meta-information
-model$title = "Environmental Transmission model"
-model$description = "An SIR model including environmental transmission"
-model$author = "Andreas Handel"
-model$date = Sys.Date()
-model$details = 'The model includes susceptible, infected, and environmental compartments. This model is part of the DSAIDE package and explained in that package in detail.'
+mbmodel$title = "Environmental Transmission model"
+mbmodel$description = "An SIR model including environmental transmission"
+mbmodel$author = "Andreas Handel"
+mbmodel$date = Sys.Date()
+mbmodel$details = 'The model includes susceptible, infected, and environmental compartments. This model is part of the DSAIDE package and explained in that package in detail.'
 
 
 var = vector("list",4)
@@ -39,7 +39,7 @@ var[[4]]$varval = 0
 var[[4]]$flows = c('+p*I','+c*E')
 var[[4]]$flownames = c('shedding by infected','decay')
 
-model$var = var
+mbmodel$var = var
 
 #list of elements for each model parameter.
 par = vector("list",7)
@@ -71,7 +71,7 @@ par[[7]]$parname = 'c'
 par[[7]]$partext = 'rate at which pathogen in the environment decays'
 par[[7]]$parval =  10
 
-model$par = par
+mbmodel$par = par
 
 #time parvals
 time = vector("list",3)
@@ -87,9 +87,9 @@ time[[3]]$timename = "dt"
 time[[3]]$timetext = "Time step"
 time[[3]]$timeval = 0.1
 
-model$time = time
+mbmodel$time = time
 
-modelname = gsub(" ","_",model$title)
+modelname = gsub(" ","_",mbmodel$title)
 rdatafile = paste0(modelname,'.Rdata')
-save(model,file = rdatafile)
+save(mbmodel,file = rdatafile)
 

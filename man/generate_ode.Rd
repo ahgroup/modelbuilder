@@ -4,10 +4,10 @@
 \alias{generate_ode}
 \title{Create an ODE simulation model}
 \usage{
-generate_ode(model, location = NULL)
+generate_ode(mbmodel, location = NULL)
 }
 \arguments{
-\item{model}{model structure, either as list object or Rdata file name}
+\item{mbmodel}{modelbuilder model structure, either as list object or Rdata file name}
 
 \item{location}{a path/folder to save the simulation code to. Default is current directory}
 }

@@ -4,10 +4,10 @@
 \alias{generate_stochastic}
 \title{Create a stochastic compartmental simulation model}
 \usage{
-generate_stochastic(model, location = NULL)
+generate_stochastic(mbmodel, location = NULL)
 }
 \arguments{
-\item{model}{model structure, either as list object or Rdata file name}
+\item{mbmodel}{a modelbuilder model structure, either as list object or Rdata file name}
 
 \item{location}{a path/folder to save the simulation code to. Default is current directory}
 }
