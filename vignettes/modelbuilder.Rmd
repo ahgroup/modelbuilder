@@ -13,15 +13,14 @@ vignette: >
 bibliography: vignetterefs.bib
 ---
 
-**Most features are not yet implemented, this is a roadmap!**
 
 ## Summary
-Future home of the modelbuilder vignette
+The modelbuilder package allows the building and analysis of compartmental dynamical systems models without the need to write code.
 
 
 ## Package description
 
-The package consists of several functions that allow a user to create and analyze compartmental dynamical models in a graphical user interface setting without having to write code.
+The package provides a graphical user interface that allows a user to create and analyze compartmental dynamical models without having to write code. 
 
 
 ## Intended audience and goal of the package
@@ -48,9 +47,14 @@ modelbuilder()
 
 This will bring up a graphical user interface from which everything is done. Once your are done using `modelbuilder`, simply close the graphical user interface.
 
+
 ## Building a model
 
-The graphical user interface has two main tabs, one where you build the model and one where you analyze the model. You always start with the build tab. Here you can graphically build a model by adding variables, flows and parameters. As you build the model you will see a graphical representation of the model you are building. Once you're done building the model, and you're happy with it, you should click save model. This will save your model in an Rdata file in the location you specify.
+The 'build' tab allows you to either build a new model, or modify an existing, loaded model (modify functionality not yet implemented). 
+
+Under the build tab, you can graphically build a model by adding variables, flows and parameters. Once you finished specifying your model, you can generate it. This checks for errors, if none are present it will create the model equations, a model diagram (not yet implemented) and the code for the underlying model.
+
+model is done, you can As you build the model you will see a graphical representation of the model you are building. Once you're done building the model, and you're happy with it, you should click save model. This will save your model in an Rdata file in the location you specify.
 Similarly, by pressing the save diagram button, you can save the diagram for the model as a PNG file in the location you want.
 
 If you previously built a model, you can load it with the load model button. Once the model is loaded you can further modify it and save a modified version.
@@ -72,6 +76,9 @@ The analyze tab is meant to give you some basic analysis tools. If you want to d
 
 
 ## Further ideas
+
+**Most features are not yet implemented, this is a roadmap!**
+
 
 Have an import button that allows users to import models that are written in for instance SMBL
 
