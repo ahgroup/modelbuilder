@@ -3,7 +3,8 @@ context("test-analyze_model.R")
 test_that("use SIR model to test analyze_model function",
 {
 
-  load('./inst/modelexamples/SIR_model.Rdata')
+  modelpath = system.file("modelexamples", package = "modelbuilder")
+  load(paste0(modelpath,'/SIR_model.Rdata'))
   modelsettings = list()
   modelsettings$rngseed = 123
   modelsettings$nreps = 1
@@ -29,6 +30,6 @@ test_that("use SIR model to test analyze_model function",
   modelsettings$vars = c( S = 1000, I = 10, R = 0)
   result = analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)
   #final number of susceptible need to be 155 for specified model/setting
-  testthat::expect_equal(round(tail(result[[1]]$dat$S,1)), 155)
+  testthat::expect_equal(round(tail(result[[1]]$dat$S,1)), 193)
 
 })

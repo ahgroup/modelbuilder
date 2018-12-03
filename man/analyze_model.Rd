@@ -13,9 +13,9 @@ analyze_model(modelsettings, mbmodel)
 \item rngseed : A random number seed for the simulation.
 \item nreps : Number of times to run the simulation.
 \item plotscale : Log or linear scale for the x-axis, y-axis, or both.
-\item vars : initial condition for variables
-\item pars : initial condition for parameters
-\item times : settings for time
+\item vars : named vector of initial conditions for variables
+\item pars : named vector of initial conditions for parameters
+\item times : named vector of values for tstart, tfinal, dt
 }}
 
 \item{mbmodel}{A modelbuilder model object.}
@@ -24,7 +24,7 @@ analyze_model(modelsettings, mbmodel)
 A list named "result" with the simulated dataframe and associated metadata.
 }
 \description{
-This function takes a modelbuilder model.
+This function takes a modelbuilder model and model settings.
 It runs the simulation determined by the model settings and returns simulation results.
 }
 \details{

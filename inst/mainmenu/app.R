@@ -271,10 +271,11 @@ server <- function(input, output, session) {
   #one function reads all the inputs and writes them into the model structure
   #and returns the structure
   #the other function checks the created model object for errors
-  dynmodel <- eventReactive(input$makemodel,
+  dynmbmodel <- eventReactive(input$makemodel,
                             {
-                             model <- generate_model(input, values)
+                             mbmodel <- generate_model(input, values)
                              #errors <- check_model(model)
+                             return(mbmodel)
                             })
 
 
@@ -289,21 +290,21 @@ server <- function(input, output, session) {
   #this lets me save it with code below, if i try to use dynmodel() directly in the save function it doesn't work
   #i'm not sure why this version works and why I can't save the model directly
   #https://stackoverflow.com/questions/23036739/downloading-rdata-files-with-shiny
-  model <- reactiveValues()
+  dynmbmodel <- reactiveValues()
   observe({
-      if(!is.null(dynmodel()))
+      if(!is.null(dynmbmodel()))
           isolate(
-            model <<- dynmodel()
+            mbmodel <<- dynmbmodel()
           )
   })
   #writes model to Rdata file
   output$savemodel <- downloadHandler(
       filename = function() {
-          paste0(gsub(" ","_",model$title),".Rdata")
+          paste0(gsub(" ","_",mbmodel$title),".Rdata")
       },
       content = function(file) {
-          stopifnot(!is.null(model))
-          save(model, file = file)
+          stopifnot(!is.null(mbmodel))
+          save(mbmodel, file = file)
       },
       contentType = "text/plain"
   )
@@ -321,15 +322,15 @@ server <- function(input, output, session) {
 
 
 observe({
-    model() ## This line makes sure the observe() statement updates with each new model
+    dynmbmodel() ## This line makes sure the observe() statement updates with each new model
     #if no model has been loaded yet, display a message
-    if (is.null(model()$title))
+    if (is.null(dynmbmodel()$title))
     {
       output$analyzemodel <- renderUI({h1('Please load a model')})
       return()
     }
 
-    generate_shinyinput(model(), output) #produce output elements for each variables, parameters, etc. should be reactive and update when a new model is loaded, but doesn't quite work
+    generate_shinyinput(dynmbmodel(), output) #produce output elements for each variables, parameters, etc. should be reactive and update when a new model is loaded, but doesn't quite work
     output$analyzemodel <- renderUI({
       fluidPage(
           #section to add buttons
@@ -382,14 +383,14 @@ observe({
   #runs model simulation when 'run simulation' button is pressed
     observeEvent(input$submitBtn, {
       #extract current model settings from UI input element
-      modelsettings <- find_modelsettings( input = input, mbmodel = model() )
+      modelsettings <- find_modelsettings( input = input, mbmodel = dynmbmodel() )
       #run model with specified settings
       set.seed(modelsettings$rngseed) #set rngseed
       #run simulation, show a 'running simulation' message
       result <- withProgress(message = 'Running Simulation',
                    detail = "This may take a while", value = 0,
                    {
-                     analyze_model(modelsettings = modelsettings, mbmodel = model() )
+                     analyze_model(modelsettings = modelsettings, mbmodel = dynmbmodel() )
                    })
       #create plot from results
       output$plot  <- renderPlot({
@@ -421,7 +422,6 @@ observe({
     # https://stackoverflow.com/questions/5577221/how-can-i-load-an-object-into-a-variable-name-that-i-specify-from-an-r-data-file#
 
    dynmbmodel <- reactive({
-     stopping <<- TRUE
      inFile <- input$currentmodel
      if (is.null(inFile)) return(NULL)
      loadRData <- function(filename) {
@@ -439,40 +439,40 @@ observe({
         paste0("simulate_",gsub(" ","_",dynmbmodel()$title),"_ode.R")
     },
     content = function(file) {
-      generate_ode(model = dynmbmodel(), location = file)
+      generate_ode(mbmodel = dynmbmodel(), location = file)
     },
     contentType = "text/plain"
   )
 
   output$exportstochastic <- downloadHandler(
       filename = function() {
-          paste0("simulate_",gsub(" ","_",model()$title),"_stochastic.R")
+          paste0("simulate_",gsub(" ","_",dynmbmodel()$title),"_stochastic.R")
       },
       content = function(file) {
-          generate_stochastic(model = model(), location = file)
+          generate_stochastic(mbmodel = dynmbmodel(), location = file)
       },
       contentType = "text/plain"
   )
 
   output$exportdiscrete <- downloadHandler(
     filename = function() {
-      paste0("simulate_",gsub(" ","_",model()$title),"_discrete.R")
+      paste0("simulate_",gsub(" ","_",dynmbmodel()$title),"_discrete.R")
     },
     content = function(file) {
-      generate_discrete(model = model(), location = file)
+      generate_discrete(mbmodel = dynmbmodel(), location = file)
     },
     contentType = "text/plain"
   )
 
-  output$exportrxode <- downloadHandler(
-      filename = function() {
-          paste0("simulate_",gsub(" ","_",model()$title),"_rxode.R")
-      },
-      content = function(file) {
-          generate_rxode(model = model(), location = file)
-      },
-      contentType = "text/plain"
-  )
+  # output$exportrxode <- downloadHandler(
+  #     filename = function() {
+  #         paste0("simulate_",gsub(" ","_",dynmbmodel()$title),"_rxode.R")
+  #     },
+  #     content = function(file) {
+  #         generate_rxode(mbmodel = dynmbmodel(), location = file)
+  #     },
+  #     contentType = "text/plain"
+  # )
 
 
   # NOT WORKING
@@ -517,6 +517,7 @@ observe({
   #######################################################
   #start code that shuts down the app upon Exit button press
   #######################################################
+  stopping <<- TRUE
 
   observeEvent(input$Exit, {
       stopping <<- TRUE
