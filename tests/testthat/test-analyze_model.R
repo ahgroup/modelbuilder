@@ -29,7 +29,7 @@ test_that("use SIR model to test analyze_model function",
   modelsettings$modeltype = "stochastic"
   modelsettings$vars = c( S = 1000, I = 10, R = 0)
   result = analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)
-  #final number of susceptible need to be 155 for specified model/setting
-  testthat::expect_equal(round(tail(result[[1]]$dat$S,1)), 193)
+  #final number of susceptible need to be 153 for specified model/setting
+  testthat::expect_equal(round(tail(result[[1]]$dat$S,1)), 153)
 
 })

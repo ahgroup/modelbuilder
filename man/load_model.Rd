@@ -10,11 +10,11 @@ load_model(currentmodel)
 \item{currentmodel}{A file name and location for the model to be loaded.}
 }
 \value{
-The model object stored in the Rdata file as a reactive
+The modelbuilder model object
 }
 \description{
 This function takes the name of an Rdata file that contains a modelbuilder model
-and loads it as a reactive model
+and loads the model object
 }
 \details{
 This function is a helper function

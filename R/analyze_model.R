@@ -60,13 +60,35 @@ analyze_model <- function(modelsettings, mbmodel) {
   #run simulation by executing the function call
   #the generate_fctcall creates a function call to the specified model based on the given model settings
   fctcall <- modelbuilder::generate_fctcall(modelsettings = modelsettings, mbmodel = mbmodel)
+  set.seed(modelsettings$rngseed) #set RNG seed specified by the settings before executing function call
 
-  eval(parse(text = fctcall)) #execute function
+  #single model execution
+  if (modelsettings$nreps == 1 | modelsettings$modeltype == 'ode' | modelsettings$modeltype == 'discrete')
+  {
+    eval(parse(text = fctcall)) #execute function, result is returned in 'result' object
+    result[[1]]$dat = simresult$ts
+  }
 
-  #data for plots and text
-  #needs to be in the right format to be passed to generate_plots and generate_text
-  #see documentation for those functions for details
-  result[[1]]$dat = simresult$ts
+  #loop over multiple runs (only leads to potential differences for stochastic model)
+  if (modelsettings$nreps > 1 & modelsettings$modeltype == 'stochastic')
+  {
+    datall = NULL
+    for (nn in 1:modelsettings$nreps)
+    {
+    eval(parse(text = fctcall)) #execute function, result is returned in 'result' object
+    #data for plots and text
+    #needs to be in the right format to be passed to generate_plots and generate_text
+    #see documentation for those functions for details
+    simresult <- simresult$ts
+    colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
+    #reformat data to be in the right format for plotting
+    dat = tidyr::gather(as.data.frame(simresult), -xvals, value = "yvals", key = "varnames")
+    dat$IDvar = paste(dat$varnames,nn,sep='') #make a variable for plotting same color lines for each run in ggplot2
+    dat$nreps = nn
+    datall = rbind(datall,dat)
+    }
+    result[[1]]$dat = datall
+  }
 
   #Meta-information for each plot
   #Might not want to hard-code here, can decide later

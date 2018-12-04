@@ -5,6 +5,18 @@
 * The name of a reactive modelbuilder object must be dynmbmodel
 * To avoid variable naming conflicts with users, we should use internal variable names that are unique. Suggestion is NN_mb.
 
+
+## Current package structure 
+* Currently, user loads package, starts main menu with `modelbuilder()`
+* Main menu lets users build a new model, load an existing model, modify or analyze existing model, export code for existing model, and do import/export to SBML. Only some of the features are currently implemented/working.
+* Each model is saved as list structure called 'model' and stored in Rdata files.
+* Several functions take the model structure and turn it into R code/functions for implementing the model as ODE, stochastic/adaptivetau, discrete time, RxODE, SBML, etc. (only some implemented yet)
+* As model is built, a diagram is drawn 
+* As model is built, equations are written to screen as Latex/shiny output object 
+* When user saves model, the model is written to an Rdata file
+
+
+
 ## Package functionality requirements
 * Users need to be able to build and analyze compartmental models without coding
 * Ideally, the building and analysis/testing need to happen at the same time so users can test their model behavior as they build it to see if it works
@@ -15,14 +27,6 @@
 * Package also needs to have lots of internal (unit) tests (using testthat)
 
 
-## Current package structure and concept ideas
-* Currently, user loads package, starts main menu with `modelbuilder()`
-* Main menu lets users build a new model, load an existing model, modify or analyze existing model, export code for existing model, and do import/export to SBML. Only some of the features are currently implemented/working.
-* Each model is saved as list structure called 'model' and stored in Rdata files.
-* Several functions take the model structure and turn it into R code/functions for implementing the model as ODE, stochastic/adaptivetau, discrete time, RxODE, SBML, etc. (only some implemented yet)
-* As model is built, a diagram is drawn 
-* As model is built, equations are written to screen as Latex/shiny output object 
-* When user saves model, the model is written to an Rdata file
 
 
 ## Specific thoughts

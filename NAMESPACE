@@ -3,6 +3,7 @@
 export(analyze_model)
 export(check_model)
 export(find_modelsettings)
+export(generate_buildUI)
 export(generate_diagram)
 export(generate_discrete)
 export(generate_equations)
