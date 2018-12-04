@@ -8,131 +8,57 @@ server <- function(input, output, session) {
   #######################################################
 
 
-    #define number of variables and parameters for model globally, is updated based on user pressing add/delete variables/parameters
+    #define number of variables/parameters/flows for model globally, is updated based on user pressing add/delete variables/parameters
     values = reactiveValues()
     values$nvar <- 1
     values$npar <- 1
-    values$nflow <- rep(1,50) #number of flows for each variable, currently assuming model does not have more than 50 vars
+    values$nflow <- rep(1,100) #number of flows for each variable, currently assuming model does not have more than 100 vars
 
     #generate_buildUI provides the build UI for the model
-    observe({generate_buildUI(model, output)}) #end observe for build UI construction
+    observe({
+        dynmbmodel() ## This line makes sure the observe() statement updates with each new model
+        generate_buildUI(dynmbmodel(), output)
+        }) #end observe for build UI construction
 
 
   #add a new variable
   observeEvent(input$addvar, {
       values$nvar = values$nvar + 1
-      insertUI(
-          selector = paste0("#var", values$nvar - 1, 'slot'), #current variable
-          where = "afterEnd",
-          ## wrap element in a div with id for ease of removal
-          ui = tags$div(
-              h3(paste("Variable", values$nvar)),
-              fluidRow( class = 'myrow',
-                        column(2,
-                               textInput(paste0("var", values$nvar,'name'), "Variable name")
-                        ),
-                        column(3,
-                               textInput(paste0("var", values$nvar,'text'), "Variable description")
-                        ),
-                        column(2,
-                               numericInput(paste0("var", values$nvar,'val'), "valing value", value = 0)
-                        )
-              ),
-              tags$div(
-                  fluidRow(
-                      column(6,
-                             textInput(paste0("var", values$nvar, 'f1name'), "Flow")
-                      ),
-                      column(6,
-                             textInput(paste0("var", values$nvar, 'f1text'), "Flow description")
-                      )
-                  ),
-                  id = paste0("var", values$nvar, "flow", values$nflow[values$nvar], 'slot')
-              ), #close flow tag
-              id = paste0("var", values$nvar, 'slot')
-          ) #close tags$div
-      ) #close insertUI
+      add_model_var(mbmodel, values, input, output)
   }) #close observeevent
-
 
   #remove the last variable
   observeEvent(input$rmvar, {
       if (values$nvar == 1) return() #don't remove the last variable
-      removeUI(
-          selector = paste0("#var", values$nvar, 'slot'),
-          immediate = TRUE
-      )
+      remove_model_var(mbmodel, values, input, output)
       values$nvar = values$nvar - 1
   })
-
 
   #add a new flow
   observeEvent(input$addflow, {
       values$nflow[input$targetvar] = values$nflow[input$targetvar] + 1
-      #browser()
-      insertUI(
-          selector = paste0("#var", input$targetvar, "flow", values$nflow[input$targetvar]-1, 'slot'), #current variable
-          where = "afterEnd",
-          ## wrap element in a div with id for ease of removal
-          ui =
-              tags$div(
-                  fluidRow(
-                      column(6,
-                             textInput(paste0("var", input$targetvar, 'f' , values$nflow[input$targetvar],'name'), "Flow")
-                      ),
-                      column(6,
-                             textInput(paste0("var", input$targetvar, 'f' , values$nflow[input$targetvar],'text'), "Flow description")
-                      )
-                  ),
-                  id = paste0("var", input$targetvar, "flow", values$nflow[input$targetvar], 'slot')
-              ) #close flow tag
-      ) #close insertUI
+      add_model_flow(mbmodel, values, input, output)
   }) #close observeevent
 
 
   #remove flow from specified variable
   observeEvent(input$rmflow, {
       if (values$nflow[input$targetvar] == 1) return() #don't remove the last flow
-      removeUI(
-          selector = paste0("#var", input$targetvar, "flow", values$nflow[input$targetvar], 'slot'),
-          immediate = TRUE
-      )
+      remove_model_flow(mbmodel, values, input, output)
       values$nflow[input$targetvar] = values$nflow[input$targetvar] - 1
-  })
+  }) #close observeevent
 
 
   #add a new parameter
   observeEvent(input$addpar, {
       values$npar = values$npar + 1
-      insertUI(
-          selector = paste0("#par", values$npar - 1, 'slot'), #current variable
-          where = "afterEnd",
-          ## wrap element in a div with id for ease of removal
-          ui = tags$div(
-
-              fluidRow( class = 'myrow',
-                        column(2,
-                               textInput(paste0("par", values$npar, 'name'), "Parameter Name")
-                        ),
-                        column(3,
-                               textInput(paste0("par", values$npar,'text'), "Parameter description")
-                        ),
-                        column(2,
-                               numericInput(paste0("par", values$npar,'val'), "Default value", value = 0)
-                        )
-              ),
-              id = paste0("par", values$npar, 'slot')
-          ) #close tags$div
-      ) #close insertUI
+      add_model_par(mbmodel, values, input, output)
   }) #close observeevent
 
   #remove the last parameter
   observeEvent(input$rmpar, {
       if (values$npar == 1) return() #don't remove the last variable
-      removeUI(
-          selector = paste0("#par", values$npar, 'slot'),
-          immediate = TRUE
-      )
+      remove_model_par(mbmodel, values, input, output)
       values$npar = values$npar - 1
   })
 
@@ -200,7 +126,7 @@ observe({
       return()
     }
 
-    generate_shinyinput(dynmbmodel(), output) #produce output elements for each variables, parameters, etc. should be reactive and update when a new model is loaded, but doesn't quite work
+    generate_shinyinput(dynmbmodel(), output) #produce output elements for each variables, parameters, etc.
     output$analyzemodel <- renderUI({
       fluidPage(
           #section to add buttons
@@ -330,15 +256,12 @@ observe({
   # )
 
 
-  # NOT WORKING
-  # these lines of code should turn on the export and analyze options off
+  # these lines of code turn the export options off
   # and only if a model has been loaded will they turn on
-  # see e.g. https://daattali.com/shiny/shinyjs-basic/
-  # also see https://stackoverflow.com/questions/25247852/shiny-app-disable-downloadbutton
-  shinyjs::disable("exportode")
+  shinyjs::disable(id = "exportode")
   shinyjs::disable("exportstochastic")
   shinyjs::disable("exportdiscrete")
-  shinyjs::disable("exportrxode")
+  #shinyjs::disable("exportrxode")
   #if a model is loaded turn on the buttons
   observe({
        if (!is.null(dynmbmodel()$title))
@@ -346,7 +269,7 @@ observe({
            shinyjs::enable(id = "exportode")
            shinyjs::enable("exportstochastic")
            shinyjs::enable("exportdiscrete")
-           shinyjs::enable("exportrxode")
+          # shinyjs::enable("exportrxode")
        }
    })
 
@@ -376,7 +299,7 @@ observe({
   #######################################################
   observeEvent(input$clearmodel, {
     #browser()
-    dynmbmodel() <<- NULL
+    #dynmbmodel() <<- NULL
     #browser()
   })
   #######################################################
@@ -410,7 +333,8 @@ observe({
 
 #This is the UI for the Main Menu of modelbuilder
 ui <- fluidPage(
-  includeCSS("../media/modelbuilder.css"),
+    shinyjs::useShinyjs(),
+    includeCSS("../media/modelbuilder.css"),
   #add header and title
   tags$div( includeHTML("../media/header.html"), align = "center"),
   p(paste('This is modelbuilder version ',utils::packageVersion("modelbuilder"),' last updated ', utils::packageDescription('modelbuilder')$Date,sep=''), class='infotext'),

@@ -19,30 +19,30 @@ generate_buildUI <- function(mbmodel, output)
             p('General model information', class='mainsectionheader'),
             fluidRow(
                 column(4,
-                       textInput("modeltitle", "Model Name")
+                       textInput("modeltitle", "Model Name", value = mbmodel$title)
                 ),
                 column(4,
-                       textInput("modelauthor", "Author")
+                       textInput("modelauthor", "Author", value = mbmodel$author)
                 ),
                 column(4,
-                       textInput("modeldescription", "One sentence model description")
+                       textInput("modeldescription", "One sentence model description", value = mbmodel$description)
                 ),
                 align = "center"
             ),
             fluidRow(
-                textAreaInput("modeldetails", "Long model description"),
+                textAreaInput("modeldetails", "Detailed model description", value = mbmodel$details, rows = 6, cols = 150),
                 align = "center"
             ),
             p('Model time information', class='mainsectionheader'),
             fluidRow(
                 column(4,
-                       numericInput("tval", "Start time", value = 0)
+                       numericInput("tstart", "Start time", value = ifelse(is.null(mbmodel$title),0, mbmodel$time[[1]]$timeval) )
                 ),
                 column(4,
-                       numericInput("tfinal", "Final time", value = 100)
+                       numericInput("tfinal", "Final time", value = ifelse(is.null(mbmodel$title),100, mbmodel$time[[2]]$timeval) )
                 ),
                 column(4,
-                       numericInput("dt", "Time step", value = 0.1)
+                       numericInput("dt", "Time step", value = ifelse(is.null(mbmodel$title),0.1, mbmodel$time[[3]]$timeval) )
                 )
             ),
 
