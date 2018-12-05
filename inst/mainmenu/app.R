@@ -9,16 +9,22 @@ server <- function(input, output, session) {
   #######################################################
   #######################################################
 
-  #keep track of number of variables/parameters/flows for model
-  #this is updated based on user pressing add/delete variables/parameters
   values = reactiveValues()
-  values$nvar <- 1
-  values$npar <- 1
-  values$nflow <- rep(1,100) #number of flows for each variable, currently assuming model does not have more than 100 vars
 
     #generate_buildUI provides the build UI for the model
-    observe({
+    #run when build tab is selected
+    observeEvent( input$alltabs == 'build', {
+      #browser()
         dynmbmodel() ## This line makes sure the observe() statement updates with each new model
+
+
+      #keep track of number of variables/parameters/flows for model
+      #this is updated based on user pressing add/delete variables/parameters
+      #this is re-initialized if the underlying model changes
+       values$nvar <- 1
+      values$npar <- 1
+      values$nflow <- rep(1,100) #number of flows for each variable, currently assuming model does not have more than 100 vars
+
 
       #set number of variables/parameters/flows for loaded model (if one is loaded)
       values$nvar <- max(1,length(dynmbmodel()$var))
@@ -27,7 +33,6 @@ server <- function(input, output, session) {
       {
         values$nflow[n] = max(1,length(dynmbmodel()$var[[n]]$flows))
       }
-
       generate_buildUI(dynmbmodel(), output, values)
     }) #end observe for build UI construction
 
@@ -48,6 +53,7 @@ server <- function(input, output, session) {
   #add a new flow
   #the change to the values variable can't be moved into the function, otherwise it doesn't get assigned properly
   observeEvent(input$addflow, {
+    if (input$targetvar > values$nvar) return() #if user tries to add flows to non-existing variables, ignore
     values$nflow[input$targetvar] = values$nflow[input$targetvar] + 1 #increase counter for number of flows for specified
     add_model_flow(mbmodel, values, input, output)
   }) #close observeevent
@@ -55,7 +61,8 @@ server <- function(input, output, session) {
 
   #remove flow from specified variable
   observeEvent(input$rmflow, {
-      if (values$nflow[input$targetvar] == 1) return() #don't remove the last flow
+    if (input$targetvar > values$nvar) return() #if user tries to remove flows from non-existing variables, ignore
+    if (values$nflow[input$targetvar] == 1) return() #don't remove the last flow
       remove_model_flow(mbmodel, values, input, output)
       values$nflow[input$targetvar] = values$nflow[input$targetvar] - 1
   }) #close observeevent
@@ -129,7 +136,8 @@ server <- function(input, output, session) {
   #######################################################
   #######################################################
 
-observe({
+#observe({
+  observeEvent(input$alltabs == 'analyze', {
     dynmbmodel() ## This line makes sure the observe() statement updates with each new model
     #if no model has been loaded yet, display a message
     if (is.null(dynmbmodel()$title))
@@ -139,6 +147,9 @@ observe({
     }
 
     generate_shinyinput(dynmbmodel(), output) #produce output elements for each variables, parameters, etc.
+    #set output to empty
+    output$text = NULL
+    output$plot = NULL
     output$analyzemodel <- renderUI({
       fluidPage(
           #section to add buttons
@@ -356,8 +367,8 @@ ui <- fluidPage(
   p(paste('This is modelbuilder version ',utils::packageVersion("modelbuilder"),' last updated ', utils::packageDescription('modelbuilder')$Date,sep=''), class='infotext'),
   p('Have fun building and analyzing models!', class='maintext'),
 
-  navbarPage(title = "modelbuilder",
-              tabPanel(title = "Main",
+  navbarPage(title = "modelbuilder", id = 'alltabs', selected = "main",
+              tabPanel(title = "Main", value = "main",
                        fluidRow(
                          p('Load or clear a Model', class='mainsectionheader'),
                          column(12,
@@ -412,7 +423,7 @@ ui <- fluidPage(
                         #) #close fluidRow structure for input
                ), #close "Main" tab
 
-              tabPanel("Build",
+              tabPanel("Build",  value = "build",
                        fluidRow(
                            column(12,
                                   uiOutput('buildmodel')
@@ -422,7 +433,7 @@ ui <- fluidPage(
 
                ), #close "Build" tab
 
-             tabPanel("Analyze",
+             tabPanel("Analyze",  value = "analyze",
                        fluidRow(
                            column(12,
                                   uiOutput('analyzemodel')

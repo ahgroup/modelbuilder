@@ -13,6 +13,7 @@
 
 remove_model_flow <- function(mbmodel, values, input, output)
 {
+
     removeUI(
         selector = paste0("#var", input$targetvar, "flow", values$nflow[input$targetvar], 'slot'),
         immediate = TRUE
