@@ -13,6 +13,7 @@
 
 add_model_par <- function(mbmodel, values, input, output)
 {
+
     insertUI(
         selector = paste0("#par", values$npar - 1, 'slot'), #current variable
         where = "afterEnd",

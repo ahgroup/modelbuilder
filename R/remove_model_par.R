@@ -17,4 +17,5 @@ remove_model_par <- function(mbmodel, values, input, output)
         selector = paste0("#par", values$npar, 'slot'),
         immediate = TRUE
     )
+
 } #ends function

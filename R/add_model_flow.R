@@ -13,7 +13,6 @@
 
 add_model_flow <- function(mbmodel, values, input, output)
 {
-
     insertUI(
         selector = paste0("#var", input$targetvar, "flow", values$nflow[input$targetvar]-1, 'slot'), #current variable
         where = "afterEnd",
@@ -31,4 +30,5 @@ add_model_flow <- function(mbmodel, values, input, output)
                 id = paste0("var", input$targetvar, "flow", values$nflow[input$targetvar], 'slot')
             ) #close flow tag
     ) #close insertUI
+
 } #ends function

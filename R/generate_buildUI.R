@@ -4,35 +4,29 @@
 #' This is a helper function called by the shiny app.
 #' @param mbmodel a modelbuilder model structure
 #' @param output shiny output structure
+#' @param values global variable to track number of vars/pars/flows
 #' @return No direct return. output structure is modified to contain text for display in a Shiny UI
 #' @details This function is called by the Shiny server to produce the Shiny input UI elements for the build tab.
 #' @author Andreas Handel
 #' @export
 
-generate_buildUI <- function(mbmodel, output)
+generate_buildUI <- function(mbmodel, output, values)
 {
-
-
 
     output$buildmodel <- renderUI({
         fluidPage(
             p('General model information', class='mainsectionheader'),
             fluidRow(
-                column(4,
-                       textInput("modeltitle", "Model Name", value = mbmodel$title)
-                ),
-                column(4,
+                column(6,
+                       textInput("modeltitle", "Model Name", value = mbmodel$title),
+                       textInput("modeldescription", "One sentence model description", value = mbmodel$description),
                        textInput("modelauthor", "Author", value = mbmodel$author)
+
+                    ),
+                column(6,
+                   textAreaInput("modeldetails", "Detailed model description", value = mbmodel$details, rows = 6, width = '100%')
+                    )
                 ),
-                column(4,
-                       textInput("modeldescription", "One sentence model description", value = mbmodel$description)
-                ),
-                align = "center"
-            ),
-            fluidRow(
-                textAreaInput("modeldetails", "Detailed model description", value = mbmodel$details, rows = 6, cols = 150),
-                align = "center"
-            ),
             p('Model time information', class='mainsectionheader'),
             fluidRow(
                 column(4,
@@ -89,45 +83,51 @@ generate_buildUI <- function(mbmodel, output)
                       column(6,
                              p('Model variable information', class='mainsectionheader'),
                              ## wrap element in a div with id
+                             lapply(1:max(1,length(mbmodel$var)), function(n) {
                              tags$div(
-                                 h3(paste("Variable 1")),
-
+                                 h3(paste("Variable",n)),
                                  fluidRow( class = 'myrow',
                                            column(2,
-                                                  textInput("var1name", "Variable name")
+                                                  textInput(paste0("var",n,"name"), "Variable name", value = mbmodel$var[[n]]$varname)
                                            ),
                                            column(3,
-                                                  textInput("var1text", "Variable description")
+                                                  textInput(paste0("var",n,"text"), "Variable description", value = mbmodel$var[[n]]$vartext)
                                            ),
                                            column(2,
-                                                  numericInput("var1val", "Starting value", value = 0)
+                                                  numericInput(paste0("Var",n,"val"), "Starting value", value = mbmodel$var[[n]]$varval)
                                            )
                                  ),
-                                 tags$div(
+                                 #loop over flows for each variable
+                                 lapply(1:max(1, length(mbmodel$var[[n]]$flows)), function(nn) {
+                                     tags$div(
                                      fluidRow(
                                          column(6,
-                                                textInput("var1f1name", "Flow")
+                                                textInput(paste0("var",n,"f",nn,"name"), "Flow", value = mbmodel$var[[n]]$flows[nn])
                                          ),
                                          column(6,
-                                                textInput("var1f1text", "Flow description")
+                                                textInput(paste0("var",n,"f",nn,"text"), "Flow description", value = mbmodel$var[[n]]$flownames[nn])
                                          )
                                      ),
-                                     id = 'var1flow1slot'), #close flow div
-                                 id = 'var1slot'), #close var div
+                                     id = 'var1flow1slot') #close flow div
+                                 }), #end apply loop over flows for each  variable
+                                 id = paste0("var",n,"slot") ) #close var div
+                             }), #end apply loop over all variables
                              p('Model parameter information', class='mainsectionheader'),
+                             lapply(1:max(1,length(mbmodel$par)), function(n) {
                              tags$div(
                                  fluidRow( class = 'myrow',
                                            column(2,
-                                                  textInput("par1name", "Parameter name")
+                                                  textInput(paste0("par",n,"name"), "Parameter name", value = mbmodel$par[[n]]$parname)
                                            ),
                                            column(3,
-                                                  textInput("par1text", "Parameter description")
+                                                  textInput(paste0("par",n,"text"), "Parameter description", value = mbmodel$par[[n]]$partext)
                                            ),
                                            column(2,
-                                                  numericInput("par1val", "Default value", value = 0)
+                                                  numericInput(paste0("par",n,"val"), "Default value", value = mbmodel$par[[n]]$parval)
                                            )
                                  ),
-                                 id = 'par1slot')
+                                 id = paste0("par",n,"slot"))
+                             })
                       ) , #end input column
                       #all the outcomes here
                       column(

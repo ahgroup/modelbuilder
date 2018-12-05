@@ -4,26 +4,37 @@
 server <- function(input, output, session) {
 
   #######################################################
+  #######################################################
   #start code blocks that contain the build functionality
   #######################################################
+  #######################################################
 
-
-    #define number of variables/parameters/flows for model globally, is updated based on user pressing add/delete variables/parameters
-    values = reactiveValues()
-    values$nvar <- 1
-    values$npar <- 1
-    values$nflow <- rep(1,100) #number of flows for each variable, currently assuming model does not have more than 100 vars
+  #keep track of number of variables/parameters/flows for model
+  #this is updated based on user pressing add/delete variables/parameters
+  values = reactiveValues()
+  values$nvar <- 1
+  values$npar <- 1
+  values$nflow <- rep(1,100) #number of flows for each variable, currently assuming model does not have more than 100 vars
 
     #generate_buildUI provides the build UI for the model
     observe({
         dynmbmodel() ## This line makes sure the observe() statement updates with each new model
-        generate_buildUI(dynmbmodel(), output)
-        }) #end observe for build UI construction
+
+      #set number of variables/parameters/flows for loaded model (if one is loaded)
+      values$nvar <- max(1,length(dynmbmodel()$var))
+      values$npar <- max(1,length(dynmbmodel()$par))
+      for (n in 1:length(dynmbmodel()$var)) #set number of flows for each variable
+      {
+        values$nflow[n] = max(1,length(dynmbmodel()$var[[n]]$flows))
+      }
+
+      generate_buildUI(dynmbmodel(), output, values)
+    }) #end observe for build UI construction
 
 
   #add a new variable
   observeEvent(input$addvar, {
-      values$nvar = values$nvar + 1
+      values$nvar = values$nvar + 1 #increment counter to newly added variable
       add_model_var(mbmodel, values, input, output)
   }) #close observeevent
 
@@ -31,13 +42,14 @@ server <- function(input, output, session) {
   observeEvent(input$rmvar, {
       if (values$nvar == 1) return() #don't remove the last variable
       remove_model_var(mbmodel, values, input, output)
-      values$nvar = values$nvar - 1
+      values$nvar = values$nvar - 1 #reduce counter for number of variables - needs to happen last
   })
 
   #add a new flow
+  #the change to the values variable can't be moved into the function, otherwise it doesn't get assigned properly
   observeEvent(input$addflow, {
-      values$nflow[input$targetvar] = values$nflow[input$targetvar] + 1
-      add_model_flow(mbmodel, values, input, output)
+    values$nflow[input$targetvar] = values$nflow[input$targetvar] + 1 #increase counter for number of flows for specified
+    add_model_flow(mbmodel, values, input, output)
   }) #close observeevent
 
 
@@ -51,15 +63,15 @@ server <- function(input, output, session) {
 
   #add a new parameter
   observeEvent(input$addpar, {
-      values$npar = values$npar + 1
-      add_model_par(mbmodel, values, input, output)
+    values$npar = values$npar + 1 #increment counter to newly added parameter. needs to happen 1st.
+    add_model_par(mbmodel, values, input, output)
   }) #close observeevent
 
   #remove the last parameter
   observeEvent(input$rmpar, {
       if (values$npar == 1) return() #don't remove the last variable
       remove_model_par(mbmodel, values, input, output)
-      values$npar = values$npar - 1
+      values$npar = values$npar - 1 #decrease parameter counter
   })
 
   #when user presses the 'make model' button
@@ -78,44 +90,44 @@ server <- function(input, output, session) {
                             })
 
 
-
-
-
   #store dynmodel() object as reactive value
   #this lets me save it with code below, if i try to use dynmodel() directly in the save function it doesn't work
   #i'm not sure why this version works and why I can't save the model directly
   #https://stackoverflow.com/questions/23036739/downloading-rdata-files-with-shiny
-  dynmbmodel <- reactiveValues()
+  #dynmbmodel <- reactiveValues()
+#
+#   observe({
+#       if(!is.null(dynmbmodel()))
+#           isolate(
+#             mbmodel <<- dynmbmodel()
+#           )
+#   })
+#   #writes model to Rdata file
+#   output$savemodel <- downloadHandler(
+#       filename = function() {
+#           paste0(gsub(" ","_",mbmodel$title),".Rdata")
+#       },
+#       content = function(file) {
+#           stopifnot(!is.null(mbmodel))
+#           save(mbmodel, file = file)
+#       },
+#       contentType = "text/plain"
+#   )
 
-  observe({
-      if(!is.null(dynmbmodel()))
-          isolate(
-            mbmodel <<- dynmbmodel()
-          )
-  })
-  #writes model to Rdata file
-  output$savemodel <- downloadHandler(
-      filename = function() {
-          paste0(gsub(" ","_",mbmodel$title),".Rdata")
-      },
-      content = function(file) {
-          stopifnot(!is.null(mbmodel))
-          save(mbmodel, file = file)
-      },
-      contentType = "text/plain"
-  )
 
-
+  #######################################################
   #######################################################
   #end code blocks that contain the build functionality
   #######################################################
+  #######################################################
 
 
+
+  #######################################################
   #######################################################
   #start code blocks that contain the analyze functionality
   #######################################################
-
-
+  #######################################################
 
 observe({
     dynmbmodel() ## This line makes sure the observe() statement updates with each new model
@@ -175,7 +187,6 @@ observe({
     }, priority = 100) #end observe for UI construction
 
 
-
   #runs model simulation when 'run simulation' button is pressed
     observeEvent(input$submitBtn, {
       #extract current model settings from UI input element
@@ -200,20 +211,55 @@ observe({
 
 
     #######################################################
+    #######################################################
     #end code that contain the analyze functionality
     #######################################################
-
-
+    #######################################################
 
 
     #######################################################
-    #start code blocks that contain the load/import/export functionality
+    #######################################################
+    #end code that contains the main tab functionality
+    #######################################################
+    #######################################################
+
+
+    #######################################################
+    #start code blocks that contain the load/check/clear functionality
     #######################################################
     #load a model
     dynmbmodel <- reactive({load_model(input$currentmodel)})
     #check that the loaded file is a proper modelbuilder model.
     #NOT WORKING
     #errors <- check_model(dynmbmodel())
+    #clear a loaded model by loading 'nothing'
+    # NOT WORKING
+    #######################################################
+    observeEvent(input$clearmodel, {
+      dynmbmodel()
+      dynmbmodel <- reactive({load_model(NULL)})
+    })
+
+    #######################################################
+    #start code blocks that contain the import/export functionality
+    #######################################################
+
+    # these lines of code turn the export options off
+    # and only if a model has been loaded will they turn on
+    shinyjs::disable(id = "exportode")
+    shinyjs::disable("exportstochastic")
+    shinyjs::disable("exportdiscrete")
+    #shinyjs::disable("exportrxode")
+    #if a model is loaded turn on the buttons
+    observe({
+      if (!is.null(dynmbmodel()$title))
+      {
+        shinyjs::enable(id = "exportode")
+        shinyjs::enable("exportstochastic")
+        shinyjs::enable("exportdiscrete")
+        # shinyjs::enable("exportrxode")
+      }
+    })
 
   output$exportode <- downloadHandler(
       filename = function() {
@@ -255,26 +301,8 @@ observe({
   #     contentType = "text/plain"
   # )
 
-
-  # these lines of code turn the export options off
-  # and only if a model has been loaded will they turn on
-  shinyjs::disable(id = "exportode")
-  shinyjs::disable("exportstochastic")
-  shinyjs::disable("exportdiscrete")
-  #shinyjs::disable("exportrxode")
-  #if a model is loaded turn on the buttons
-  observe({
-       if (!is.null(dynmbmodel()$title))
-       {
-           shinyjs::enable(id = "exportode")
-           shinyjs::enable("exportstochastic")
-           shinyjs::enable("exportdiscrete")
-          # shinyjs::enable("exportrxode")
-       }
-   })
-
   #######################################################
-  #end code blocks that contain the load/import/export functionality
+  #end code blocks that contain the import/export functionality
   #######################################################
 
   #######################################################
@@ -292,19 +320,6 @@ observe({
   #end code blocks for SBML import/export functionality
   #######################################################
 
-
-  #######################################################
-  #start code that clears a loaded model
-  # NOT WORKING
-  #######################################################
-  observeEvent(input$clearmodel, {
-    #browser()
-    #dynmbmodel() <<- NULL
-    #browser()
-  })
-  #######################################################
-  #end code that clears a loaded model
-  #######################################################
 
 
   #######################################################
@@ -324,9 +339,10 @@ observe({
   })
 
   #######################################################
-  #end code that shuts down the app upon Exit button press
   #######################################################
-
+  #end code that contains the main tab functionality
+  #######################################################
+  #######################################################
 
 } #ends the server function for the app
 
@@ -395,7 +411,6 @@ ui <- fluidPage(
                             #class = "mainmenurow"
                         #) #close fluidRow structure for input
                ), #close "Main" tab
-             #browser(),
 
               tabPanel("Build",
                        fluidRow(

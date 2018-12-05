@@ -28,7 +28,7 @@ add_model_var <- function(mbmodel, values, input, output)
                              textInput(paste0("var", values$nvar,'text'), "Variable description")
                       ),
                       column(2,
-                             numericInput(paste0("var", values$nvar,'val'), "valing value", value = 0)
+                             numericInput(paste0("var", values$nvar,'val'), "Starting value", value = 0)
                       )
             ),
             tags$div(

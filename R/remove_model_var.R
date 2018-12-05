@@ -17,4 +17,5 @@ remove_model_var <- function(mbmodel, values, input, output)
         selector = paste0("#var", values$nvar, 'slot'),
         immediate = TRUE
     ) #close removetUI
+
 } #ends function
