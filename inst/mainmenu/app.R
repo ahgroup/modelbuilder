@@ -33,7 +33,7 @@ server <- function(input, output, session) {
       {
         values$nflow[n] = max(1,length(dynmbmodel()$var[[n]]$flows))
       }
-      generate_buildUI(dynmbmodel(), output, values)
+      generate_buildUI(dynmbmodel(), input, output, values)
     }) #end observe for build UI construction
 
 
@@ -82,44 +82,52 @@ server <- function(input, output, session) {
   })
 
   #when user presses the 'make model' button
-  #one function reads all the inputs and writes them into the model structure
+  #one function reads all the UI inputs and writes them into the model structure
   #and returns the structure
-  #the other function checks the created model object for errors
-  dynmbmodel <- eventReactive(input$makemodel,
-                            {
-                             mbmodel <- generate_model(input, values)
+  #another function checks the created model object for errors
+  #if errors are present, user will be informed and function stops
+  #if no errors, equations and diagram will be displayed
+  #and the new model will replace the current model stored in dynmbmodel
+  #one could use eventReactive here and assign the new model to the d
+  observeEvent(input$makemodel, {
+                              mbmodel <- generate_model(input, values)
                              #errors <- check_model(model)
                              # make and display equations
                              output$equations =  renderUI( withMathJax(generate_equations(mbmodel) ) )
                              # make and display plot
                              #output$diagram = renderPlot( replayPlot(generate_diagram(mbmodel())) )
-                             return(mbmodel)
+                             #THIS DOES NOT WORK, dynmbmodel does not get updated as it should
+                             dynmbmodel <- reactive({mbmodel})
                             })
 
 
-  #store dynmodel() object as reactive value
-  #this lets me save it with code below, if i try to use dynmodel() directly in the save function it doesn't work
+  #the next few lines of code are needed so the model save functionality below work
+  #if i try to use dynmbmodel() directly inside the downloadHandler function it doesn't work
   #i'm not sure why this version works and why I can't save the model directly
+  #especially since the equivalent code for exporting the functions below works
   #https://stackoverflow.com/questions/23036739/downloading-rdata-files-with-shiny
-  #dynmbmodel <- reactiveValues()
-#
-#   observe({
-#       if(!is.null(dynmbmodel()))
-#           isolate(
-#             mbmodel <<- dynmbmodel()
-#           )
-#   })
-#   #writes model to Rdata file
-#   output$savemodel <- downloadHandler(
-#       filename = function() {
-#           paste0(gsub(" ","_",mbmodel$title),".Rdata")
-#       },
-#       content = function(file) {
-#           stopifnot(!is.null(mbmodel))
-#           save(mbmodel, file = file)
-#       },
-#       contentType = "text/plain"
-#   )
+
+   observe({
+       if(!is.null(dynmbmodel()))
+           isolate(
+             tmpmodel <<- dynmbmodel()
+           )
+   })
+
+  # writes model to Rdata file
+  output$savemodel <- downloadHandler(
+      filename = function() {
+          paste0(gsub(" ","_",tmpmodel$title),".Rdata")
+      },
+      content = function(file) {
+          stopifnot(!is.null(tmpmodel))
+          save(tmpmodel, file = file)
+      },
+      contentType = "text/plain"
+  )
+
+
+
 
 
   #######################################################
@@ -247,7 +255,6 @@ server <- function(input, output, session) {
     # NOT WORKING
     #######################################################
     observeEvent(input$clearmodel, {
-      dynmbmodel()
       dynmbmodel <- reactive({load_model(NULL)})
     })
 

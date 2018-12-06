@@ -3,6 +3,7 @@
 #' @description This function generates empty inputs or inputs for a supplied model.
 #' This is a helper function called by the shiny app.
 #' @param mbmodel a modelbuilder model structure
+#' @param input shiny input structure
 #' @param output shiny output structure
 #' @param values global variable to track number of vars/pars/flows
 #' @return No direct return. output structure is modified to contain text for display in a Shiny UI
@@ -10,7 +11,7 @@
 #' @author Andreas Handel
 #' @export
 
-generate_buildUI <- function(mbmodel, output, values)
+generate_buildUI <- function(mbmodel, input, output, values)
 {
 
     output$buildmodel <- renderUI({
@@ -45,7 +46,7 @@ generate_buildUI <- function(mbmodel, output, values)
             #fluidRow(
             fluidRow(
                 column(6,
-                       actionButton('makemodel', "Generate model", class="savebutton")
+                       actionButton("makemodel", "Make model", class="submitbutton")
                 ),
                 column(6,
                        downloadButton('savemodel', "Save Model", class="savebutton")
@@ -108,7 +109,7 @@ generate_buildUI <- function(mbmodel, output, values)
                                                 textInput(paste0("var",n,"f",nn,"text"), "Flow description", value = mbmodel$var[[n]]$flownames[nn])
                                          )
                                      ),
-                                     id = 'var1flow1slot') #close flow div
+                                     id = paste0('var',n,'flow',nn,'slot')  ) #close flow div
                                  }), #end apply loop over flows for each  variable
                                  id = paste0("var",n,"slot") ) #close var div
                              }), #end apply loop over all variables
