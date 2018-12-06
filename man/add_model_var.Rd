@@ -4,14 +4,10 @@
 \alias{add_model_var}
 \title{A helper function that adds a variable to the shiny UI elements of the build tab}
 \usage{
-add_model_var(mbmodel, values, input, output)
+add_model_var(values, output)
 }
 \arguments{
-\item{mbmodel}{a modelbuilder model structure}
-
 \item{values}{a shiny variable keeping track of UI elements}
-
-\item{input}{shiny input structure}
 
 \item{output}{shiny output structure}
 }

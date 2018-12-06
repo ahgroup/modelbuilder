@@ -4,11 +4,9 @@
 \alias{add_model_flow}
 \title{A helper function that adds flow UI inputs to the shiny UI elements of the build tab}
 \usage{
-add_model_flow(mbmodel, values, input, output)
+add_model_flow(values, input, output)
 }
 \arguments{
-\item{mbmodel}{a modelbuilder model structure}
-
 \item{values}{a shiny variable keeping track of UI elements}
 
 \item{input}{shiny input structure}

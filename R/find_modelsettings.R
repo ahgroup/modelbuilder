@@ -20,7 +20,7 @@ find_modelsettings <- function(input, mbmodel)
     modelsettings$nreps = isolate(input$nreps)
     modelsettings$plotscale = isolate(input$plotscale)
 
-
+    #browser()
 
     #process all variables, parameters and times from the inputs
     #to create the input string for the main function call

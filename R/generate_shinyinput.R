@@ -1,59 +1,71 @@
-#' @title A helper function that takes a model and generates the shiny UI elements for it output
+#' @title A helper function that takes a model and generates the shiny UI elements for the analyze tab
 #'
 #' @description This function generates input buttons and sliders for a supplied model.
 #' This is a helper function called by the shiny app.
-#' @param model a modelbuilder model structure
+#' @param mbmodel a modelbuilder model structure
+#' @param otherinputs additional elements to be shown in the UI
 #' @param output shiny output structure
 #' @return No direct return. output structure is modified to contain text for display in a Shiny UI
-#' @details This function is called by the Shiny server to produce the Shiny input UI elements.
+#' @details This function is called by the Shiny app to produce the Shiny input UI elements.
 #' @author Andreas Handel
 #' @export
 
-generate_shinyinput <- function(model, output)
+generate_shinyinput <- function(mbmodel, otherinputs = NULL, output)
 {
+
     ###########################################
-    #server part that dynamically creates the UI
+    #create UI elements as input/output for the shiny app
+
+    #creates title
+    output$title <- renderUI({
+        HTML(mbmodel$title)
+    })
+
+    #numeric input elements for all variable initial conditions
     output$vars <- renderUI({
-        nvars = length(model$var)  #number of variables/compartments in model
+        nvars = length(mbmodel$var)  #number of variables/compartments in model
         allv = lapply(1:nvars, function(n) {
-            numericInput(model$var[[n]]$varname,
-                         paste0(model$var[[n]]$vartext,' (',model$var[[n]]$varname,')'),
-                         value = model$var[[n]]$varval,
+            numericInput(mbmodel$var[[n]]$varname,
+                         paste0(mbmodel$var[[n]]$vartext,' (',mbmodel$var[[n]]$varname,')'),
+                         value = mbmodel$var[[n]]$varval,
                          min = 0,
-                         step = model$var[[n]]$varval/100)
+                         step = mbmodel$var[[n]]$varval/100)
         })
         do.call(mainPanel, allv)
     })
 
+    #numeric input elements for all parameter values
     output$pars <- renderUI({
-        npars = length(model$par)  #number of parameters in model
+        npars = length(mbmodel$par)  #number of parameters in model
         allp = lapply(1:npars, function(n) {
             numericInput(
-                model$par[[n]]$parname,
-                paste0(model$par[[n]]$partext,' (',model$par[[n]]$parname,')'),
-                value = model$par[[n]]$parval,
+                mbmodel$par[[n]]$parname,
+                paste0(mbmodel$par[[n]]$partext,' (',mbmodel$par[[n]]$parname,')'),
+                value = mbmodel$par[[n]]$parval,
                 min = 0,
-                step = model$par[[n]]$parval/100
+                step = mbmodel$par[[n]]$parval/100
             )
         })
         do.call(mainPanel, allp)
     })
 
+    #numeric input elements for time
     output$time <- renderUI({
-        ntime = length(model$time)  #number of time variables in model
+        ntime = length(mbmodel$time)  #number of time variables in model
         allt = lapply(1:ntime, function(n) {
             numericInput(
-                model$time[[n]]$timename,
-                paste0(model$time[[n]]$timetext,' (',model$time[[n]]$timename,')'),
-                value = model$time[[n]]$timeval,
+                mbmodel$time[[n]]$timename,
+                paste0(mbmodel$time[[n]]$timetext,' (',mbmodel$time[[n]]$timename,')'),
+                value = mbmodel$time[[n]]$timeval,
                 min = 0,
-                step = model$time[[n]]$timeval/100
+                step = mbmodel$time[[n]]$timeval/100
             )
         })
         do.call(mainPanel, allt)
     })
 
-    output$other <- renderUI({
+    #standard additional input elements for each model
+    output$standard <- renderUI({
         tagList(
             numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
             selectInput("modeltype", "Model to run",c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = 'ode'),
@@ -63,9 +75,14 @@ generate_shinyinput <- function(model, output)
     }) #end renderuI
 
 
-    output$title <- renderUI({
-        HTML(model$title)
-    }) #creates title
+    # #additional input elements for a specific model
+    # #should be supplied as a tagList
+    # if (!is.null(otherinputs))
+    # {
+    #     output$other <- renderUI({
+    #         otherinputs
+    #     }) #end renderuI
+    # }
 
+} #end overall function
 
-}

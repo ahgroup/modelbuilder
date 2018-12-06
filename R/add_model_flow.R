@@ -2,7 +2,6 @@
 #'
 #' @description This function adds inputs for a new flow.
 #' This is a helper function called by the shiny app.
-#' @param mbmodel a modelbuilder model structure
 #' @param values a shiny variable keeping track of UI elements
 #' @param input shiny input structure
 #' @param output shiny output structure
@@ -11,7 +10,7 @@
 #' @author Andreas Handel
 #' @export
 
-add_model_flow <- function(mbmodel, values, input, output)
+add_model_flow <- function(values, input, output)
 {
     insertUI(
         selector = paste0("#var", input$targetvar, "flow", values$nflow[input$targetvar]-1, 'slot'), #current variable

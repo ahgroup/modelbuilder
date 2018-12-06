@@ -4,14 +4,10 @@
 \alias{remove_model_par}
 \title{A helper function that removes a parameter from the shiny UI elements of the build tab}
 \usage{
-remove_model_par(mbmodel, values, input, output)
+remove_model_par(values, output)
 }
 \arguments{
-\item{mbmodel}{a modelbuilder model structure}
-
 \item{values}{a shiny variable keeping track of UI elements}
-
-\item{input}{shiny input structure}
 
 \item{output}{shiny output structure}
 }

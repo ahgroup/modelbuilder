@@ -4,16 +4,12 @@
 \alias{generate_buildUI}
 \title{A helper function that takes a model and generates the shiny UI elements for the build tab}
 \usage{
-generate_buildUI(mbmodel, input, output, values)
+generate_buildUI(mbmodel, output)
 }
 \arguments{
 \item{mbmodel}{a modelbuilder model structure}
 
-\item{input}{shiny input structure}
-
 \item{output}{shiny output structure}
-
-\item{values}{global variable to track number of vars/pars/flows}
 }
 \value{
 No direct return. output structure is modified to contain text for display in a Shiny UI

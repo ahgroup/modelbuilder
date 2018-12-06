@@ -3,6 +3,13 @@
 #this function is the server part of the app
 server <- function(input, output, session) {
 
+
+  #test code to supply additional inputs
+#  testinput <- tagList(
+#    numericInput("testnreps", "Test Number of simulations", min = 1, max = 50, value = 1, step = 1),
+#    selectInput("testmodeltype", "Test Model to run",c("ODE" = "ode", 'discrete time' = 'discrete'), selected = 'ode')  ) #end taglist
+
+
   #######################################################
   #######################################################
   #start code blocks that contain the build functionality
@@ -11,20 +18,19 @@ server <- function(input, output, session) {
 
   values = reactiveValues()
 
-    #generate_buildUI provides the build UI for the model
-    #run when build tab is selected
+    #when build tab is selected
+    #generate the UI to either build a new model or
+    #edit a loaded model
     observeEvent( input$alltabs == 'build', {
-      #browser()
-        dynmbmodel() ## This line makes sure the observe() statement updates with each new model
 
+      dynmbmodel() ## This line makes sure the observe() statement updates with each new model
 
       #keep track of number of variables/parameters/flows for model
       #this is updated based on user pressing add/delete variables/parameters
       #this is re-initialized if the underlying model changes
-       values$nvar <- 1
+      values$nvar <- 1
       values$npar <- 1
       values$nflow <- rep(1,100) #number of flows for each variable, currently assuming model does not have more than 100 vars
-
 
       #set number of variables/parameters/flows for loaded model (if one is loaded)
       values$nvar <- max(1,length(dynmbmodel()$var))
@@ -33,20 +39,21 @@ server <- function(input, output, session) {
       {
         values$nflow[n] = max(1,length(dynmbmodel()$var[[n]]$flows))
       }
-      generate_buildUI(dynmbmodel(), input, output, values)
+      #generate_buildUI generates the output elements that make up the build UI for the model
+      generate_buildUI(dynmbmodel(), output)
     }) #end observe for build UI construction
 
 
   #add a new variable
   observeEvent(input$addvar, {
       values$nvar = values$nvar + 1 #increment counter to newly added variable
-      add_model_var(mbmodel, values, input, output)
+      add_model_var(values, output)
   }) #close observeevent
 
   #remove the last variable
   observeEvent(input$rmvar, {
       if (values$nvar == 1) return() #don't remove the last variable
-      remove_model_var(mbmodel, values, input, output)
+      remove_model_var(values, output)
       values$nvar = values$nvar - 1 #reduce counter for number of variables - needs to happen last
   })
 
@@ -55,7 +62,7 @@ server <- function(input, output, session) {
   observeEvent(input$addflow, {
     if (input$targetvar > values$nvar) return() #if user tries to add flows to non-existing variables, ignore
     values$nflow[input$targetvar] = values$nflow[input$targetvar] + 1 #increase counter for number of flows for specified
-    add_model_flow(mbmodel, values, input, output)
+    add_model_flow(values, input, output)
   }) #close observeevent
 
 
@@ -63,7 +70,7 @@ server <- function(input, output, session) {
   observeEvent(input$rmflow, {
     if (input$targetvar > values$nvar) return() #if user tries to remove flows from non-existing variables, ignore
     if (values$nflow[input$targetvar] == 1) return() #don't remove the last flow
-      remove_model_flow(mbmodel, values, input, output)
+      remove_model_flow(values, input, output)
       values$nflow[input$targetvar] = values$nflow[input$targetvar] - 1
   }) #close observeevent
 
@@ -71,13 +78,13 @@ server <- function(input, output, session) {
   #add a new parameter
   observeEvent(input$addpar, {
     values$npar = values$npar + 1 #increment counter to newly added parameter. needs to happen 1st.
-    add_model_par(mbmodel, values, input, output)
+    add_model_par(values, output)
   }) #close observeevent
 
   #remove the last parameter
   observeEvent(input$rmpar, {
       if (values$npar == 1) return() #don't remove the last variable
-      remove_model_par(mbmodel, values, input, output)
+      remove_model_par(values, output)
       values$npar = values$npar - 1 #decrease parameter counter
   })
 
@@ -88,7 +95,10 @@ server <- function(input, output, session) {
   #if errors are present, user will be informed and function stops
   #if no errors, equations and diagram will be displayed
   #and the new model will replace the current model stored in dynmbmodel
-  #one could use eventReactive here and assign the new model to the d
+  #one could use eventReactive here and assign the new model
+  #to the dynmbmodel variable. The problem with this is that eventReactive
+  #is not triggered when the event changes, only invalidated and triggered later
+  #
   observeEvent(input$makemodel, {
                               mbmodel <- generate_model(input, values)
                              #errors <- check_model(model)
@@ -97,7 +107,7 @@ server <- function(input, output, session) {
                              # make and display plot
                              #output$diagram = renderPlot( replayPlot(generate_diagram(mbmodel())) )
                              #THIS DOES NOT WORK, dynmbmodel does not get updated as it should
-                             dynmbmodel <- reactive({mbmodel})
+                             dynmbmodel <- mbmodel
                             })
 
 
@@ -107,26 +117,24 @@ server <- function(input, output, session) {
   #especially since the equivalent code for exporting the functions below works
   #https://stackoverflow.com/questions/23036739/downloading-rdata-files-with-shiny
 
-   observe({
-       if(!is.null(dynmbmodel()))
-           isolate(
-             tmpmodel <<- dynmbmodel()
-           )
-   })
+   # observe({
+   #     if(!is.null(dynmbmodel()))
+   #         isolate(
+   #           tmpmodel <<- dynmbmodel()
+   #         )
+   # })
 
-  # writes model to Rdata file
-  output$savemodel <- downloadHandler(
-      filename = function() {
-          paste0(gsub(" ","_",tmpmodel$title),".Rdata")
-      },
-      content = function(file) {
-          stopifnot(!is.null(tmpmodel))
-          save(tmpmodel, file = file)
-      },
-      contentType = "text/plain"
-  )
-
-
+  # # writes model to Rdata file
+  # output$savemodel <- downloadHandler(
+  #     filename = function() {
+  #         paste0(gsub(" ","_",tmpmodel$title),".Rdata")
+  #     },
+  #     content = function(file) {
+  #         stopifnot(!is.null(tmpmodel))
+  #         save(mbmodel = tmpmodel, file = file)
+  #     },
+  #     contentType = "text/plain"
+  # )
 
 
 
@@ -137,16 +145,15 @@ server <- function(input, output, session) {
   #######################################################
 
 
-
   #######################################################
   #######################################################
   #start code blocks that contain the analyze functionality
   #######################################################
   #######################################################
+  observeEvent( input$alltabs == 'analyze', {
 
-#observe({
-  observeEvent(input$alltabs == 'analyze', {
     dynmbmodel() ## This line makes sure the observe() statement updates with each new model
+
     #if no model has been loaded yet, display a message
     if (is.null(dynmbmodel()$title))
     {
@@ -154,11 +161,14 @@ server <- function(input, output, session) {
       return()
     }
 
-    generate_shinyinput(dynmbmodel(), output) #produce output elements for each variables, parameters, etc.
+
+    #produce Shiny input UI elements for the model.
+    generate_shinyinput(dynmbmodel(), otherinputs = NULL, output)
     #set output to empty
     output$text = NULL
     output$plot = NULL
-    output$analyzemodel <- renderUI({
+
+    output$modelinput <- renderUI({
       fluidPage(
           #section to add buttons
           fluidRow(column(
@@ -183,7 +193,8 @@ server <- function(input, output, session) {
                   column(
                       6,
                       uiOutput("pars"),
-                      uiOutput("other")
+                      uiOutput("standard")
+                      #uiOutput("other")
 
                   )),
               #end sidebar column for inputs
@@ -202,8 +213,7 @@ server <- function(input, output, session) {
           ) #end layout with side and main panel
       ) #end fluidpage for analyze tab
     }) # End renderUI for analyze tab
-    #make the UI for the model, saves those into the output elements
-    }, priority = 100) #end observe for UI construction
+  }, priority = 100) #end observeEvent for the analyze tab
 
 
   #runs model simulation when 'run simulation' button is pressed
@@ -448,7 +458,7 @@ ui <- fluidPage(
                            class = "mainmenurow"
                        ) #close fluidRow structure for input
               ) #close "Analyze" tab
-  ),
+  ), #close NavBarPage
 
   div(includeHTML("../media/footer.html"), align="center", style="font-size:small") #footer
 ) #end fluidpage

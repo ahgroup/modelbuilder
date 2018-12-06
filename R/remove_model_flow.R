@@ -2,7 +2,6 @@
 #'
 #' @description This function removes inputs for the flows of a specified variable.
 #' This is a helper function called by the shiny app.
-#' @param mbmodel a modelbuilder model structure
 #' @param values a shiny variable keeping track of UI elements
 #' @param input shiny input structure
 #' @param output shiny output structure
@@ -11,7 +10,7 @@
 #' @author Andreas Handel
 #' @export
 
-remove_model_flow <- function(mbmodel, values, input, output)
+remove_model_flow <- function(values, input, output)
 {
 
     removeUI(

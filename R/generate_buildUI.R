@@ -3,15 +3,13 @@
 #' @description This function generates empty inputs or inputs for a supplied model.
 #' This is a helper function called by the shiny app.
 #' @param mbmodel a modelbuilder model structure
-#' @param input shiny input structure
 #' @param output shiny output structure
-#' @param values global variable to track number of vars/pars/flows
 #' @return No direct return. output structure is modified to contain text for display in a Shiny UI
 #' @details This function is called by the Shiny server to produce the Shiny input UI elements for the build tab.
 #' @author Andreas Handel
 #' @export
 
-generate_buildUI <- function(mbmodel, input, output, values)
+generate_buildUI <- function(mbmodel, output)
 {
 
     output$buildmodel <- renderUI({

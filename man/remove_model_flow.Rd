@@ -4,11 +4,9 @@
 \alias{remove_model_flow}
 \title{A helper function that removes a the shiny UI elements for a flow of the build tab}
 \usage{
-remove_model_flow(mbmodel, values, input, output)
+remove_model_flow(values, input, output)
 }
 \arguments{
-\item{mbmodel}{a modelbuilder model structure}
-
 \item{values}{a shiny variable keeping track of UI elements}
 
 \item{input}{shiny input structure}
