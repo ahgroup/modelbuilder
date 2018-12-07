@@ -100,7 +100,7 @@ server <- function(input, output, session) {
   #is not triggered when the event changes, only invalidated and triggered later
   #
   observeEvent(input$makemodel, {
-                              mbmodel <- generate_model(input, values)
+                             mbmodel <- generate_model(input, values)
                              #errors <- check_model(model)
                              # make and display equations
                              output$equations =  renderUI( withMathJax(generate_equations(mbmodel) ) )
@@ -195,8 +195,7 @@ server <- function(input, output, session) {
                       uiOutput("pars"),
                       uiOutput("standard")
                       #uiOutput("other")
-
-                  )),
+                )),
               #end sidebar column for inputs
 
               #all the outcomes here
