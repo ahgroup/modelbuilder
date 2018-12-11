@@ -1,18 +1,14 @@
-library(adaptivetau)
-library(plyr)
-library(dplyr)
-
-#' Create an discrete time simulation model
+#' Create a stochastic compartmental simulation model
 #'
 #' This function takes as input a modelbuilder model and writes code
-#' for a discrete time deterministc simulator function
+#' for a stochastic simulator function implemented with adaptivetau
 #'
 #' @description The model needs to adhere to the structure specified by the modelbuilder package
 #' models built using the modelbuilder package automatically have the right structure
 #' a user can also build a model list structure themselves following the specifications
 #' if the user provides an Rdata file name, this file needs to contain an object called 'model'
 #' and contain a valid modelbuilder model structure
-#' @param model model structure, either as list object or Rdata file name
+#' @param mbmodel a modelbuilder model structure, either as list object or Rdata file name
 #' @param location a path/folder to save the simulation code to. Default is current directory
 #' @return The function does not return anything
 #' Instead, it writes an R file into the specified directory
@@ -22,48 +18,46 @@ library(dplyr)
 
 
 
-generate_stochastic <- function(model, location = NULL)
+generate_stochastic <- function(mbmodel, location = NULL)
 {
-
   #if the model is passed in as an Rdata file name, load it
   #otherwise, it is assumed that 'model' is a list structure of the right type
-  if(is.character(model)) {load(model)}
+  if(is.character(mbmodel)) {load(mbmodel)}
 
   #the name of the function produced by this script is simulate_ + "model title" + "_stochastic.R"
-  savepath = "/Users/ishaandave/Desktop/Melissa/model builder/ODE Model Conversions/stochastic.R"
+  savepath <- location #default is current directory for saving the R function
 
   #if location is supplied, that's where the code will be saved to
   # if (!is.null(location)) {savepath = paste0(location,'/',filename)}
 
-
-  #the name of the function produced by this script is  "model title" + "_adaptivetau.R"
-  nvars = length(model$var)  #number of variables/compartments in model
-  npars = length(model$par)  #number of parameters in model
-  ntime = length(model$time) #numer of parameters for time
-  modeltitle = gsub(" ","_",model$title) #title for model, replacing space with low dash to be used in function and file names
+  #the name of the function produced by this script is  "model title" + "_stochastic.R"
+  nvars = length(mbmodel$var)  #number of variables/compartments in model
+  npars = length(mbmodel$par)  #number of parameters in model
+  ntime = length(mbmodel$time) #numer of parameters for time
+  modeltitle = gsub(" ","_",mbmodel$title) #title for model, replacing space with low dash to be used in function and file names
   #text for model description
   #all this should be provided in the model sctructure
 
-  sdesc=paste0("#' ",model$title,"\n#' \n")
-  sdesc=paste0(sdesc,"#' ",model$description,"\n#' \n")
-  sdesc=paste0(sdesc,"#' @details ",model$details, "\n")
+  sdesc=paste0("#' ",mbmodel$title,"\n#' \n")
+  sdesc=paste0(sdesc,"#' ",mbmodel$description,"\n#' \n")
+  sdesc=paste0(sdesc,"#' @details ",mbmodel$details, "\n")
   for (n in 1:nvars)
   {
-    sdesc=paste0(sdesc,"#' @param ", model$var[[n]]$varname, ' starting value for ',model$var[[n]]$vartext, "\n")
+    sdesc=paste0(sdesc,"#' @param ", mbmodel$var[[n]]$varname, ' starting value for ',mbmodel$var[[n]]$vartext, "\n")
   }
   sdesc=paste0(sdesc,"#' } \n")
   sdesc=paste0(sdesc,"#' @param pars vector of values for model parameters: \n")
   sdesc=paste0(sdesc,"#' \\itemize{ \n")
   for (n in 1:npars)
   {
-    sdesc=paste0(sdesc,"#' @param ", model$par[[n]]$parname," ", model$par[[n]]$partext, "\n")
+    sdesc=paste0(sdesc,"#' @param ", mbmodel$par[[n]]$parname," ", mbmodel$par[[n]]$partext, "\n")
   }
   sdesc=paste0(sdesc,"#' } \n")
   sdesc=paste0(sdesc,"#' @param times vector of values for model times: \n")
   sdesc=paste0(sdesc,"#' \\itemize{ \n")
   for (n in 1:ntime)
   {
-    sdesc=paste0(sdesc,"#' @param ", model$time[[n]]$timename," ", model$time[[n]]$timetext, "\n")
+    sdesc=paste0(sdesc,"#' @param ", mbmodel$time[[n]]$timename," ", mbmodel$time[[n]]$timetext, "\n")
   }
 
 
@@ -74,8 +68,8 @@ generate_stochastic <- function(model, location = NULL)
   sdesc=paste0(sdesc,"#' # To run the simulation with default parameters:  \n")
   sdesc=paste0(sdesc,"#' result <- simulate_",modeltitle,"_stochastic()", " \n")
   sdesc=paste0(sdesc,"#' @section Warning: ","This function does not perform any error checking. So if you try to do something nonsensical (e.g. have negative values for parameters), the code will likely abort with an error message.", "\n")
-  sdesc=paste0(sdesc,"#' @section Model Author: ",model$author, "\n")
-  sdesc=paste0(sdesc,"#' @section Model creation date: ",model$date, "\n")
+  sdesc=paste0(sdesc,"#' @section Model Author: ",mbmodel$author, "\n")
+  sdesc=paste0(sdesc,"#' @section Model creation date: ",mbmodel$date, "\n")
   sdesc=paste0(sdesc,"#' @section Code Author: generated by the \\code{generate_stochastic} function \n")
   sdesc=paste0(sdesc,"#' @section Code creation date: ",Sys.Date(), "\n")
   sdesc=paste0(sdesc,"#' @export \n \n")
@@ -91,9 +85,9 @@ generate_stochastic <- function(model, location = NULL)
 
   for (n in 1:nvars)
   {
-    varstring=paste0(varstring, model$var[[n]]$varname," = ", model$var[[n]]$varval,', ')
-    varnamestring=paste0(varnamestring,'"',model$var[[n]]$varname,'",')
-    varnames=paste0(varnames,',',model$var[[n]]$varname)
+    varstring=paste0(varstring, mbmodel$var[[n]]$varname," = ", mbmodel$var[[n]]$varval,', ')
+    varnamestring=paste0(varnamestring,'"',mbmodel$var[[n]]$varname,'",')
+    varnames=paste0(varnames,',',mbmodel$var[[n]]$varname)
   }
 
   varnamestring = substr(varnamestring,1,nchar(varnamestring)-1) #trim off final comma
@@ -104,7 +98,7 @@ generate_stochastic <- function(model, location = NULL)
   parstring = "pars = c("
   for (n in 1:npars)
   {
-    parstring=paste0(parstring, model$par[[n]]$parname," = ", model$par[[n]]$parval,', ')
+    parstring=paste0(parstring, mbmodel$par[[n]]$parname," = ", mbmodel$par[[n]]$parval,', ')
   }
   parstring = substr(parstring,1,nchar(parstring)-2)
   parstring = paste0(parstring,'), ') #close parantheses
@@ -112,7 +106,7 @@ generate_stochastic <- function(model, location = NULL)
   timestring = "times = c("
   for (n in 1:ntime)
   {
-    timestring=paste0(timestring, model$time[[n]]$timename," = ", model$time[[n]]$timeval,', ')
+    timestring=paste0(timestring, mbmodel$time[[n]]$timename," = ", mbmodel$time[[n]]$timeval,', ')
   }
   timestring = substr(timestring,1,nchar(timestring)-2)
   timestring = paste0(timestring,') ') #close parantheses
@@ -122,9 +116,9 @@ generate_stochastic <- function(model, location = NULL)
 
   ##############################################################################
   #the next block of commands produces the ODE/rate functions required by adaptivetau
-  varnames = unlist(sapply(model$var, '[', 1)) #extract variable names as vector
-  vartext = unlist(sapply(model$var, '[', 1)) #extract variable text as vector
-  allflows = sapply(model$var, '[', 4) #extract flows
+  varnames = unlist(sapply(mbmodel$var, '[', 1)) #extract variable names as vector
+  vartext = unlist(sapply(mbmodel$var, '[', 1)) #extract variable text as vector
+  allflows = sapply(mbmodel$var, '[', 4) #extract flows
 
   #turns flow list into matrix, adding NA, found it online, not sure how exactly it works
   flowmat = t(sapply(allflows, `length<-`, max(lengths(allflows))))
@@ -150,7 +144,7 @@ generate_stochastic <- function(model, location = NULL)
   dfRates = dfRates[order(dfRates$rawFlows),]
 
   #count() creates dataframe of raw flows and number of times they occur in the model
-  countsFlows = count(dfRates, rawFlows)
+  countsFlows = dplyr::count(dfRates, rawFlows)
   rownames(dfRates) = c()
 
   # ordering flows by number of occurences
@@ -165,7 +159,7 @@ generate_stochastic <- function(model, location = NULL)
 
   # this block of code gives all rates/flows specified in the model structure
   sdisc = "  #Block of ODE equations for adaptivetau \n"
-  sdisc = paste0(sdisc,"  ", gsub(" ","_",model$title),'_ode <- function(y, parms, t) \n  {\n')
+  sdisc = paste0(sdisc,"  ", gsub(" ","_",mbmodel$title),'_ode <- function(y, parms, t) \n  {\n')
   sdisc = paste0(sdisc,"    with(as.list(c(y,parms)),   \n     { \n")#lets us access variables and parameters stored in y and parms by name
   sdisc = paste0(sdisc,"       #specify each rate/transition/reaction that can happen in the system \n")
   sdisc = paste0(sdisc,"     rates = c(", ratesList, ")", "\n")
@@ -177,7 +171,7 @@ generate_stochastic <- function(model, location = NULL)
   sdisc = paste0(sdisc, "  #specify for each reaction/rate/transition how the different variables change \n")
   sdisc = paste0(sdisc, "  #needs to be in exactly the same order as the rates listed in the rate function \n")
 
- 
+
   # this next block of code produces the transitions between compartments required by adaptive tau
   sdisc = paste0(sdisc, "   transitions = list(" )
 
@@ -202,14 +196,14 @@ generate_stochastic <- function(model, location = NULL)
      # in dataframe where rates that appear more than once, read every other line
      #  extract coefficient of those rates from the first compartment to the next in "trans" variable
      # if line not read by loop, replace it by a NA
-     
+
      for (i in seq(from = 1, to = nrow(countsFlowsGT1)-1, by = 2)){
 
        countsFlowsGT1$trans[i] = paste0("c(", countsFlowsGT1$variable[i], " = ", countsFlowsGT1$coefs[i], ",",
                                         countsFlowsGT1$variable[i+1], " = ", countsFlowsGT1$coefs[i+1], ")")
-      
+
        countsFlowsGT1$trans[i+1] = NA
-       
+
      }
 
 
@@ -231,12 +225,12 @@ generate_stochastic <- function(model, location = NULL)
 
 
 
-  stitle = paste0("simulate_",modeltitle,"_adaptivetau <- function(",varstring, parstring, timestring,') \n { \n')
+  stitle = paste0("simulate_",modeltitle,"_stochastic <- function(",varstring, parstring, timestring,') \n { \n')
 
   smain = "\n\n"
   smain = paste0(smain,'  #this line runs the simulation using the SSA algorithm in the adaptivetau package \n')
   smain = paste0(smain,'  odeout = adaptivetau::ssa.adaptivetau(init.values = vars, transitions = transitions,
-                \t \t \t rateFunc = ',gsub(" ","_",model$title),'_ode, params = pars, tf = times[2]) \n')
+                \t \t \t rateFunc = ',gsub(" ","_",mbmodel$title),'_ode, params = pars, tf = times[2]) \n')
   smain = paste0(smain,'  result <- list() \n \n');
   smain = paste0(smain,'  result$ts <- as.data.frame(odeout) \n \n')
   smain = paste0(smain,'  return(result) \n \n')

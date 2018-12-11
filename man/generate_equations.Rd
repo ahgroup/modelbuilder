@@ -4,10 +4,10 @@
 \alias{generate_equations}
 \title{Turn a model into a set of differential equations displayed as LaTeX/HTML object}
 \usage{
-generate_equations(model)
+generate_equations(mbmodel)
 }
 \arguments{
-\item{model}{model structure, either as list object or Rdata file name}
+\item{mbmodel}{modelbuilder model structure, either as list object or Rdata file name}
 }
 \value{
 The function returns equations as an html object

@@ -2,33 +2,34 @@
 % Please edit documentation in R/analyze_model.R
 \name{analyze_model}
 \alias{analyze_model}
-\title{A function that analyzes the model() object created or loaded in the main menu.}
+\title{A function that analyzes a modelbuilder model object.}
 \usage{
-analyze_model(modeltype, rngseed, nreps, plotscale, input, model)
+analyze_model(modelsettings, mbmodel)
 }
 \arguments{
-\item{modeltype}{A string indicating the type of model. Accepted values are "ode", "stochastic", and "discrete".}
+\item{modelsettings}{vector of model settings:
+\itemize{
+\item modeltype : A string indicating the type of model. Accepted values are "ode", "stochastic", and "discrete".
+\item rngseed : A random number seed for the simulation.
+\item nreps : Number of times to run the simulation.
+\item plotscale : Log or linear scale for the x-axis, y-axis, or both.
+\item vars : named vector of initial conditions for variables
+\item pars : named vector of initial conditions for parameters
+\item times : named vector of values for tstart, tfinal, dt
+}}
 
-\item{rngseed}{A random number seed for the simulation.}
-
-\item{nreps}{Number of times to run the simulation.}
-
-\item{plotscale}{Log or linear scale for the x-axis, y-axis, or both.}
-
-\item{input}{The Shiny input list generated in the main menu app.}
-
-\item{model}{The Shiny model() object generated in the main menu app.}
+\item{mbmodel}{A modelbuilder model object.}
 }
 \value{
 A list named "result" with the simulated dataframe and associated metadata.
 }
 \description{
-This function takes the model specified in the main menu and
-runs the simulation determined by the model parameters.
+This function takes a modelbuilder model and model settings.
+It runs the simulation determined by the model settings and returns simulation results.
 }
 \details{
-This function is called by the Shiny server to produce the Shiny input UI elements.
+This function runs a modelbuilder model for specific settings.
 }
 \author{
-Spencer D. Hall
+Spencer D. Hall, Andreas Handel
 }

@@ -1,93 +1,94 @@
-#' @title A function that analyzes the model() object created or loaded in the main menu.
+#' @title A function that analyzes a modelbuilder model object.
 #'
-#' @description This function takes the model specified in the main menu and
-#' runs the simulation determined by the model parameters.
+#' @description This function takes a modelbuilder model and model settings.
+#' It runs the simulation determined by the model settings and returns simulation results.
 #'
-#' @param modeltype A string indicating the type of model. Accepted values are "ode", "stochastic", and "discrete".
-#' @param rngseed A random number seed for the simulation.
-#' @param nreps Number of times to run the simulation.
-#' @param plotscale Log or linear scale for the x-axis, y-axis, or both.
-#' @param input The Shiny input list generated in the main menu app.
-#' @param model The Shiny model() object generated in the main menu app.
-#'
+#' @param modelsettings vector of model settings:
+#' \itemize{
+#' \item modeltype : A string indicating the type of model. Accepted values are "ode", "stochastic", and "discrete".
+#' \item rngseed : A random number seed for the simulation.
+#' \item nreps : Number of times to run the simulation.
+#' \item plotscale : Log or linear scale for the x-axis, y-axis, or both.
+#' \item vars : named vector of initial conditions for variables
+#' \item pars : named vector of initial conditions for parameters
+#' \item times : named vector of values for tstart, tfinal, dt
+#' }
+#' @param mbmodel A modelbuilder model object.
 #' @return A list named "result" with the simulated dataframe and associated metadata.
-#' @details This function is called by the Shiny server to produce the Shiny input UI elements.
-#' @author Spencer D. Hall
+#' @details This function runs a modelbuilder model for specific settings.
+#' @author Spencer D. Hall, Andreas Handel
 #' @export
 
-analyze_model <- function(modeltype, rngseed, nreps, plotscale, input, model) {
-  # Set current working directory and load Rdata file
-  # currentdir <- wd
-  # rdatafile = list.files(path = currentdir, pattern = "\\.Rdata$")
-  # load(rdatafile)
+analyze_model <- function(modelsettings, mbmodel) {
 
-  #save all results to a list for processing plots and text
-  listlength = 1
-  #here we do all simulations in the same figure
-  result = vector("list", listlength) #create empty list of right size for results
-
+  #if not present, create code for all 3 simulators
   #temporary directory and files
   tempdir = tempdir()
-  filename_ode=paste0("simulate_",gsub(" ","_",model$title),"_ode.R")
-  filename_discrete=paste0("simulate_",gsub(" ","_",model$title),"_discrete.R")
-  filename_stochastic=paste0("simulate_",gsub(" ","_",model$title),"_stochastic.R")
+  filename_ode=paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode.R")
+  filename_discrete=paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete.R")
+  filename_stochastic=paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic.R")
 
   #paths and names for all temporary files
   file_ode = file.path(tempdir,filename_ode)
   file_discrete = file.path(tempdir,filename_discrete)
   file_stochastic = file.path(tempdir,filename_stochastic)
 
-  #as needed create, then source code and make fct call
-  if (modeltype == 'ode')
+  #if not present, create code for all 3 simulators
+  if (!exists(file_ode)) #check if function/code is available, if not generate
   {
-      if (!exists(file_ode)) #check if function/code is available, if not generate
-      {
-          #parses the model and creates the code to call/run the simulation
-          generate_ode(model = model, location = file_ode)
-      }
-      source(file_ode) #source file
-      fctcall <- generate_fctcall(input=input,model=model,modeltype='ode')
+      modelbuilder::generate_ode(mbmodel = mbmodel, location = file_ode)
+  }
+  if (!exists(file_discrete))
+  {
+      modelbuilder::generate_discrete(mbmodel = mbmodel, location = file_discrete)
+  }
+  if (!exists(file_stochastic))
+  {
+      modelbuilder::generate_stochastic(mbmodel = mbmodel, location = file_stochastic)
+  }
+  #source files
+  source(file_ode)
+  source(file_discrete)
+  source(file_stochastic)
+
+
+  #save all results to a list for processing plots and text
+  listlength = 1
+  #here we do all simulations in the same figure
+  result = vector("list", listlength) #create empty list of right size for results
+
+  #run simulation by executing the function call
+  #the generate_fctcall creates a function call to the specified model based on the given model settings
+  fctcall <- modelbuilder::generate_fctcall(modelsettings = modelsettings, mbmodel = mbmodel)
+  set.seed(modelsettings$rngseed) #set RNG seed specified by the settings before executing function call
+
+  #single model execution
+  if (modelsettings$nreps == 1 | modelsettings$modeltype == 'ode' | modelsettings$modeltype == 'discrete')
+  {
+    eval(parse(text = fctcall)) #execute function, result is returned in 'result' object
+    result[[1]]$dat = simresult$ts
   }
 
-  #as needed create, then source code and make fct call
-  if (modeltype == 'discrete')
+  #loop over multiple runs (only leads to potential differences for stochastic model)
+  if (modelsettings$nreps > 1 & modelsettings$modeltype == 'stochastic')
   {
-      if (!exists(file_discrete)) #check if function/code is available, if not generate
-      {
-          #parses the model and creates the code to call/run the simulation
-          generate_discrete(model = model, location = file_discrete)
-      }
-      source(file_discrete) #source file
-      fctcall <- generate_fctcall(input=input,model=model,modeltype='discrete')
+    datall = NULL
+    for (nn in 1:modelsettings$nreps)
+    {
+    eval(parse(text = fctcall)) #execute function, result is returned in 'result' object
+    #data for plots and text
+    #needs to be in the right format to be passed to generate_plots and generate_text
+    #see documentation for those functions for details
+    simresult <- simresult$ts
+    colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
+    #reformat data to be in the right format for plotting
+    dat = tidyr::gather(as.data.frame(simresult), -xvals, value = "yvals", key = "varnames")
+    dat$IDvar = paste(dat$varnames,nn,sep='') #make a variable for plotting same color lines for each run in ggplot2
+    dat$nreps = nn
+    datall = rbind(datall,dat)
+    }
+    result[[1]]$dat = datall
   }
-
-  #as needed create, then source code and make fct call
-  if (modeltype == 'stochastic')
-  {
-      if (!exists(file_stochastic)) #check if function/code is available, if not generate
-      {
-          #parses the model and creates the code to call/run the simulation
-          generate_stochastic(model = model, location = file_stochastic)
-      }
-      source(file_stochastic) #source file
-      fctcall <- generate_fctcall(input=input,model=model,modeltype='stochastic')
-  }
-
-
-
-  #run simulation, show a 'running simulation' message
-  withProgress(message = 'Running Simulation',
-               detail = "This may take a while", value = 0,
-               {
-                   eval(parse(text = fctcall)) #execute function
-               })
-
-  plotscale = isolate(input$plotscale)
-
-  #data for plots and text
-  #needs to be in the right format to be passed to generate_plots and generate_text
-  #see documentation for those functions for details
-  result[[1]]$dat = simresult$ts
 
   #Meta-information for each plot
   #Might not want to hard-code here, can decide later
@@ -96,12 +97,14 @@ analyze_model <- function(modeltype, rngseed, nreps, plotscale, input, model) {
   result[[1]]$ylab = "Numbers"
   result[[1]]$legend = "Compartments"
 
+  plotscale = modelsettings$plotscale
+
   result[[1]]$xscale = 'identity'
   result[[1]]$yscale = 'identity'
   if (plotscale == 'x' | plotscale == 'both') { result[[1]]$xscale = 'log10'}
   if (plotscale == 'y' | plotscale == 'both') { result[[1]]$yscale = 'log10'}
 
-  result[[1]]$maketext = TRUE #if true we want the generate_text function to process data and generate text, if 0 no result processing will occur insinde generate_text
+  result[[1]]$maketext = TRUE #if true we want the generate_text function to process data and generate text, if 0 no result processing will occur inside generate_text
 
   return(result)
 }

@@ -2,12 +2,12 @@
 % Please edit documentation in R/generate_stochastic.R
 \name{generate_stochastic}
 \alias{generate_stochastic}
-\title{Create an discrete time simulation model}
+\title{Create a stochastic compartmental simulation model}
 \usage{
-generate_stochastic(model, location = NULL)
+generate_stochastic(mbmodel, location = NULL)
 }
 \arguments{
-\item{model}{model structure, either as list object or Rdata file name}
+\item{mbmodel}{a modelbuilder model structure, either as list object or Rdata file name}
 
 \item{location}{a path/folder to save the simulation code to. Default is current directory}
 }
@@ -25,7 +25,7 @@ and contain a valid modelbuilder model structure
 }
 \details{
 This function takes as input a modelbuilder model and writes code
-for a discrete time deterministc simulator function
+for a stochastic simulator function implemented with adaptivetau
 }
 \author{
 Andreas Handel

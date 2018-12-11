@@ -1,6 +1,6 @@
 #' @title The main menu for the modelbuilder package
 #'
-#' @description This function opens a menu which allows the user to choose build or analyze apps
+#' @description This function opens a menu which allows the user to build or analyze models
 #'
 #' @details Run this function with no arguments to start the main menu
 #' @examples
@@ -10,23 +10,22 @@
 #' @export
 
 modelbuilder <- function() {
-    cond <- 1
-    while (cond == 1)
+  cond <- 1
+  while (cond == 1)
+  {
+    appname <- NULL
+    appDir <- system.file("mainmenu", package = "modelbuilder")
+    appname = shiny::runApp(appDir = appDir, launch.browser= TRUE)
+    if (!is.null(appname) & appname != "Exit")     #run the shiny app chosen
     {
-        appname <- NULL
-        appDir <- system.file("mainmenu", package = "modelbuilder")
-        appname = shiny::runApp(appDir = appDir, launch.browser= TRUE)
-        if (!is.null(appname) & appname != "Exit")     #run the shiny app chosen
-        {
-            appDirname <- system.file(appname, package = "modelbuilder")
-            shiny::runApp(appDir = appDirname, launch.browser= TRUE)
-        }
-        if (appname == "Exit") {cond = 0} #leave while loop/menu
+      appDirname <- system.file(appname, package = "modelbuilder")
+      shiny::runApp(appDir = appDirname, launch.browser= TRUE)
     }
-
+    if (appname == "Exit") {cond = 0} #leave while loop/menu
+  }
   print('*************************************************')
-  print('Exiting the modelbuilder GUI.')
-  print('Good luck with your further modeling efforts!')
+  print('Exiting the modelbuilder interface.')
+  print('Good luck with all your modeling efforts!')
   print('*************************************************')
 }
 

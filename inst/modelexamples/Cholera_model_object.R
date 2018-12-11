@@ -5,14 +5,14 @@
 
 
 #main list structure
-model = list()
+mbmodel = list()
 
 #some meta-information
-model$title = "Cholera model"
-model$description = "A Cholera model based on Codeco 2001 BMC ID"
-model$author = "Andreas Handel"
-model$date = Sys.Date()
-model$details = 'The model includes susceptible, infected, and environmental compartments. See reference for more details.'
+mbmodel$title = "Cholera model"
+mbmodel$description = "A Cholera model based on Codeco 2001 BMC ID"
+mbmodel$author = "Andreas Handel"
+mbmodel$date = Sys.Date()
+mbmodel$details = 'The model includes susceptible, infected, and environmental compartments. See reference for more details.'
 
 
 var = vector("list",3)
@@ -34,7 +34,7 @@ var[[3]]$varval = 0
 var[[3]]$flows = c('+nb*B', '-mb*B', '+e*I')
 var[[3]]$flownames = c('bacteria growth','bacteria decay','bacteria shedding')
 
-model$var = var
+mbmodel$var = var
 
 #list of elements for each model parameter.
 par = vector("list",8)
@@ -70,7 +70,7 @@ par[[8]]$parname = 'e'
 par[[8]]$partext = 'bacteria shedding rate'
 par[[8]]$parval =  10
 
-model$par = par
+mbmodel$par = par
 
 #time parvals
 time = vector("list",3)
@@ -86,9 +86,9 @@ time[[3]]$timename = "dt"
 time[[3]]$timetext = "Time step"
 time[[3]]$timeval = 0.1
 
-model$time = time
+mbmodel$time = time
 
-modelname = gsub(" ","_",model$title)
+modelname = gsub(" ","_",mbmodel$title)
 rdatafile = paste0(modelname,'.Rdata')
-save(model, file = rdatafile)
+save(mbmodel, file = rdatafile)
 

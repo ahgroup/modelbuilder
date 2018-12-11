@@ -5,14 +5,14 @@
 
 
 #main list structure
-model = list()
+mbmodel = list()
 
 #some meta-information
-model$title = "SEIRS model"
-model$description = "A SEIRS model with 4 compartments"
-model$author = "Andreas Handel"
-model$date = Sys.Date()
-model$details = 'The model includes susceptible, exposed/asymptomatic, infected/symptomatic, and recovered compartments. The processes that are modeled are infection, progression to infectiousness, recovery and waning immunity. Natural births and deaths are also included.'
+mbmodel$title = "SEIRS model"
+mbmodel$description = "A SEIRS model with 4 compartments"
+mbmodel$author = "Andreas Handel"
+mbmodel$date = Sys.Date()
+mbmodel$details = 'The model includes susceptible, exposed/asymptomatic, infected/symptomatic, and recovered compartments. The processes that are modeled are infection, progression to infectiousness, recovery and waning immunity. Natural births and deaths are also included.'
 
 #list of elements for each model variable. So a 3-variable model will have var[[1]], var[[2]] and var[[3]]
 var = vector("list",4)
@@ -42,7 +42,7 @@ var[[4]]$varval = 0
 var[[4]]$flows = c('+gI*I','-w*R','-n*R')
 var[[4]]$flownames = c('recovery','waning immunity','natural death')
 
-model$var = var
+mbmodel$var = var
 
 #list of elements for each model parameter.
 par = vector("list",7)
@@ -74,7 +74,7 @@ par[[7]]$parname = c('n')
 par[[7]]$partext = 'deaths'
 par[[7]]$parval = 1
 
-model$par = par
+mbmodel$par = par
 
 #time parvals
 time = vector("list",3)
@@ -90,8 +90,8 @@ time[[3]]$timename = "dt"
 time[[3]]$timetext = "Time step"
 time[[3]]$timeval = 0.1
 
-model$time = time
+mbmodel$time = time
 
-modelname = gsub(" ","_",model$title)
+modelname = gsub(" ","_",mbmodel$title)
 rdatafile = paste0(modelname,'.Rdata')
-save(model,file = rdatafile)
+save(mbmodel,file = rdatafile)

@@ -2,12 +2,12 @@
 % Please edit documentation in R/generate_ode.R
 \name{generate_ode}
 \alias{generate_ode}
-\title{Create an ODE simulation model that uses deSolve}
+\title{Create an ODE simulation model}
 \usage{
-generate_ode(model, location)
+generate_ode(mbmodel, location = NULL)
 }
 \arguments{
-\item{model}{model structure, either as list object or Rdata file name}
+\item{mbmodel}{modelbuilder model structure, either as list object or Rdata file name}
 
 \item{location}{a path/folder to save the simulation code to. Default is current directory}
 }
@@ -25,7 +25,7 @@ if the user provides an Rdata file name, this file needs to contain an object ca
 and contain a valid modelbuilder model structure
 }
 \details{
-This function takes as input a model and writes code
+This function takes as input a modelbuilder model and writes code
 for an ODE simulator implemented with deSolve
 }
 \author{

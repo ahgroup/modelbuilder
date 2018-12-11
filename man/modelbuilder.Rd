@@ -7,7 +7,7 @@
 modelbuilder()
 }
 \description{
-This function opens a menu which allows the user to choose build or analyze apps
+This function opens a menu which allows the user to build or analyze models
 }
 \details{
 Run this function with no arguments to start the main menu

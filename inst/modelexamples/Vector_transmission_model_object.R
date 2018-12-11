@@ -5,14 +5,14 @@
 
 
 #main list structure
-model = list()
+mbmodel = list()
 
 #some meta-information
-model$title = "Vector transmission model"
-model$description = "A basic model with several compartments to model vector-borne transmission"
-model$author = "Andreas Handel"
-model$date = Sys.Date()
-model$details = 'The model tracks the dynamics of susceptible, infected, and recovered hosts, and susceptible and infected vectors. Infection, recovery, and waning immunity processes are implemented for hosts. Births and deaths and infection processes are implemented for vectors.'
+mbmodel$title = "Vector transmission model"
+mbmodel$description = "A basic model with several compartments to model vector-borne transmission"
+mbmodel$author = "Andreas Handel"
+mbmodel$date = Sys.Date()
+mbmodel$details = 'The model tracks the dynamics of susceptible, infected, and recovered hosts, and susceptible and infected vectors. Infection, recovery, and waning immunity processes are implemented for hosts. Births and deaths and infection processes are implemented for vectors.'
 
 #list of elements for each model variable.
 var = vector("list",5)
@@ -46,10 +46,8 @@ var[[5]]$varval = 1
 var[[5]]$flows = c('+b2*Sv*Ih','-n*Iv')
 var[[5]]$flownames = c('infection of susceptible vectors', 'death of infected vectors')
 
+mbmodel$var = var
 
-
-
-model$var = var
 
 #list of elements for each model parameter.
 par = vector("list",6)
@@ -77,7 +75,7 @@ par[[6]]$parname = c('n')
 par[[6]]$partext = 'vector death rate'
 par[[6]]$parval = 0.1
 
-model$par = par
+mbmodel$par = par
 
 #time parvals
 time = vector("list",3)
@@ -93,9 +91,9 @@ time[[3]]$timename = "dt"
 time[[3]]$timetext = "Time step"
 time[[3]]$timeval = 0.1
 
-model$time = time
+mbmodel$time = time
 
-modelname = gsub(" ","_",model$title)
+modelname = gsub(" ","_",mbmodel$title)
 rdatafile = paste0(modelname,'.Rdata')
-save(model,file = rdatafile)
+save(mbmodel,file = rdatafile)
 

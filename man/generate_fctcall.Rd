@@ -2,26 +2,24 @@
 % Please edit documentation in R/generate_fctcall.R
 \name{generate_fctcall}
 \alias{generate_fctcall}
-\title{A helper function that takes a model and settings and generates the function cal needed to run it}
+\title{A helper function that takes a model and settings and generates the function call needed to run it}
 \usage{
-generate_fctcall(input, model, modeltype)
+generate_fctcall(modelsettings, mbmodel)
 }
 \arguments{
-\item{input}{shiny input structure}
+\item{modelsettings}{values for model settings}
 
-\item{model}{a modelbuilder model structure}
-
-\item{modeltype}{type of model/code that should be run}
+\item{mbmodel}{a modelbuilder model structure}
 }
 \value{
 a string that can be evaluated to run the model
 }
 \description{
 This function generates a text string that contains the function call for a given model
-This is a helper function called by the shiny app.
+This is a helper function.
 }
 \details{
-This function is called by the Shiny server to produce a function text string.
+This function produces a function text string.
 }
 \author{
 Andreas Handel

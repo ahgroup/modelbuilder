@@ -1,18 +1,18 @@
 #' @title A helper function that takes result from the simulators and produces text output
 #'
 #' @description This function generates text to be displayed in the Shiny UI.
-#' This is a helper function. This function processes results returned from the simulation, supplied as a list
-#' @param res a list structure containing all simulation results that are to be processed.
-#'    This function is meant to be used together with generate_plots() and requires similar imput information.
+#' This is a helper function. This function processes results returned from the simulation, supplied as a list.
+#' @param res A list structure containing all simulation results that are to be processed.
+#'    This function is meant to be used together with generate_plots() and requires similar input information.
 #'    See the generate_plots() function for most details.
 #'    Specific entries for this function are 'maketext', 'showtext' and 'finaltext'.
-#'    If 'maketext' is set to TRUE (or not provided), the function processes the data corresponding to each plot
-#'    and reports min/max/final values (lineplots) or correlation coefficient (scatterplot).
+#'    If 'maketext' is set to TRUE (or not provided) the function processes the data corresponding to each plot
+#'    and reports min/max/final values (lineplots) or correlation coefficient (scatterplot)
 #'    If 'maketext' is FALSE or missing, no text based on the data is generated.
 #'    If the entries 'showtext' or 'finaltext' are present, their values
 #'    will be returned for each plot or for all together.
-#'    The overall message of finaltext should be in the 1st plot. 
-#' @return HTML formatted text for display in a Shiny UI
+#'    The overall message of finaltext should be in the 1st plot.
+#' @return HTML formatted text for display in a Shiny UI.
 #' @details This function is called by the Shiny server to produce output returned to the Shiny UI.
 #' @author Andreas Handel
 #' @importFrom stats median
@@ -33,8 +33,8 @@ generate_text <- function(res)
     {
 
       resnow = res[[n]]
-      
-      
+
+
       #if a data frame called 'ts' exists, assume that this one is the data to be plotted
       #otherwise use the data frame called 'dat'
       #one of the 2 must exist, otherwise the function will not work
@@ -47,12 +47,12 @@ generate_text <- function(res)
       }
 
       #if nothing is provided, we assume a line plot. That could lead to silly text returns.
-      plottype <- if(is.null(resnow$plottype)) {'Lineplot'} else  {resnow$plottype} 
-      
+      plottype <- if(is.null(resnow$plottype)) {'Lineplot'} else  {resnow$plottype}
+
       #if the first column is called 'Time' (as returned from several of the simulators)
       #rename to xvals for consistency and so the code below will work
       if ( colnames(rawdat)[1] == 'Time' | colnames(rawdat)[1] == 'time' ) {colnames(rawdat)[1] <- 'xvals'}
-      
+
       #for the plotting below, the data need to be in the form xvals/yvals/varnames
       #if the data is instead in xvals/var1/var2/var3/etc. - which is what the simulator functions produce
       #we need to re-format
@@ -66,14 +66,14 @@ generate_text <- function(res)
         dat = tidyr::gather(rawdat, -xvals, value = "yvals", key = "varnames")
       }
 
-      #code variable names as factor and level them so they show up right 
+      #code variable names as factor and level them so they show up right
       #factor is needed for plotting and text
       mylevels = unique(dat$varnames)
       dat$varnames = factor(dat$varnames, levels = mylevels)
 
       allvarnames = levels(dat$varnames)
       nvars = length(allvarnames)
-      
+
       #labels, only used in correlation plots
       xlabel =  resnow$xlab
       ylabel =  resnow$ylab
@@ -81,10 +81,10 @@ generate_text <- function(res)
       txt = '' #no text to start out
 
       #browser()
-      
+
       #if missing or false, we won't create text based on data as described below
       if (is.null(resnow$maketext) || resnow$maketext == FALSE) {maketext = FALSE} else {maketext = TRUE}
-      
+
       if (maketext == TRUE) #if the app wants text display based on result processing, do the stuff below
       {
         #for each plot, process each variable by looping over them
@@ -137,7 +137,7 @@ generate_text <- function(res)
             mymax = format(max(vardat$yvals), digits =2, nsmall = 2)
             newtxt = paste('Min/Mean/Median/Max for ',ylabel,': ',mymin,' / ',mymean,' / ', mymedian,' / ',mymax,' / ')
           }
-          if (plottype == 'Mixedplot' ) 
+          if (plottype == 'Mixedplot' )
           {
             newtxt = ""
           }
