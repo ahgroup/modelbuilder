@@ -33,9 +33,7 @@ server <- function(input, output, session) {
 
       #set number of variables/parameters/flows for loaded model (if one is loaded)
       if (exists("dynmbmodel()")) {
-
-          print(length(dynmbmodel()$var))
-          print(length(dynmbmodel()$par))
+          print(str(dynmbmodel())) ### Debugging line
 
           values$nvar <- max(1, length(dynmbmodel()$var))
           values$npar <- max(1,length(dynmbmodel()$par))

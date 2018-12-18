@@ -11,7 +11,7 @@
 
 generate_buildUI <- function(mbmodel, output)
 {
-    print("I'm being called") ### Debugging line
+    save(output, file = "defeat.Rdata") # By this line, the rebellion is exposed
     output$buildmodel <- renderUI({
         fluidPage(
             p('General model information', class='mainsectionheader'),
