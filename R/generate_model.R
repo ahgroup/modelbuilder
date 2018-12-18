@@ -57,10 +57,11 @@ generate_model <- function(input, values) {
     }
     dynmodel$par = par
 
-    time = vector("list",3)
+    time = vector("list", 3)
     time[[1]]$timename = "tstart"
     time[[1]]$timetext = "Start time of simulation"
-    time[[1]]$timeval = isolate(eval(parse(text = paste0("input$tval") )))
+    # time[[1]]$timeval = isolate(eval(parse(text = paste0("input$tval") )))
+    time[[1]]$timeval = isolate(eval(parse(text = paste0("input$tstart")))) # 12/18/2018
 
     time[[2]]$timename = "tfinal"
     time[[2]]$timetext = "Final time of simulation"
