@@ -12,6 +12,7 @@
 
 generate_shinyinput <- function(mbmodel, otherinputs = NULL, output)
 {
+    print("I'm being called") ### Debugging line
 
     ###########################################
     #create UI elements as input/output for the shiny app

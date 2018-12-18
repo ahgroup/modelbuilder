@@ -33,7 +33,6 @@ server <- function(input, output, session) {
 
       #set number of variables/parameters/flows for loaded model (if one is loaded)
       if (exists("dynmbmodel()")) {
-          print(str(dynmbmodel())) ### Debugging line
           values$nvar <- max(1, length(dynmbmodel()$var))
           values$npar <- max(1,length(dynmbmodel()$par))
           for (n in 1:length(dynmbmodel()$var)) #set number of flows for each variable
@@ -43,7 +42,6 @@ server <- function(input, output, session) {
           #generate_buildUI generates the output elements that make up the build UI for the model
           generate_buildUI(dynmbmodel(), output)
       } else if (!exists("dynmbmodel()")) {
-          print("dynmbmodel() doesn't exist") ### Debugging line
           null_model <- reactive({load_model(NULL)})
           generate_buildUI(null_model(), output)
       }
