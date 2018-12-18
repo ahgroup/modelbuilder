@@ -33,6 +33,10 @@ server <- function(input, output, session) {
 
       #set number of variables/parameters/flows for loaded model (if one is loaded)
       if (exists("dynmbmodel()")) {
+
+          print(length(dynmbmodel()$var))
+          print(length(dynmbmodel()$par))
+
           values$nvar <- max(1, length(dynmbmodel()$var))
           values$npar <- max(1,length(dynmbmodel()$par))
           for (n in 1:length(dynmbmodel()$var)) #set number of flows for each variable
@@ -188,7 +192,6 @@ server <- function(input, output, session) {
     #produce Shiny input UI elements for the model.
     if (exists("dynmbmodel()"))
     {
-        print(dynmbmodel()$title) ### Debugging line
         generate_shinyinput(dynmbmodel(), otherinputs = NULL, output)
     }
     #set output to empty
