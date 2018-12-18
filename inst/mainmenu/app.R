@@ -284,8 +284,9 @@ server <- function(input, output, session) {
     #######################################################
     #load a model
 
-    dynmbmodel <- reactive({load_model(input$currentmodel)}) # Original
-    # dynmbmodel <- reactive({load_model(NULL)})
+    # dynmbmodel <- reactive({load_model(input$currentmodel)}) # Original
+    dynmbmodel <- reactive({load_model(NULL)})
+    makeReactiveBinding("dynmbmodel()")
 
     # observeEvent(input$currentmodel, {
     #     dynmbmodel <- reactive({load_model(input$currentmodel)})
