@@ -43,7 +43,7 @@ generate_buildUI <- function(mbmodel, output)
             #fluidRow(
             fluidRow(
                 column(6,
-                       actionButton("makemodel", "ATTICA", class="submitbutton")
+                       actionButton("makemodel", "Make model", class="submitbutton")
                        # actionButton("defaultmodel", "Make default model", class = "submitbutton")
                 ),
                 column(6,

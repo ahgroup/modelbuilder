@@ -128,6 +128,7 @@ server <- function(input, output, session) {
   observeEvent(input$makemodel, {
       dynmbmodel <<- reactive({
           mbmodel <- generate_model(input, values)
+          print(generate_model) ### Debugging line
           output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
           return(mbmodel)
       })
