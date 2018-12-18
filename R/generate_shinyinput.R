@@ -22,7 +22,6 @@ generate_shinyinput <- function(mbmodel, otherinputs = NULL, output)
         HTML(mbmodel$title)
     })
 
-    print(mbmodel$title) ### Debugging line
     #numeric input elements for all variable initial conditions
     output$vars <- renderUI({
         nvars = length(mbmodel$var)  #number of variables/compartments in model

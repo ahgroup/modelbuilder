@@ -188,6 +188,7 @@ server <- function(input, output, session) {
     #produce Shiny input UI elements for the model.
     if (exists("dynmbmodel()"))
     {
+        print(dynmbmodel()$title) ### Debugging line
         generate_shinyinput(dynmbmodel(), otherinputs = NULL, output)
     }
     #set output to empty
