@@ -11,7 +11,6 @@
 
 generate_buildUI <- function(mbmodel, output)
 {
-    save(mbmodel, file = "defeat.Rdata") # By this line, the rebellion is exposed
     output$buildmodel <- renderUI({
         fluidPage(
             p('General model information', class='mainsectionheader'),
