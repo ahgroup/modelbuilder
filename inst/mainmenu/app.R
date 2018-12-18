@@ -180,7 +180,6 @@ server <- function(input, output, session) {
     # dynmbmodel() ## This line makes sure the observe() statement updates with each new model
 
     #if no model has been loaded yet, display a message
-    # if (is.null(dynmbmodel()$title))
     if (!exists("dynmbmodel()"))
     {
       output$analyzemodel <- renderUI({h1('Please load a model')})
