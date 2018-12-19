@@ -27,6 +27,7 @@ server <- function(input, output, session) {
       #keep track of number of variables/parameters/flows for model
       #this is updated based on user pressing add/delete variables/parameters
       #this is re-initialized if the underlying model changes
+      print(str(dynmbmodel())) ### Debugging line
       values$nvar <- 1
       values$npar <- 1
       values$nflow <- rep(1, 100) #number of flows for each variable, currently assuming model does not have more than 100 vars
