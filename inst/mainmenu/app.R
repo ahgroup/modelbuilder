@@ -33,7 +33,6 @@ server <- function(input, output, session) {
 
       #set number of variables/parameters/flows for loaded model (if one is loaded)
       if (exists("dynmbmodel()")) {
-          print(str(dynmbmodel())) ### Debugging line
           values$nvar <- max(1, length(dynmbmodel()$var))
           values$npar <- max(1,length(dynmbmodel()$par))
           for (n in 1:length(dynmbmodel()$var)) #set number of flows for each variable
@@ -195,7 +194,8 @@ server <- function(input, output, session) {
     output$text = NULL
     output$plot = NULL
 
-    output$modelinput <- renderUI({
+    # Previously was output$modelinput
+    output$analyzemodel <- renderUI({
       fluidPage(
           #section to add buttons
           fluidRow(column(
