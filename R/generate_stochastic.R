@@ -120,6 +120,7 @@ generate_stochastic <- function(mbmodel, location = NULL)
   vartext = unlist(sapply(mbmodel$var, '[', 1)) #extract variable text as vector
   allflows = sapply(mbmodel$var, '[', 4) #extract flows
 
+  print("Here are allflows") ### Debugging line
   print(allflows) ### Debugging line
 
   #turns flow list into matrix, adding NA, found it online, not sure how exactly it works
