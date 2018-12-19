@@ -128,6 +128,9 @@ generate_stochastic <- function(mbmodel, location = NULL)
   flowmatred = sub("\\+|-","",flowmat)   #strip leading +/- from flows
   signmat =  gsub("(\\+|-).*","\\1",flowmat) #extract only the + or - signs from flows so we know the direction
 
+  print("Here is flowmat") ### Debugging line
+  print(flowmat) ### Debugging line
+
   #creating a dataframe of only the rates
   dfRates = as.data.frame(c(flowmat))
 
