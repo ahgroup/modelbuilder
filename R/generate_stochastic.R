@@ -120,6 +120,8 @@ generate_stochastic <- function(mbmodel, location = NULL)
   vartext = unlist(sapply(mbmodel$var, '[', 1)) #extract variable text as vector
   allflows = sapply(mbmodel$var, '[', 4) #extract flows
 
+  print(allflows) ### Debugging line
+
   #turns flow list into matrix, adding NA, found it online, not sure how exactly it works
   flowmat = t(sapply(allflows, `length<-`, max(lengths(allflows))))
   flowmatred = sub("\\+|-","",flowmat)   #strip leading +/- from flows
@@ -197,8 +199,6 @@ generate_stochastic <- function(mbmodel, location = NULL)
      #  extract coefficient of those rates from the first compartment to the next in "trans" variable
      # if line not read by loop, replace it by a NA
 
-     print(nrow(countsFlowsGT1)) ### Debugging line
-     print(seq(from = 1, to = (nrow(countsFlowsGT1) - 1), by = 2)) ### Debugging line
      for (i in seq(from = 1, to = (nrow(countsFlowsGT1) - 1), by = 2)) {
 
        countsFlowsGT1$trans[i] = paste0("c(", countsFlowsGT1$variable[i], " = ", countsFlowsGT1$coefs[i], ",",
