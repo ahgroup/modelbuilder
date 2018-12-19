@@ -197,6 +197,7 @@ generate_stochastic <- function(mbmodel, location = NULL)
      #  extract coefficient of those rates from the first compartment to the next in "trans" variable
      # if line not read by loop, replace it by a NA
 
+     print(seq(from = 1, to = (nrow(countsFlowsGT1) - 1), by = 2)) ### Debugging line
      for (i in seq(from = 1, to = (nrow(countsFlowsGT1) - 1), by = 2)) {
 
        countsFlowsGT1$trans[i] = paste0("c(", countsFlowsGT1$variable[i], " = ", countsFlowsGT1$coefs[i], ",",
