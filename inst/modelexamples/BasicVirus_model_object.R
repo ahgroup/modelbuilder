@@ -5,14 +5,14 @@
 
 
 #main list structure
-model = list()
+mbmodel = list()
 
 #some meta-information
-model$title = "Basic Virus model"
-model$description = "A basic virus infection model with 3 compartments"
-model$author = "Andreas Handel"
-model$date = Sys.Date()
-model$details = 'The model includes uninfected and infected target cells, as well as free virus. The processes that are modeled are infection, virus production, uninfected cell birth and death, infected cell and virus death.'
+mbmodel$title = "Basic Virus model"
+mbmodel$description = "A basic virus infection model with 3 compartments"
+mbmodel$author = "Andreas Handel"
+mbmodel$date = Sys.Date()
+mbmodel$details = 'The model includes uninfected and infected target cells, as well as free virus. The processes that are modeled are infection, virus production, uninfected cell birth and death, infected cell and virus death.'
 
 #list of elements for each model variable. So a 3-variable model will have var[[1]], var[[2]] and var[[3]]
 var = vector("list",3)
@@ -34,7 +34,7 @@ var[[3]]$varval = 1
 var[[3]]$flows = c('+p*I','-dV*V','-b*g*V*U')
 var[[3]]$flownames = c('virus production','virus removal','infection of cells')
 
-model$var = var
+mbmodel$var = var
 
 #list of elements for each model parameter.
 par = vector("list",7)
@@ -68,7 +68,7 @@ par[[7]]$partext = 'possible conversion factor for virus units'
 par[[7]]$parval = 1
 
 
-model$par = par
+mbmodel$par = par
 
 #time parvals
 time = vector("list",3)
@@ -84,8 +84,8 @@ time[[3]]$timename = "dt"
 time[[3]]$timetext = "Time step"
 time[[3]]$timeval = 0.1
 
-model$time = time
+mbmodel$time = time
 
-modelname = gsub(" ","_",model$title)
+modelname = gsub(" ","_",mbmodel$title)
 rdatafile = paste0(modelname,'.Rdata')
-save(model,file = rdatafile)
+save(mbmodel,file = rdatafile)
