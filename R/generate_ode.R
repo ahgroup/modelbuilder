@@ -61,6 +61,7 @@ generate_ode <- function(mbmodel, location = NULL)
         sdesc=paste0(sdesc,"#' \\item ", mbmodel$time[[n]]$timename," : ", mbmodel$time[[n]]$timetext, "\n")
     }
     sdesc=paste0(sdesc,"#' } \n")
+    sdesc=paste0(sdesc,"#' @param ... other arguments for possible pass-through \n")
     sdesc=paste0(sdesc,"#' @return The function returns the output as a list. \n")
     sdesc=paste0(sdesc,"#' The time-series from the simulation is returned as a dataframe saved as list element \\code{ts}. \n")
     sdesc=paste0(sdesc,"#' The \\code{ts} dataframe has one column per compartment/variable. The first column is time.   \n")
