@@ -1,7 +1,5 @@
 #this R script generates the Rdata file for the Basic Bacteria model in the DSAIRM package
 
-NOT YET DONE, ONLY STARTED
-
 #main list structure
 mbmodel = list()
 
@@ -16,49 +14,44 @@ mbmodel$details = 'The model includes bacteria and an immune response. The proce
 var = vector("list",2)
 var[[1]]$varname = "B"
 var[[1]]$vartext = "Bacteria"
-var[[1]]$varval = 1e5
-var[[1]]$flows = c('+n','-dU*U','-b*V*U')
-var[[1]]$flownames = c('cell birth','cell death','infection of cells')
+var[[1]]$varval = 10
+var[[1]]$flows = c('+g*B*(1-B/Bmax)','-dB*B','-k*B*I')
+var[[1]]$flownames = c('bacteria growth','bacteria death','immune response killing')
 
 var[[2]]$varname = "I"
 var[[2]]$vartext = "Immune Response"
-var[[2]]$varval = 0
-var[[2]]$flows = c('+b*V*U','-dI*I')
-var[[2]]$flownames = c('infection of cells','death of infected cells')
+var[[2]]$varval = 1
+var[[2]]$flows = c('+r*B*I','-dI*I')
+var[[2]]$flownames = c('immune response growth','immune response decay')
 
 mbmodel$var = var
 
 #list of elements for each model parameter.
-par = vector("list",7)
+par = vector("list",6)
 
-par[[1]]$parname = c('n')
-par[[1]]$partext = 'rate of new uninfected cell replenishment'
-par[[1]]$parval = 0
+par[[1]]$parname = c('g')
+par[[1]]$partext = 'maximum rate of bacteria growth'
+par[[1]]$parval = 1
 
-par[[2]]$parname = c('dU')
-par[[2]]$partext = 'rate at which uninfected cells die'
-par[[2]]$parval = 0
+par[[2]]$parname = c('Bmax')
+par[[2]]$partext = 'bacteria carrying capacity'
+par[[2]]$parval = 1e6
 
-par[[3]]$parname = c('dI')
-par[[3]]$partext = 'rate at which infected cells die'
-par[[3]]$parval = 1
+par[[3]]$parname = c('dB')
+par[[3]]$partext = 'bacteria death rate'
+par[[3]]$parval = 1e-1
 
-par[[4]]$parname = c('dV')
-par[[4]]$partext = 'rate at which virus is cleared'
-par[[4]]$parval = 2
+par[[4]]$parname = c('k')
+par[[4]]$partext = 'bacteria kill rate'
+par[[4]]$parval = 1e-7
 
-par[[5]]$parname = c('b')
-par[[5]]$partext = 'rate at which virus infects cells'
-par[[5]]$parval = 2e-5
+par[[5]]$parname = c('r')
+par[[5]]$partext = 'immune response growth rate'
+par[[5]]$parval = 1e-3
 
-par[[6]]$parname = c('p')
-par[[6]]$partext = 'rate at which infected cells produce virus'
-par[[6]]$parval = 5
-
-par[[7]]$parname = c('g')
-par[[7]]$partext = 'possible conversion factor for virus units'
-par[[7]]$parval = 1
-
+par[[6]]$parname = c('dI')
+par[[6]]$partext = 'immune response decay rate'
+par[[6]]$parval = 1
 
 mbmodel$par = par
 
@@ -74,7 +67,7 @@ time[[2]]$timeval = 30
 
 time[[3]]$timename = "dt"
 time[[3]]$timetext = "Time step"
-time[[3]]$timeval = 0.1
+time[[3]]$timeval = 0.01
 
 mbmodel$time = time
 
