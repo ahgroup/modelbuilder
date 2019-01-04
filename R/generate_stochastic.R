@@ -183,9 +183,13 @@ generate_stochastic <- function(mbmodel, location = NULL)
 
      #countFlows2 creates df of all raw flows, compartment they go into/out of and corresponding compartment/coefficientle
      countsFlows2 = merge(dfRates, countsFlows1, by.x = "rawFlows", by.y = "rawFlows")
+     print("First shot") ### Debugging line
+     print(countsFlows2) ### Debugging line
 
      # sort counts of flows in decreasing order
      countsFlows2 = countsFlows2[order(-countsFlows2$n),]
+     print("Second shot") ### Debugging line
+     print(countsFlows2) ### Debugging line
 
      # new dataset of only flows where it appears more than once
      countsFlowsGT1 = countsFlows2[which(countsFlows2$n > 1), ]
@@ -203,7 +207,6 @@ generate_stochastic <- function(mbmodel, location = NULL)
      #  extract coefficient of those rates from the first compartment to the next in "trans" variable
      # if line not read by loop, replace it by a NA
 
-     print(countsFlowsGT1) ### Debugging line
      for (i in seq(from = 1, to = (nrow(countsFlowsGT1) - 1), by = 2)) {
 
        countsFlowsGT1$trans[i] = paste0("c(", countsFlowsGT1$variable[i], " = ", countsFlowsGT1$coefs[i], ",",
