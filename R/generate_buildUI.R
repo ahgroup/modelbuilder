@@ -43,8 +43,7 @@ generate_buildUI <- function(mbmodel, output)
             #fluidRow(
             fluidRow(
                 column(6,
-                       actionButton("makemodel", "Make model", class="submitbutton"),
-                       actionButton("defaultmodel", "Default model", class = "submitbutton")
+                       actionButton("makemodel", "Make model", class="submitbutton")
                 ),
                 column(6,
                        downloadButton('savemodel', "Save Model", class="savebutton")
