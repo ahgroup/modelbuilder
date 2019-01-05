@@ -133,9 +133,13 @@ generate_stochastic <- function(mbmodel, location = NULL)
 
   #creating a dataframe of only the rates
   dfRates = as.data.frame(c(flowmat))
+  print("First dfRates value") ### Debugging line
+  print(dfRates) ### Debugging line
 
   #deleting "NA"s from the dataframe
   dfRates = na.omit(cbind(rep(varnames, ncol(flowmat)), dfRates))
+  print("Second dfRates value") ### Debugging line
+  print(dfRates) ### Debugging line
 
   #extracting coefficient from the rates/flows
   dfRates$coef = paste(substr(dfRates$`c(flowmat)`,1,1), "1", sep = "")
