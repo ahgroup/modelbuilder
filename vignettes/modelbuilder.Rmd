@@ -29,9 +29,10 @@ The audience for this app are individuals interested in dynamical models who are
 
 
 ## Installing the package 
-The package can be installed from CRAN or Github. See the documentation on the [package page](https://ahgroup.github.io/modelbuilder/) for more details.
+The package is currently only on Github. Install from there.
 
 Package installation is a one-time process, unless R itself is being upgraded/reinstalled. Note that the package depends on other packages, which will also be installed as needed.
+
 
 
 ## Starting the package
@@ -50,28 +51,29 @@ This will bring up a graphical user interface from which everything is done. Onc
 
 ## Building a model
 
-The 'build' tab allows you to either build a new model, or modify an existing, loaded model (modify functionality not yet implemented). 
+The 'build' tab allows you to either build a new model, or modify an existing, loaded model (modify functionality not yet fully implemented). 
 
-Under the build tab, you can graphically build a model by adding variables, flows and parameters. Once you finished specifying your model, you can generate it. This checks for errors, if none are present it will create the model equations, a model diagram (not yet implemented) and the code for the underlying model.
+Under the build tab, you can graphically build a model by adding variables, flows and parameters. Once you finished specifying your model, you can generate it. This checks for errors, if none are present it will create the underlying model object and show the equations as set of differential equations for the underlying model.
 
-model is done, you can As you build the model you will see a graphical representation of the model you are building. Once you're done building the model, and you're happy with it, you should click save model. This will save your model in an Rdata file in the location you specify.
+Once you're done building the model, and you're happy with it, you should save model. This will save your model in an Rdata file in the location you specify.
+
+
+
+
+## Analyzing a model
+to analyze a model, you first need to load one (in the form of an Rdata file) that you or someone else previously built. 
+
+Once you have created a model, saved it, and produced a function for a specific implementation for instance an ODE function, you can use the analyze tab to simulate your model for different parameter values and graphically analyze the results.
+By clicking the "export scenario" button, you can export the code that runs the model with the settings you chose and produces the figures shown in the GUI.
+
 Similarly, by pressing the save diagram button, you can save the diagram for the model as a PNG file in the location you want.
 
 If you previously built a model, you can load it with the load model button. Once the model is loaded you can further modify it and save a modified version.
 
-So far the model has not been implemented as a specific set of equations. You need to do that before you can simulate and analyze your model. You can choose what kind of implementation you want for the model, for instance a differential equation model or a stochastic model. After you have chosen your implementation, you can press the create model button. You will be asked where you want the code to be saved. This code is a fully working R function that you could use, run and analyze by yourself without using the modelbuilder package any further. You can also switch over to the analyze tab to graphically analyze this model.
 
 
-
-## Analyzing a model
-Once you have created a model, saved it, and produced a function for a specific implementation for instance an ODE function, you can use the analyze tab to simulate your model for different parameter values and graphically analyze the results.
-
-By clicking the "export scenario" button, you can export the code that runs the model with the settings you chose and produces the figures shown in the GUI.
-
-
-## Analyzing a model
-
-The analyze tab is meant to give you some basic analysis tools. If you want to do more sophisticated analyses, for instance running a loop over a specific parameter, you will need to move on from the GUI and start using the underlying code produced by the modelbuilder package, and combine it with your own extra lines of code. The following shows an example of how this can be done.
+## Exporting model code
+If you want to perform analyses beyond what you can do through the graphical interface, you have the option of exporting code for the model as R function. You can choose if you want code for an ODE, discrete-time, or stochastic model. 
 
 
 
@@ -79,6 +81,8 @@ The analyze tab is meant to give you some basic analysis tools. If you want to d
 
 **Most features are not yet implemented, this is a roadmap!**
 
+
+a model diagram (not yet implemented)
 
 Have an import button that allows users to import models that are written in for instance SMBL
 
