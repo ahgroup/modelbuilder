@@ -24,6 +24,8 @@ generate_stochastic <- function(mbmodel, location = NULL)
   #otherwise, it is assumed that 'model' is a list structure of the right type
   if(is.character(mbmodel)) {load(mbmodel)}
 
+  browser()
+
   #the name of the function produced by this script is simulate_ + "model title" + "_stochastic.R"
   savepath <- location #default is current directory for saving the R function
 
