@@ -50,6 +50,19 @@ server <- function(input, output, session) {
               #
               # A question yet to be answered is, where is the second flow
               # going? At what point is the model flow being assigned?
+              # The model flow is being assigned in generate_model.R.
+              #
+              # What it looks like is going on is this: values$nflow starts
+              # out as 1, and isn't being updated when the Add Flow button
+              # is pushed, which causes the generate_model() function to only
+              # see 1 flow and ignore the second. The thing I need to look
+              # into now is what the add flow function is doing, and how to
+              # get it so that it updates values$nflow.
+              #
+              # I think I have identified the problem: values$nflow takes
+              # the proper number of flows, but when values is accessed
+              # inside the reactive({}) environment in which dynmbmodel()
+              # is created, it reverts back to just 1.
           }
           #generate_buildUI generates the output elements that make up the build UI for the model
           generate_buildUI(dynmbmodel(), output)
@@ -137,12 +150,13 @@ server <- function(input, output, session) {
   # })
 
   observeEvent(input$makemodel, {
-      # browser()
-      dynmbmodel <<- reactive({
-          mbmodel <- generate_model(input, values)
-          output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
-          return(mbmodel)
-      })
+      # dynmbmodel <<- reactive({
+      #     browser()
+      #     mbmodel <- generate_model(input, values)
+      #     output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
+      #     return(mbmodel)
+      # })
+      dynmbmodel <- generate_model(input, values)
       makeReactiveBinding("dynmbmodel()")
   })
 
