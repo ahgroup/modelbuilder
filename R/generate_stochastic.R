@@ -120,27 +120,16 @@ generate_stochastic <- function(mbmodel, location = NULL)
   vartext = unlist(sapply(mbmodel$var, '[', 1)) #extract variable text as vector
   allflows = sapply(mbmodel$var, '[', 4) #extract flows
 
-  print("Here are allflows") ### Debugging line
-  print(allflows) ### Debugging line
-
   #turns flow list into matrix, adding NA, found it online, not sure how exactly it works
   flowmat = t(sapply(allflows, `length<-`, max(lengths(allflows))))
   flowmatred = sub("\\+|-","",flowmat)   #strip leading +/- from flows
   signmat =  gsub("(\\+|-).*","\\1",flowmat) #extract only the + or - signs from flows so we know the direction
 
-  print("Here is flowmat") ### Debugging line
-  print(flowmat) ### Debugging line
-
   #creating a dataframe of only the rates
   dfRates = as.data.frame(c(flowmat))
-  print("First dfRates value") ### Debugging line
-  print(dfRates) ### Debugging line
 
   #deleting "NA"s from the dataframe
   dfRates = na.omit(cbind(rep(varnames, ncol(flowmat)), dfRates))
-  print("Second dfRates value") ### Debugging line
-  print(dfRates) ### Debugging line
-
   #extracting coefficient from the rates/flows
   dfRates$coef = paste(substr(dfRates$`c(flowmat)`,1,1), "1", sep = "")
 
@@ -187,17 +176,13 @@ generate_stochastic <- function(mbmodel, location = NULL)
 
      #countFlows2 creates df of all raw flows, compartment they go into/out of and corresponding compartment/coefficientle
      countsFlows2 = merge(dfRates, countsFlows1, by.x = "rawFlows", by.y = "rawFlows")
-     print("First shot") ### Debugging line
-     print(countsFlows2) ### Debugging line
 
      # sort counts of flows in decreasing order
      countsFlows2 = countsFlows2[order(-countsFlows2$n),]
-     print("Second shot") ### Debugging line
-     print(countsFlows2) ### Debugging line
 
      # new dataset of only flows where it appears more than once
      countsFlowsGT1 = countsFlows2[which(countsFlows2$n > 1), ]
-     browser() ### Debugging line
+     # browser() ### Debugging line
 
      # deletes all duplicate flows. we are left with rates that are unique
      uniqueFlows = countsFlows2[!duplicated(countsFlows2$rawFlows), ]
