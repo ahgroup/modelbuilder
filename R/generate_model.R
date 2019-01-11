@@ -46,6 +46,7 @@ generate_model <- function(input, values) {
         var[[n]]$flownames = allflowtext
     }
     dynmodel$var = var
+    browser()
 
     par = vector("list",values$npar)
     for (n in 1:values$npar)

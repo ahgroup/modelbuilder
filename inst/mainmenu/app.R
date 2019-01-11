@@ -257,7 +257,7 @@ server <- function(input, output, session) {
 
   #runs model simulation when 'run simulation' button is pressed
     observeEvent(input$submitBtn, {
-      browser()
+      # browser()
       #extract current model settings from UI input element
       modelsettings <- find_modelsettings( input = input, mbmodel = dynmbmodel() )
       #run model with specified settings
