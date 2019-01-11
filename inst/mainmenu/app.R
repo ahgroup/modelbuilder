@@ -34,10 +34,22 @@ server <- function(input, output, session) {
       #set number of variables/parameters/flows for loaded model (if one is loaded)
       if (exists("dynmbmodel()")) {
           values$nvar <- max(1, length(dynmbmodel()$var))
-          values$npar <- max(1,length(dynmbmodel()$par))
+          values$npar <- max(1, length(dynmbmodel()$par))
           for (n in 1:length(dynmbmodel()$var)) #set number of flows for each variable
           {
               values$nflow[n] = max(1, length(dynmbmodel()$var[[n]]$flows))
+              # Identified problem 9:50 AM, 01/11/2019. The problem is that
+              # all flows for a given variable go into a single list element,
+              # so 2 flows will be read as 1 flow, because both are in the same
+              # list element, and line 40 designates the number of flows for
+              # a given variable as the number of list elements. To fix this
+              # problem, I need to either create a separate list element for
+              # each flow (probably the best approach), or make this read the
+              # length of the elements *within* the list element, and extract
+              # each flow inside the element as separate entities.
+              #
+              # A question yet to be answered is, where is the second flow
+              # going? At what point is the model flow being assigned?
           }
           #generate_buildUI generates the output elements that make up the build UI for the model
           generate_buildUI(dynmbmodel(), output)
@@ -245,6 +257,7 @@ server <- function(input, output, session) {
 
   #runs model simulation when 'run simulation' button is pressed
     observeEvent(input$submitBtn, {
+      browser()
       #extract current model settings from UI input element
       modelsettings <- find_modelsettings( input = input, mbmodel = dynmbmodel() )
       #run model with specified settings
