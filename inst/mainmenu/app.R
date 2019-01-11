@@ -150,13 +150,14 @@ server <- function(input, output, session) {
   # })
 
   observeEvent(input$makemodel, {
-      # dynmbmodel <<- reactive({
-      #     browser()
-      #     mbmodel <- generate_model(input, values)
-      #     output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
-      #     return(mbmodel)
-      # })
-      dynmbmodel <- generate_model(input, values)
+      dynmbmodel <<- reactive({
+          # browser()
+          values$nvar <- 1
+          values$nflow <- 2
+          mbmodel <- generate_model(input, values)
+          output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
+          return(mbmodel)
+      })
       makeReactiveBinding("dynmbmodel()")
   })
 
