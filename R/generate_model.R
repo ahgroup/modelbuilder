@@ -13,7 +13,7 @@
 
 generate_model <- function(input, values) {
 
-
+    browser()
     #structure that holds the model
     dynmodel = list()
 
