@@ -16,21 +16,13 @@ server <- function(input, output, session) {
   #######################################################
   #######################################################
 
-  values = reactiveValues(dynmbmodel = NULL)
+  values = reactiveValues(dynmbmodel = NULL, nvar = 1, npar = 1,
+                          nflow = rep(1, 100))
 
     #when build tab is selected
     #generate the UI to either build a new model or
     #edit a loaded model
     observeEvent( input$alltabs == 'build', {
-
-      # dynmbmodel() ## This line makes sure the observe() statement updates with each new model
-      #keep track of number of variables/parameters/flows for model
-      #this is updated based on user pressing add/delete variables/parameters
-      #this is re-initialized if the underlying model changes
-      values$nvar <- 1
-      values$npar <- 1
-      values$nflow <- rep(1, 100) #number of flows for each variable, currently assuming model does not have more than 100 vars
-
       #set number of variables/parameters/flows for loaded model (if one is loaded)
       if (exists("dynmbmodel()")) {
           values$nvar <- max(1, length(dynmbmodel()$var))
@@ -38,31 +30,6 @@ server <- function(input, output, session) {
           for (n in 1:length(dynmbmodel()$var)) #set number of flows for each variable
           {
               values$nflow[n] = max(1, length(dynmbmodel()$var[[n]]$flows))
-              # Identified problem 9:50 AM, 01/11/2019. The problem is that
-              # all flows for a given variable go into a single list element,
-              # so 2 flows will be read as 1 flow, because both are in the same
-              # list element, and line 40 designates the number of flows for
-              # a given variable as the number of list elements. To fix this
-              # problem, I need to either create a separate list element for
-              # each flow (probably the best approach), or make this read the
-              # length of the elements *within* the list element, and extract
-              # each flow inside the element as separate entities.
-              #
-              # A question yet to be answered is, where is the second flow
-              # going? At what point is the model flow being assigned?
-              # The model flow is being assigned in generate_model.R.
-              #
-              # What it looks like is going on is this: values$nflow starts
-              # out as 1, and isn't being updated when the Add Flow button
-              # is pushed, which causes the generate_model() function to only
-              # see 1 flow and ignore the second. The thing I need to look
-              # into now is what the add flow function is doing, and how to
-              # get it so that it updates values$nflow.
-              #
-              # I think I have identified the problem: values$nflow takes
-              # the proper number of flows, but when values is accessed
-              # inside the reactive({}) environment in which dynmbmodel()
-              # is created, it reverts back to just 1.
           }
           #generate_buildUI generates the output elements that make up the build UI for the model
           generate_buildUI(dynmbmodel(), output)
@@ -129,31 +96,8 @@ server <- function(input, output, session) {
   #is not triggered when the event changes, only invalidated and triggered later
   #
 
-  # observeEvent(input$makemodel, {
-  #                            mbmodel <- generate_model(input, values)
-  #                            #errors <- check_model(model)
-  #                            # make and display equations
-  #                            output$equations =  renderUI( withMathJax(generate_equations(mbmodel) ) )
-  #                            # make and display plot
-  #                            #output$diagram = renderPlot( replayPlot(generate_diagram(mbmodel())) )
-  #                            #THIS DOES NOT WORK, dynmbmodel does not get updated as it should
-  #                            dynmbmodel <- mbmodel
-  #                            makeReactiveBinding("dynmbmodel")
-  #                            print(dynmbmodel()$title) ### Debugging line
-  #                            print(paste0("Analyze:", exists("dynmbmodel()"))) ### Debugging line
-  #                           })
-
-  # dynmbmodel <- observeEvent(input$makemodel, {
-  #     mbmodel <- generate_model(input, values)
-  #     output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
-  #     return(mbmodel)
-  # })
-
   observeEvent(input$makemodel, {
       dynmbmodel <<- reactive({
-          # browser()
-          values$nvar <- 1
-          values$nflow <- 2
           mbmodel <- generate_model(input, values)
           output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
           return(mbmodel)
