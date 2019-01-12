@@ -11,7 +11,6 @@
 
 generate_buildUI <- function(mbmodel, output)
 {
-
     output$buildmodel <- renderUI({
         fluidPage(
             p('General model information', class='mainsectionheader'),
@@ -93,7 +92,7 @@ generate_buildUI <- function(mbmodel, output)
                                                   textInput(paste0("var",n,"text"), "Variable description", value = mbmodel$var[[n]]$vartext)
                                            ),
                                            column(2,
-                                                  numericInput(paste0("Var",n,"val"), "Starting value", value = mbmodel$var[[n]]$varval)
+                                                  numericInput(paste0("var",n,"val"), "Starting value", value = mbmodel$var[[n]]$varval)
                                            )
                                  ),
                                  #loop over flows for each variable

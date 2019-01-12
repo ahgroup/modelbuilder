@@ -130,7 +130,6 @@ generate_stochastic <- function(mbmodel, location = NULL)
 
   #deleting "NA"s from the dataframe
   dfRates = na.omit(cbind(rep(varnames, ncol(flowmat)), dfRates))
-
   #extracting coefficient from the rates/flows
   dfRates$coef = paste(substr(dfRates$`c(flowmat)`,1,1), "1", sep = "")
 
@@ -183,6 +182,7 @@ generate_stochastic <- function(mbmodel, location = NULL)
 
      # new dataset of only flows where it appears more than once
      countsFlowsGT1 = countsFlows2[which(countsFlows2$n > 1), ]
+     # browser() ### Debugging line
 
      # deletes all duplicate flows. we are left with rates that are unique
      uniqueFlows = countsFlows2[!duplicated(countsFlows2$rawFlows), ]
@@ -197,7 +197,7 @@ generate_stochastic <- function(mbmodel, location = NULL)
      #  extract coefficient of those rates from the first compartment to the next in "trans" variable
      # if line not read by loop, replace it by a NA
 
-     for (i in seq(from = 1, to = nrow(countsFlowsGT1)-1, by = 2)){
+     for (i in seq(from = 1, to = (nrow(countsFlowsGT1) - 1), by = 2)) {
 
        countsFlowsGT1$trans[i] = paste0("c(", countsFlowsGT1$variable[i], " = ", countsFlowsGT1$coefs[i], ",",
                                         countsFlowsGT1$variable[i+1], " = ", countsFlowsGT1$coefs[i+1], ")")

@@ -12,7 +12,6 @@
 
 generate_shinyinput <- function(mbmodel, otherinputs = NULL, output)
 {
-
     ###########################################
     #create UI elements as input/output for the shiny app
 
