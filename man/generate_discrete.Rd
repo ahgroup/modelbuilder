@@ -9,7 +9,7 @@ generate_discrete(mbmodel, location = NULL)
 \arguments{
 \item{mbmodel}{modelbuilder model structure, either as list object or Rdata file name}
 
-\item{location}{a path/folder to save the simulation code to. Default is current directory}
+\item{location}{a filename and path to save the simulation code to. Default is current directory}
 }
 \value{
 The function does not return anything

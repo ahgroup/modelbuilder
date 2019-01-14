@@ -67,7 +67,7 @@ generate_shinyinput <- function(mbmodel, otherinputs = NULL, output)
     output$standard <- renderUI({
         tagList(
             numericInput("nreps", "Number of simulations", min = 1, max = 50, value = 1, step = 1),
-            selectInput("modeltype", "Model to run",c("ODE" = "ode", 'stochastic' = 'stochastic', 'discrete time' = 'discrete'), selected = 'ode'),
+            selectInput("modeltype", "Model to run",c("ODE" = "_ode_", 'stochastic' = '_stochastic_', 'discrete time' = '_discrete_'), selected = '_ode_'),
             numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
             selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both"))
             ) #end taglist

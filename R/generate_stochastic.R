@@ -9,7 +9,7 @@
 #' if the user provides an Rdata file name, this file needs to contain an object called 'model'
 #' and contain a valid modelbuilder model structure
 #' @param mbmodel a modelbuilder model structure, either as list object or Rdata file name
-#' @param location a path/folder to save the simulation code to. Default is current directory
+#' @param location a filename and path to save the simulation code to. Default is current directory
 #' @return The function does not return anything
 #' Instead, it writes an R file into the specified directory
 #' the name of the file is simulate_model$title_adaptivetau.R
@@ -24,11 +24,16 @@ generate_stochastic <- function(mbmodel, location = NULL)
   #otherwise, it is assumed that 'model' is a list structure of the right type
   if(is.character(mbmodel)) {load(mbmodel)}
 
-  #the name of the function produced by this script is simulate_ + "model title" + "_stochastic.R"
-  savepath <- location #default is current directory for saving the R function
-
   #if location is supplied, that's where the code will be saved to
-  # if (!is.null(location)) {savepath = paste0(location,'/',filename)}
+  if (is.null(location))
+  {
+    savepath = paste0("./simulate_",gsub(" ","_",mbmodel$title),"_stochastic.R")
+  }
+  else
+  {
+    #the name of the function produced by this script is simulate_ + "model title" + "_ode.R"
+    savepath <- location #default is current directory for saving the R function
+  }
 
   #the name of the function produced by this script is  "model title" + "_stochastic.R"
   nvars = length(mbmodel$var)  #number of variables/compartments in model
@@ -59,9 +64,8 @@ generate_stochastic <- function(mbmodel, location = NULL)
   {
     sdesc=paste0(sdesc,"#' @param ", mbmodel$time[[n]]$timename," ", mbmodel$time[[n]]$timetext, "\n")
   }
-
-
   sdesc=paste0(sdesc,"#' } \n")
+  sdesc=paste0(sdesc,"#' @param rngseed random number seed for simulator \n")
   sdesc=paste0(sdesc,"#' @return The function returns the output as a list. \n")
   sdesc=paste0(sdesc,"#' The time-series from the simulation is returned as a dataframe saved as list element \n")
   sdesc=paste0(sdesc,"#' @examples  \n")
@@ -225,9 +229,10 @@ generate_stochastic <- function(mbmodel, location = NULL)
 
 
 
-  stitle = paste0("simulate_",modeltitle,"_stochastic <- function(",varstring, parstring, timestring,') \n { \n')
+  stitle = paste0("simulate_",modeltitle,"_stochastic <- function(",varstring, parstring, timestring,', rngseed = 123) \n { \n')
 
   smain = "\n\n"
+  smain = paste0(smain, ' set.seed(rngseed) #set random number seed for reproducibility \n')
   smain = paste0(smain,'  #this line runs the simulation using the SSA algorithm in the adaptivetau package \n')
   smain = paste0(smain,'  odeout = adaptivetau::ssa.adaptivetau(init.values = vars, transitions = transitions,
                 \t \t \t rateFunc = ',gsub(" ","_",mbmodel$title),'_ode, params = pars, tf = times[2]) \n')

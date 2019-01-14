@@ -21,7 +21,9 @@
 
 analyze_model <- function(modelsettings, mbmodel) {
 
+  #################################################
   #if not present, create code for all 3 simulators
+
   #temporary directory and files
   tempdir = tempdir()
   filename_ode=paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode.R")
@@ -36,15 +38,15 @@ analyze_model <- function(modelsettings, mbmodel) {
   #if not present, create code for all 3 simulators
   if (!exists(file_ode)) #check if function/code is available, if not generate
   {
-      modelbuilder::generate_ode(mbmodel = mbmodel, location = file_ode)
+    modelbuilder::generate_ode(mbmodel = mbmodel, location = file_ode)
   }
   if (!exists(file_discrete))
   {
-      modelbuilder::generate_discrete(mbmodel = mbmodel, location = file_discrete)
+    modelbuilder::generate_discrete(mbmodel = mbmodel, location = file_discrete)
   }
   if (!exists(file_stochastic))
   {
-      modelbuilder::generate_stochastic(mbmodel = mbmodel, location = file_stochastic)
+    modelbuilder::generate_stochastic(mbmodel = mbmodel, location = file_stochastic)
   }
   #source files
   source(file_ode)
@@ -52,42 +54,133 @@ analyze_model <- function(modelsettings, mbmodel) {
   source(file_stochastic)
 
 
+  datall = NULL #will hold data for all different models and replicates
+
+  ##################################
+  #stochastic dynamical model execution
+  ##################################
+  if (grepl('_stochastic_',modelsettings$modeltype))
+  {
+    modelsettings$currentmodel = 'stochastic'
+    currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic")
+    for (nn in 1:modelsettings$nreps)
+    {
+      #extract modeslettings inputs needed for simulator function
+      x = names(formals(currentmodel)$vars); x = x[x!=""] #get rid of empty element
+      varargs = modelsettings[match(x, names(unlist(modelsettings)))]
+      x = names(formals(currentmodel)$pars); x = x[x!=""] #get rid of empty element
+      parargs = modelsettings[match(x, names(unlist(modelsettings)))]
+      x = names(formals(currentmodel)$times); x = x[x!=""] #get rid of empty element
+      timeargs = modelsettings[match(x, names(unlist(modelsettings)))]
+      currentargs = list(vars = unlist(varargs), pars = unlist(parargs), time = unlist(timeargs), rngseed = modelsettings$rngseed)
+      simresult <- do.call(currentmodel, args = currentargs)
+      #data for plots and text
+      #needs to be in the right format to be passed to generate_plots and generate_text
+      #see documentation for those functions for details
+      simresult <- simresult$ts
+      colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
+      #reformat data to be in the right format for plotting
+      dat = tidyr::gather(as.data.frame(simresult), -xvals, value = "yvals", key = "varnames")
+      dat$IDvar = paste(dat$varnames,nn,sep='') #make a variable for plotting same color lines for each run in ggplot2
+      dat$nreps = nn
+      datall = rbind(datall,dat)
+      modelsettings$rngseed = modelsettings$rngseed + 1 #need to update RNG seed each time to get different runs
+    }
+  }
+
+  ##################################
+  #ode dynamical model execution
+  ##################################
+  if (grepl('_ode_',modelsettings$modeltype)) #need to always start with ode_ in model specification
+  {
+    modelsettings$currentmodel = 'ode'
+    currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode")
+    #extract modesettings inputs needed for simulator function
+    x = names(formals(currentmodel)$vars); x = x[x!=""] #get rid of empty element
+    varargs = modelsettings[match(x, names(unlist(modelsettings)))]
+    x = names(formals(currentmodel)$pars); x = x[x!=""] #get rid of empty element
+    parargs = modelsettings[match(x, names(unlist(modelsettings)))]
+    x = names(formals(currentmodel)$times); x = x[x!=""] #get rid of empty element
+    timeargs = modelsettings[match(x, names(unlist(modelsettings)))]
+    currentargs = list(vars = unlist(varargs), pars = unlist(parargs), time = unlist(timeargs))
+
+    simresult <- do.call(currentmodel, args = currentargs)
+
+    simresult <- simresult$ts
+    if (grepl('_and_',modelsettings$modeltype)) #this means ODE model is run with another one, relabel variables to indicate ODE
+    {
+      colnames(simresult) = paste0(colnames(simresult),'_ode')
+    }
+    colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
+    #reformat data to be in the right format for plotting
+    dat = tidyr::gather(as.data.frame(simresult), -xvals, value = "yvals", key = "varnames")
+    dat$IDvar = dat$varnames #make variables in case data is combined with stochastic runs. not used for ode.
+    dat$nreps = 1
+    datall = rbind(datall,dat)
+  }
+
+
+  ##################################
+  #discrete dynamical model execution
+  ##################################
+  if (grepl('_discrete_',modelsettings$modeltype))
+  {
+    modelsettings$currentmodel = 'discrete'
+    currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete")
+    #extract modeslettings inputs needed for simulator function
+    x = names(formals(currentmodel)$vars); x = x[x!=""] #get rid of empty element
+    varargs = modelsettings[match(x, names(unlist(modelsettings)))]
+    x = names(formals(currentmodel)$pars); x = x[x!=""] #get rid of empty element
+    parargs = modelsettings[match(x, names(unlist(modelsettings)))]
+    x = names(formals(currentmodel)$times); x = x[x!=""] #get rid of empty element
+    timeargs = modelsettings[match(x, names(unlist(modelsettings)))]
+    currentargs = list(vars = unlist(varargs), pars = unlist(parargs), time = unlist(timeargs))
+    simresult <- do.call(currentmodel, args = currentargs)
+    simresult <- simresult$ts
+    colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
+    #reformat data to be in the right format for plotting
+    dat = tidyr::gather(as.data.frame(simresult), -xvals, value = "yvals", key = "varnames")
+    dat$IDvar = dat$varnames #make variables in case data is combined with stochastic runs. not used for discrete.
+    dat$nreps = 1
+    datall = rbind(datall,dat)
+  }
+
+
+  ##################################
+  #take data from all simulations and turn into list structure format
+  #needed to generate plots and text
+  #this applies to simulators that run dynamical models
+  #other simulation functions need output processed differently and will overwrite some of these settings
+  #each other simulator function has its own code block below
+  ##################################
+
   #save all results to a list for processing plots and text
   listlength = 1
   #here we do all simulations in the same figure
   result = vector("list", listlength) #create empty list of right size for results
 
-  #run simulation by executing the function call
-  #the generate_fctcall creates a function call to the specified model based on the given model settings
-  fctcall <- modelbuilder::generate_fctcall(modelsettings = modelsettings, mbmodel = mbmodel)
-  set.seed(modelsettings$rngseed) #set RNG seed specified by the settings before executing function call
+  ##################################
+  #default for text display, used by most basic simulation models
+  #can/will be potentially overwritten below for specific types of models
+  ##################################
 
-  #single model execution
-  if (modelsettings$nreps == 1 | modelsettings$modeltype == 'ode' | modelsettings$modeltype == 'discrete')
-  {
-    eval(parse(text = fctcall)) #execute function, result is returned in 'result' object
-    result[[1]]$dat = simresult$ts
-  }
+  result[[1]]$maketext = TRUE #indicate if we want the generate_text function to process data and generate text
+  result[[1]]$showtext = NULL #text can be added here which will be passed through to generate_text and displayed for EACH plot
+  result[[1]]$finaltext = 'Numbers are rounded to 2 significant digits.' #text can be added here which will be passed through to generate_text and displayed once
 
-  #loop over multiple runs (only leads to potential differences for stochastic model)
-  if (modelsettings$nreps > 1 & modelsettings$modeltype == 'stochastic')
+  ##################################
+  #additional settings for all types of simulators
+  ##################################
+
+  result[[1]]$dat = datall
+
+  #set min and max for scales. If not provided ggplot will auto-set
+  if (!is.null(datall))
   {
-    datall = NULL
-    for (nn in 1:modelsettings$nreps)
-    {
-    eval(parse(text = fctcall)) #execute function, result is returned in 'result' object
-    #data for plots and text
-    #needs to be in the right format to be passed to generate_plots and generate_text
-    #see documentation for those functions for details
-    simresult <- simresult$ts
-    colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
-    #reformat data to be in the right format for plotting
-    dat = tidyr::gather(as.data.frame(simresult), -xvals, value = "yvals", key = "varnames")
-    dat$IDvar = paste(dat$varnames,nn,sep='') #make a variable for plotting same color lines for each run in ggplot2
-    dat$nreps = nn
-    datall = rbind(datall,dat)
-    }
-    result[[1]]$dat = datall
+    result[[1]]$ymin = 0.1
+    result[[1]]$ymax = max(datall$yvals) #max of all variables ignoring time
+    result[[1]]$xmin = 1e-12
+    result[[1]]$xmax = max(datall$xvals)
   }
 
   #Meta-information for each plot
@@ -98,13 +191,10 @@ analyze_model <- function(modelsettings, mbmodel) {
   result[[1]]$legend = "Compartments"
 
   plotscale = modelsettings$plotscale
-
   result[[1]]$xscale = 'identity'
   result[[1]]$yscale = 'identity'
   if (plotscale == 'x' | plotscale == 'both') { result[[1]]$xscale = 'log10'}
   if (plotscale == 'y' | plotscale == 'both') { result[[1]]$yscale = 'log10'}
-
-  result[[1]]$maketext = TRUE #if true we want the generate_text function to process data and generate text, if 0 no result processing will occur inside generate_text
 
   return(result)
 }

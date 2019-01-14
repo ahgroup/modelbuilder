@@ -24,7 +24,8 @@ server <- function(input, output, session) {
     #edit a loaded model
     observeEvent( input$alltabs == 'build', {
       #set number of variables/parameters/flows for loaded model (if one is loaded)
-      if (exists("dynmbmodel()")) {
+      if ( !is.null(dynmbmodel() ) )
+      {
           values$nvar <- max(1, length(dynmbmodel()$var))
           values$npar <- max(1, length(dynmbmodel()$par))
           for (n in 1:length(dynmbmodel()$var)) #set number of flows for each variable
@@ -33,11 +34,13 @@ server <- function(input, output, session) {
           }
           #generate_buildUI generates the output elements that make up the build UI for the model
           generate_buildUI(dynmbmodel(), output)
-      } else if (!exists("dynmbmodel()")) {
+      }
+      else
+      {
           null_model <- reactive({load_model(NULL)})
           generate_buildUI(null_model(), output)
       }
-    }) #end observe for build UI construction
+    }) #end observe for build UI setup
 
 
   #add a new variable
@@ -148,17 +151,13 @@ server <- function(input, output, session) {
   observeEvent( input$alltabs == 'analyze', {
 
     # dynmbmodel() ## This line makes sure the observe() statement updates with each new model
-
     #if no model has been loaded yet, display a message
-    if (!exists("dynmbmodel()"))
+    if (is.null(dynmbmodel() ))
     {
       output$analyzemodel <- renderUI({h1('Please load a model')})
       return()
     }
-
-
-    #produce Shiny input UI elements for the model.
-    if (exists("dynmbmodel()"))
+    else
     {
         generate_shinyinput(dynmbmodel(), otherinputs = NULL, output)
     }
@@ -166,7 +165,6 @@ server <- function(input, output, session) {
     output$text = NULL
     output$plot = NULL
 
-    # Previously was output$modelinput
     output$analyzemodel <- renderUI({
       fluidPage(
           #section to add buttons
@@ -216,11 +214,14 @@ server <- function(input, output, session) {
 
   #runs model simulation when 'run simulation' button is pressed
     observeEvent(input$submitBtn, {
-      # browser()
-      #extract current model settings from UI input element
-      modelsettings <- find_modelsettings( input = input, mbmodel = dynmbmodel() )
+
+      #extract current model settings from UI input elements
+      modelsettings = isolate(reactiveValuesToList(input)) #get all shiny inputs
+
+      #modelsettings2 <- find_modelsettings( input = input, mbmodel = dynmbmodel() )
+      #browser()
+
       #run model with specified settings
-      set.seed(modelsettings$rngseed) #set rngseed
       #run simulation, show a 'running simulation' message
       result <- withProgress(message = 'Running Simulation',
                    detail = "This may take a while", value = 0,
@@ -257,9 +258,9 @@ server <- function(input, output, session) {
     #######################################################
     #load a model
 
-    # dynmbmodel <- reactive({load_model(input$currentmodel)}) # Original
-    dynmbmodel <- reactive({load_model(NULL)})
-    makeReactiveBinding("dynmbmodel()")
+    dynmbmodel <- reactive({load_model(input$currentmodel)}) # Original
+    #dynmbmodel <- reactive({load_model(NULL)})
+    #makeReactiveBinding("dynmbmodel()")
 
     # observeEvent(input$currentmodel, {
     #     dynmbmodel <- reactive({load_model(input$currentmodel)})
@@ -288,8 +289,7 @@ server <- function(input, output, session) {
     #shinyjs::disable("exportrxode")
     #if a model is loaded turn on the buttons
     observe({
-      # if (!is.null(dynmbmodel()$title))
-      if (exists("dynmbmodel()"))
+      if (!is.null(dynmbmodel() ))
       {
         shinyjs::enable(id = "exportode")
         shinyjs::enable("exportstochastic")
