@@ -4,20 +4,13 @@
 server <- function(input, output, session) {
 
 
-  #test code to supply additional inputs
-#  testinput <- tagList(
-#    numericInput("testnreps", "Test Number of simulations", min = 1, max = 50, value = 1, step = 1),
-#    selectInput("testmodeltype", "Test Model to run",c("ODE" = "ode", 'discrete time' = 'discrete'), selected = 'ode')  ) #end taglist
+  values = reactiveValues(dynmbmodel = NULL, nvar = 1, npar = 1,
+                          nflow = rep(1, 100))
 
 
-  #######################################################
   #######################################################
   #start code blocks that contain the build functionality
   #######################################################
-  #######################################################
-
-  values = reactiveValues(dynmbmodel = NULL, nvar = 1, npar = 1,
-                          nflow = rep(1, 100))
 
     #when build tab is selected
     #generate the UI to either build a new model or
@@ -115,24 +108,25 @@ server <- function(input, output, session) {
   #especially since the equivalent code for exporting the functions below works
   #https://stackoverflow.com/questions/23036739/downloading-rdata-files-with-shiny
 
-   # observe({
-   #     if(!is.null(dynmbmodel()))
-   #         isolate(
-   #           tmpmodel <<- dynmbmodel()
-   #         )
-   # })
 
-  # # writes model to Rdata file
-  # output$savemodel <- downloadHandler(
-  #     filename = function() {
-  #         paste0(gsub(" ","_",tmpmodel$title),".Rdata")
-  #     },
-  #     content = function(file) {
-  #         stopifnot(!is.null(tmpmodel))
-  #         save(mbmodel = tmpmodel, file = file)
-  #     },
-  #     contentType = "text/plain"
-  # )
+    observe({
+        if(!is.null(dynmbmodel()))
+            isolate(
+              tmpmodel <<- dynmbmodel()
+            )
+    })
+
+  # writes model to Rdata file
+   output$savemodel <- downloadHandler(
+       filename = function() {
+           paste0(gsub(" ","_",tmpmodel$title),".Rdata")
+       },
+       content = function(file) {
+           stopifnot(!is.null(tmpmodel))
+           save(mbmodel = tmpmodel, file = file)
+       },
+       contentType = "text/plain"
+   )
 
 
 
@@ -273,9 +267,10 @@ server <- function(input, output, session) {
     # NOT WORKING
     #######################################################
 
-    # observeEvent(input$clearmodel, {
-    #   dynmbmodel <- reactive({load_model(NULL)})
-    # })
+    observeEvent(input$clearmodel, {
+       dynmbmodel <- reactive({load_model(NULL)})
+       makeReactiveBinding("dynmbmodel()")
+    })
 
     #######################################################
     #start code blocks that contain the import/export functionality
