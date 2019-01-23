@@ -1,7 +1,9 @@
 #This is the Shiny App for the main menu of the modelbuilder package
 
+packagename = "modelbuilder"
+
 #make this a non-reactive global variable
-dynmbmodel = NULL
+mbmodel = NULL
 
 #this function is the server part of the app
 server <- function(input, output, session) {
@@ -19,21 +21,21 @@ server <- function(input, output, session) {
   #edit a loaded model
   observeEvent( input$alltabs == 'build', {
     #set number of variables/parameters/flows for loaded model (if one is loaded)
-    if ( !is.null(dynmbmodel ) )
+    if ( !is.null(mbmodel ) )
     {
-      values$nvar <- max(1, length(dynmbmodel$var))
-      values$npar <- max(1, length(dynmbmodel$par))
-      for (n in 1:length(dynmbmodel$var)) #set number of flows for each variable
+      values$nvar <- max(1, length(mbmodel$var))
+      values$npar <- max(1, length(mbmodel$par))
+      for (n in 1:length(mbmodel$var)) #set number of flows for each variable
       {
-        values$nflow[n] = max(1, length(dynmbmodel$var[[n]]$flows))
+        values$nflow[n] = max(1, length(mbmodel$var[[n]]$flows))
       }
       #generate_buildUI generates the output elements that make up the build UI for the model
-      generate_buildUI(dynmbmodel, output)
+      generate_buildUI(mbmodel, output)
     }
     else
     {
-      null_model <- reactive({load_model(NULL)})
-      generate_buildUI(null_model(), output)
+      #null_model <- reactive({load_model(NULL)})
+      generate_buildUI(NULL, output)
     }
   }) #end observe for build UI setup
 
@@ -88,22 +90,24 @@ server <- function(input, output, session) {
   #another function checks the created model object for errors
   #if errors are present, user will be informed and function stops
   #if no errors, equations and diagram will be displayed
-  #and the new model will replace the current model stored in dynmbmodel
+  #and the new model will replace the current model stored in mbmodel
 
   observeEvent(input$makemodel, {
-      mbmodel <- generate_model(input, values)
+      mbmodel <<- generate_model(input, values)
       output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
-      dynmbmodel <<- mbmodel
+      shinyjs::enable(id = "exportode")
+      shinyjs::enable("exportstochastic")
+      shinyjs::enable("exportdiscrete")
   })
 
   # writes model to Rdata file
   output$savemodel <- downloadHandler(
     filename = function() {
-      paste0(gsub(" ","_",dynmbmodel$title),".Rdata")
+      paste0(gsub(" ","_",mbmodel$title),".Rdata")
     },
     content = function(file) {
-      stopifnot(!is.null(dynmbmodel))
-      save(mbmodel = dynmbmodel, file = file)
+      stopifnot(!is.null(mbmodel))
+      save(mbmodel, file = file)
     },
     contentType = "text/plain"
   )
@@ -125,14 +129,14 @@ server <- function(input, output, session) {
   observeEvent( input$alltabs == 'analyze', {
 
     #if no model has been loaded yet, display a message
-    if (is.null(dynmbmodel ))
+    if (is.null(mbmodel ))
     {
       output$analyzemodel <- renderUI({h1('Please load a model')})
       return()
     }
     else
     {
-      generate_shinyinput(dynmbmodel, otherinputs = NULL, output)
+      generate_shinyinput(mbmodel, otherinputs = NULL, output)
     }
     #set output to empty
     output$text = NULL
@@ -190,13 +194,13 @@ server <- function(input, output, session) {
 
     #extract current model settings from UI input elements
     modelsettings = isolate(reactiveValuesToList(input)) #get all shiny inputs
-
+    #browser()
     #run model with specified settings
     #run simulation, show a 'running simulation' message
     result <- withProgress(message = 'Running Simulation',
                            detail = "This may take a while", value = 0,
                            {
-                             analyze_model(modelsettings = modelsettings, mbmodel = dynmbmodel )
+                             analyze_model(modelsettings = modelsettings, mbmodel = mbmodel )
                            })
     #create plot from results
     output$plot  <- renderPlot({
@@ -228,20 +232,26 @@ server <- function(input, output, session) {
   #######################################################
   #load a model
   observeEvent(input$currentmodel, {
-       dynmbmodel <<- load_model(input$currentmodel)
+       mbmodel <<- load_model(input$currentmodel)
+       shinyjs::enable(id = "exportode")
+       shinyjs::enable("exportstochastic")
+       shinyjs::enable("exportdiscrete")
   })
 
   #check that the loaded file is a proper modelbuilder model.
   #NOT WORKING
-  #errors <- check_model(dynmbmodel)
+  #errors <- check_model(mbmodel)
 
   #######################################################
   #clear a loaded model
   #not working
   #######################################################
   observeEvent(input$clearmodel, {
-    #dynmbmodel <- load_model(NULL)
-    dynmbmodel <<- NULL
+    shinyjs::reset(id  = "currentmodel")
+    shinyjs::disable(id = "exportode")
+    shinyjs::disable("exportstochastic")
+    shinyjs::disable("exportdiscrete")
+    mbmodel <<- NULL
   })
 
   #######################################################
@@ -250,60 +260,42 @@ server <- function(input, output, session) {
 
   # these lines of code turn the export options off
   # and only if a model has been loaded will they turn on
-  shinyjs::disable(id = "exportode")
-  shinyjs::disable("exportstochastic")
-  shinyjs::disable("exportdiscrete")
-  #shinyjs::disable("exportrxode")
-  #if a model is loaded turn on the buttons
-  observe({
-    if (!is.null(dynmbmodel) )
-    {
-      shinyjs::enable(id = "exportode")
-      shinyjs::enable("exportstochastic")
-      shinyjs::enable("exportdiscrete")
-      # shinyjs::enable("exportrxode")
-    }
-  })
+  if (is.null(mbmodel))
+  {
+    shinyjs::disable(id = "exportode")
+    shinyjs::disable("exportstochastic")
+    shinyjs::disable("exportdiscrete")
+  }
 
   output$exportode <- downloadHandler(
     filename = function() {
-      paste0("simulate_",gsub(" ","_",dynmbmodel$title),"_ode.R")
+      paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode.R")
     },
     content = function(file) {
-      generate_ode(mbmodel = dynmbmodel, location = file)
+      generate_ode(mbmodel = mbmodel, location = file)
     },
     contentType = "text/plain"
   )
 
   output$exportstochastic <- downloadHandler(
     filename = function() {
-      paste0("simulate_",gsub(" ","_",dynmbmodel$title),"_stochastic.R")
+      paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic.R")
     },
     content = function(file) {
-      generate_stochastic(mbmodel = dynmbmodel, location = file)
+      generate_stochastic(mbmodel = mbmodel, location = file)
     },
     contentType = "text/plain"
   )
 
   output$exportdiscrete <- downloadHandler(
     filename = function() {
-      paste0("simulate_",gsub(" ","_",dynmbmodel$title),"_discrete.R")
+      paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete.R")
     },
     content = function(file) {
-      generate_discrete(mbmodel = dynmbmodel, location = file)
+      generate_discrete(mbmodel = mbmodel, location = file)
     },
     contentType = "text/plain"
   )
-
-  # output$exportrxode <- downloadHandler(
-  #     filename = function() {
-  #         paste0("simulate_",gsub(" ","_",dynmbmodel()$title),"_rxode.R")
-  #     },
-  #     content = function(file) {
-  #         generate_rxode(mbmodel = dynmbmodel(), location = file)
-  #     },
-  #     contentType = "text/plain"
-  # )
 
   #######################################################
   #end code blocks that contain the import/export functionality
@@ -354,12 +346,11 @@ server <- function(input, output, session) {
 #This is the UI for the Main Menu of modelbuilder
 ui <- fluidPage(
   shinyjs::useShinyjs(),
-  includeCSS("../media/modelbuilder.css"),
-  #add header and title
-  tags$div( includeHTML("../media/header.html"), align = "center"),
-  p(paste('This is modelbuilder version ',utils::packageVersion("modelbuilder"),' last updated ', utils::packageDescription('modelbuilder')$Date,sep=''), class='infotext'),
+  includeCSS("../media/packagestyle.css"),
+  tags$div(id = "shinyheadertitle", "modelbuilder - Graphical building and analysis of simulation models"),
+  tags$div(id = "infotext", paste0('This is ', packagename,  'version ',utils::packageVersion(packagename),' last updated ', utils::packageDescription(packagename)$Date,'.')),
+  tags$div(id = "infotext", "Written and maintained by", a("Andreas Handel", href="http://handelgroup.uga.edu", target="_blank"), "with many contributions from", a("others.",  href="https://github.com/ahgroup/modelbuilder#contributors", target="_blank")),
   p('Have fun building and analyzing models!', class='maintext'),
-
   navbarPage(title = "modelbuilder", id = 'alltabs', selected = "main",
              tabPanel(title = "Main", value = "main",
                       fluidRow(
@@ -435,8 +426,16 @@ ui <- fluidPage(
                       ) #close fluidRow structure for input
              ) #close "Analyze" tab
   ), #close NavBarPage
-
-  div(includeHTML("../media/footer.html"), align="center", style="font-size:small") #footer
+  tagList( hr(),
+           p('All text and figures are licensed under a ',
+             a("Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.", href="http://creativecommons.org/licenses/by-nc-sa/4.0/", target="_blank"),
+             'Software/Code is licensed under ',
+             a("GPL-3.", href="https://www.gnu.org/licenses/gpl-3.0.en.html" , target="_blank")
+             ,
+             br(),
+             "The development of this package was partially supported by NIH grant U19AI117891.",
+             align = "center", style="font-size:small") #end paragraph
+  )
 ) #end fluidpage
 
 shinyApp(ui = ui, server = server)

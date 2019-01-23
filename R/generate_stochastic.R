@@ -133,12 +133,12 @@ generate_stochastic <- function(mbmodel, location = NULL)
   dfRates = as.data.frame(c(flowmat))
 
   #deleting "NA"s from the dataframe
-  dfRates = na.omit(cbind(rep(varnames, ncol(flowmat)), dfRates))
+  dfRates = stats::na.omit(cbind(rep(varnames, ncol(flowmat)), dfRates))
   #extracting coefficient from the rates/flows
   dfRates$coef = paste(substr(dfRates$`c(flowmat)`,1,1), "1", sep = "")
 
   #new variable of raw flows with no coefficients
-  dfRates$noCoefs = na.omit(c(flowmatred))
+  dfRates$noCoefs = stats::na.omit(c(flowmatred))
 
   #renaming variables in dataframe
   names(dfRates) = c("variable", "flows", "coefs", "rawFlows")
@@ -147,8 +147,11 @@ generate_stochastic <- function(mbmodel, location = NULL)
   dfRates = dfRates[order(dfRates$rawFlows),]
 
   #count() creates dataframe of raw flows and number of times they occur in the model
-  countsFlows = dplyr::count(dfRates, rawFlows)
+  #countsFlows = dplyr::count(dfRates, dfRates$rawFlows)
   rownames(dfRates) = c()
+
+  countsFlows = data.frame(table(dfRates$rawFlows))
+  colnames(countsFlows) = c('rawFlows','n')
 
   # ordering flows by number of occurences
   countsFlows1 = countsFlows[order(-countsFlows$n),]
@@ -186,7 +189,7 @@ generate_stochastic <- function(mbmodel, location = NULL)
 
      # new dataset of only flows where it appears more than once
      countsFlowsGT1 = countsFlows2[which(countsFlows2$n > 1), ]
-     # browser() ### Debugging line
+     #browser() ### Debugging line
 
      # deletes all duplicate flows. we are left with rates that are unique
      uniqueFlows = countsFlows2[!duplicated(countsFlows2$rawFlows), ]
@@ -200,16 +203,14 @@ generate_stochastic <- function(mbmodel, location = NULL)
      # in dataframe where rates that appear more than once, read every other line
      #  extract coefficient of those rates from the first compartment to the next in "trans" variable
      # if line not read by loop, replace it by a NA
-
-     for (i in seq(from = 1, to = (nrow(countsFlowsGT1) - 1), by = 2)) {
-
-       countsFlowsGT1$trans[i] = paste0("c(", countsFlowsGT1$variable[i], " = ", countsFlowsGT1$coefs[i], ",",
-                                        countsFlowsGT1$variable[i+1], " = ", countsFlowsGT1$coefs[i+1], ")")
-
+    if (nrow(countsFlowsGT1)>0)
+    {
+     for (i in seq(from = 1, to = (nrow(countsFlowsGT1) - 1), by = 2))
+       {
+       countsFlowsGT1$trans[i] = paste0("c(", countsFlowsGT1$variable[i], " = ", countsFlowsGT1$coefs[i], ",", countsFlowsGT1$variable[i+1], " = ", countsFlowsGT1$coefs[i+1], ")")
        countsFlowsGT1$trans[i+1] = NA
-
      }
-
+    }
 
     # sort the unique flows in decreasing number of appearence
      uniqueFlows = uniqueFlows[order(-uniqueFlows$n), ]

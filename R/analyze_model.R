@@ -65,13 +65,16 @@ analyze_model <- function(modelsettings, mbmodel) {
     currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic")
     for (nn in 1:modelsettings$nreps)
     {
-      #extract modeslettings inputs needed for simulator function
+      modinput = unlist(modelsettings)
       x = names(formals(currentmodel)$vars); x = x[x!=""] #get rid of empty element
-      varargs = modelsettings[match(x, names(unlist(modelsettings)))]
+      x2 = match(x, names(modinput))
+      varargs = modinput[x2]
       x = names(formals(currentmodel)$pars); x = x[x!=""] #get rid of empty element
-      parargs = modelsettings[match(x, names(unlist(modelsettings)))]
+      x2 = match(x, names(modinput))
+      parargs = modinput[x2]
       x = names(formals(currentmodel)$times); x = x[x!=""] #get rid of empty element
-      timeargs = modelsettings[match(x, names(unlist(modelsettings)))]
+      x2 = match(x, names(modinput))
+      timeargs = modinput[x2]
       currentargs = list(vars = unlist(varargs), pars = unlist(parargs), time = unlist(timeargs), rngseed = modelsettings$rngseed)
       simresult <- do.call(currentmodel, args = currentargs)
       #data for plots and text
@@ -96,16 +99,19 @@ analyze_model <- function(modelsettings, mbmodel) {
     modelsettings$currentmodel = 'ode'
     currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode")
     #extract modesettings inputs needed for simulator function
+    modinput = data.frame(modelsettings)
     x = names(formals(currentmodel)$vars); x = x[x!=""] #get rid of empty element
-    varargs = modelsettings[match(x, names(unlist(modelsettings)))]
+    x2 = match(x, names(modinput))
+    varargs = modinput[x2]
     x = names(formals(currentmodel)$pars); x = x[x!=""] #get rid of empty element
-    parargs = modelsettings[match(x, names(unlist(modelsettings)))]
+    x2 = match(x, names(modinput))
+    parargs = modinput[x2]
     x = names(formals(currentmodel)$times); x = x[x!=""] #get rid of empty element
-    timeargs = modelsettings[match(x, names(unlist(modelsettings)))]
-    currentargs = list(vars = unlist(varargs), pars = unlist(parargs), time = unlist(timeargs))
-
+    x2 = match(x, names(modinput))
+    timeargs = modinput[x2]
+    currentargs = list(vars = data.frame(varargs), pars = data.frame(parargs), time = data.frame(timeargs))
+    browser()
     simresult <- do.call(currentmodel, args = currentargs)
-
     simresult <- simresult$ts
     if (grepl('_and_',modelsettings$modeltype)) #this means ODE model is run with another one, relabel variables to indicate ODE
     {
@@ -128,12 +134,16 @@ analyze_model <- function(modelsettings, mbmodel) {
     modelsettings$currentmodel = 'discrete'
     currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete")
     #extract modeslettings inputs needed for simulator function
+    modinput = unlist(modelsettings)
     x = names(formals(currentmodel)$vars); x = x[x!=""] #get rid of empty element
-    varargs = modelsettings[match(x, names(unlist(modelsettings)))]
+    x2 = match(x, names(modinput))
+    varargs = modinput[x2]
     x = names(formals(currentmodel)$pars); x = x[x!=""] #get rid of empty element
-    parargs = modelsettings[match(x, names(unlist(modelsettings)))]
+    x2 = match(x, names(modinput))
+    parargs = modinput[x2]
     x = names(formals(currentmodel)$times); x = x[x!=""] #get rid of empty element
-    timeargs = modelsettings[match(x, names(unlist(modelsettings)))]
+    x2 = match(x, names(modinput))
+    timeargs = modinput[x2]
     currentargs = list(vars = unlist(varargs), pars = unlist(parargs), time = unlist(timeargs))
     simresult <- do.call(currentmodel, args = currentargs)
     simresult <- simresult$ts

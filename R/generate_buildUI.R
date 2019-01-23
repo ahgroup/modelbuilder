@@ -132,8 +132,8 @@ generate_buildUI <- function(mbmodel, output)
                           6,
 
                           #################################
-                          h2('Model Diagram'),
-                          plotOutput(outputId = "diagram", height = "500px"),
+                          #h2('Model Diagram'),
+                          #plotOutput(outputId = "diagram", height = "500px"),
                           # Placeholder for results of type text
                           h2('Model Equations'),
                           uiOutput(outputId = "equations")
