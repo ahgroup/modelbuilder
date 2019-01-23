@@ -1,52 +1,54 @@
 #This is the Shiny App for the main menu of the modelbuilder package
 
+#make this a non-reactive global variable
+dynmbmodel = NULL
+
 #this function is the server part of the app
 server <- function(input, output, session) {
 
-
-  values = reactiveValues(dynmbmodel = NULL, nvar = 1, npar = 1,
-                          nflow = rep(1, 100))
+  #might not need those as reactives, but seems to work so leave for now
+  values = reactiveValues(nvar = 1, npar = 1, nflow = rep(1, 100))
 
 
   #######################################################
   #start code blocks that contain the build functionality
   #######################################################
 
-    #when build tab is selected
-    #generate the UI to either build a new model or
-    #edit a loaded model
-    observeEvent( input$alltabs == 'build', {
-      #set number of variables/parameters/flows for loaded model (if one is loaded)
-      if ( !is.null(dynmbmodel() ) )
+  #when build tab is selected
+  #generate the UI to either build a new model or
+  #edit a loaded model
+  observeEvent( input$alltabs == 'build', {
+    #set number of variables/parameters/flows for loaded model (if one is loaded)
+    if ( !is.null(dynmbmodel ) )
+    {
+      values$nvar <- max(1, length(dynmbmodel$var))
+      values$npar <- max(1, length(dynmbmodel$par))
+      for (n in 1:length(dynmbmodel$var)) #set number of flows for each variable
       {
-          values$nvar <- max(1, length(dynmbmodel()$var))
-          values$npar <- max(1, length(dynmbmodel()$par))
-          for (n in 1:length(dynmbmodel()$var)) #set number of flows for each variable
-          {
-              values$nflow[n] = max(1, length(dynmbmodel()$var[[n]]$flows))
-          }
-          #generate_buildUI generates the output elements that make up the build UI for the model
-          generate_buildUI(dynmbmodel(), output)
+        values$nflow[n] = max(1, length(dynmbmodel$var[[n]]$flows))
       }
-      else
-      {
-          null_model <- reactive({load_model(NULL)})
-          generate_buildUI(null_model(), output)
-      }
-    }) #end observe for build UI setup
+      #generate_buildUI generates the output elements that make up the build UI for the model
+      generate_buildUI(dynmbmodel, output)
+    }
+    else
+    {
+      null_model <- reactive({load_model(NULL)})
+      generate_buildUI(null_model(), output)
+    }
+  }) #end observe for build UI setup
 
 
   #add a new variable
   observeEvent(input$addvar, {
-      values$nvar = values$nvar + 1 #increment counter to newly added variable
-      add_model_var(values, output)
+    values$nvar = values$nvar + 1 #increment counter to newly added variable
+    add_model_var(values, output)
   }) #close observeevent
 
   #remove the last variable
   observeEvent(input$rmvar, {
-      if (values$nvar == 1) return() #don't remove the last variable
-      remove_model_var(values, output)
-      values$nvar = values$nvar - 1 #reduce counter for number of variables - needs to happen last
+    if (values$nvar == 1) return() #don't remove the last variable
+    remove_model_var(values, output)
+    values$nvar = values$nvar - 1 #reduce counter for number of variables - needs to happen last
   })
 
   #add a new flow
@@ -62,8 +64,8 @@ server <- function(input, output, session) {
   observeEvent(input$rmflow, {
     if (input$targetvar > values$nvar) return() #if user tries to remove flows from non-existing variables, ignore
     if (values$nflow[input$targetvar] == 1) return() #don't remove the last flow
-      remove_model_flow(values, input, output)
-      values$nflow[input$targetvar] = values$nflow[input$targetvar] - 1
+    remove_model_flow(values, input, output)
+    values$nflow[input$targetvar] = values$nflow[input$targetvar] - 1
   }) #close observeevent
 
 
@@ -75,9 +77,9 @@ server <- function(input, output, session) {
 
   #remove the last parameter
   observeEvent(input$rmpar, {
-      if (values$npar == 1) return() #don't remove the last variable
-      remove_model_par(values, output)
-      values$npar = values$npar - 1 #decrease parameter counter
+    if (values$npar == 1) return() #don't remove the last variable
+    remove_model_par(values, output)
+    values$npar = values$npar - 1 #decrease parameter counter
   })
 
   #when user presses the 'make model' button
@@ -87,46 +89,24 @@ server <- function(input, output, session) {
   #if errors are present, user will be informed and function stops
   #if no errors, equations and diagram will be displayed
   #and the new model will replace the current model stored in dynmbmodel
-  #one could use eventReactive here and assign the new model
-  #to the dynmbmodel variable. The problem with this is that eventReactive
-  #is not triggered when the event changes, only invalidated and triggered later
-  #
 
   observeEvent(input$makemodel, {
-      dynmbmodel <<- reactive({
-          mbmodel <- generate_model(input, values)
-          output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
-          return(mbmodel)
-      })
-      makeReactiveBinding("dynmbmodel()")
+      mbmodel <- generate_model(input, values)
+      output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
+      dynmbmodel <<- mbmodel
   })
 
-
-  #the next few lines of code are needed so the model save functionality below work
-  #if i try to use dynmbmodel() directly inside the downloadHandler function it doesn't work
-  #i'm not sure why this version works and why I can't save the model directly
-  #especially since the equivalent code for exporting the functions below works
-  #https://stackoverflow.com/questions/23036739/downloading-rdata-files-with-shiny
-
-
-    observe({
-        if(!is.null(dynmbmodel()))
-            isolate(
-              tmpmodel <<- dynmbmodel()
-            )
-    })
-
   # writes model to Rdata file
-   output$savemodel <- downloadHandler(
-       filename = function() {
-           paste0(gsub(" ","_",tmpmodel$title),".Rdata")
-       },
-       content = function(file) {
-           stopifnot(!is.null(tmpmodel))
-           save(mbmodel = tmpmodel, file = file)
-       },
-       contentType = "text/plain"
-   )
+  output$savemodel <- downloadHandler(
+    filename = function() {
+      paste0(gsub(" ","_",dynmbmodel$title),".Rdata")
+    },
+    content = function(file) {
+      stopifnot(!is.null(dynmbmodel))
+      save(mbmodel = dynmbmodel, file = file)
+    },
+    contentType = "text/plain"
+  )
 
 
 
@@ -144,16 +124,15 @@ server <- function(input, output, session) {
   #######################################################
   observeEvent( input$alltabs == 'analyze', {
 
-    # dynmbmodel() ## This line makes sure the observe() statement updates with each new model
     #if no model has been loaded yet, display a message
-    if (is.null(dynmbmodel() ))
+    if (is.null(dynmbmodel ))
     {
       output$analyzemodel <- renderUI({h1('Please load a model')})
       return()
     }
     else
     {
-        generate_shinyinput(dynmbmodel(), otherinputs = NULL, output)
+      generate_shinyinput(dynmbmodel, otherinputs = NULL, output)
     }
     #set output to empty
     output$text = NULL
@@ -161,164 +140,157 @@ server <- function(input, output, session) {
 
     output$analyzemodel <- renderUI({
       fluidPage(
-          #section to add buttons
-          fluidRow(column(
-              12,
-              actionButton("submitBtn", "Run Simulation", class = "submitbutton")
-          ),
-          align = "center"),
-          #end section to add buttons
-          tags$hr(),
-          ################################
-          #Split screen with input on left, output on right
-          fluidRow(
-              #all the inputs in here
-              column(
-                  6,
-                  h2('Simulation Settings'),
-                  column(
-                      6,
-                      uiOutput("vars"),
-                      uiOutput("time")
-                  ),
-                  column(
-                      6,
-                      uiOutput("pars"),
-                      uiOutput("standard")
-                      #uiOutput("other")
-                )),
-              #end sidebar column for inputs
+        #section to add buttons
+        fluidRow(column(
+          12,
+          actionButton("submitBtn", "Run Simulation", class = "submitbutton")
+        ),
+        align = "center"),
+        #end section to add buttons
+        tags$hr(),
+        ################################
+        #Split screen with input on left, output on right
+        fluidRow(
+          #all the inputs in here
+          column(
+            6,
+            h2('Simulation Settings'),
+            column(
+              6,
+              uiOutput("vars"),
+              uiOutput("time")
+            ),
+            column(
+              6,
+              uiOutput("pars"),
+              uiOutput("standard")
+              #uiOutput("other")
+            )),
+          #end sidebar column for inputs
 
-              #all the outcomes here
-              column(
-                  6,
-                  #################################
-                  #Start with results on top
-                  h2('Simulation Results'),
-                  plotOutput(outputId = "plot", height = "500px"),
-                  # PLaceholder for results of type text
-                  htmlOutput(outputId = "text"),
-                  tags$hr()
-              ) #end main panel column with outcomes
-          ) #end layout with side and main panel
+          #all the outcomes here
+          column(
+            6,
+            #################################
+            #Start with results on top
+            h2('Simulation Results'),
+            plotOutput(outputId = "plot", height = "500px"),
+            # PLaceholder for results of type text
+            htmlOutput(outputId = "text"),
+            tags$hr()
+          ) #end main panel column with outcomes
+        ) #end layout with side and main panel
       ) #end fluidpage for analyze tab
     }) # End renderUI for analyze tab
   }, priority = 100) #end observeEvent for the analyze tab
 
 
   #runs model simulation when 'run simulation' button is pressed
-    observeEvent(input$submitBtn, {
+  observeEvent(input$submitBtn, {
 
-      #extract current model settings from UI input elements
-      modelsettings = isolate(reactiveValuesToList(input)) #get all shiny inputs
+    #extract current model settings from UI input elements
+    modelsettings = isolate(reactiveValuesToList(input)) #get all shiny inputs
 
-      #modelsettings2 <- find_modelsettings( input = input, mbmodel = dynmbmodel() )
-      #browser()
-
-      #run model with specified settings
-      #run simulation, show a 'running simulation' message
-      result <- withProgress(message = 'Running Simulation',
-                   detail = "This may take a while", value = 0,
-                   {
-                     analyze_model(modelsettings = modelsettings, mbmodel = dynmbmodel() )
-                   })
-      #create plot from results
-      output$plot  <- renderPlot({
-          generate_plots(result)
-      }, width = 'auto', height = 'auto')
-      #create text from results
-      output$text <- renderText({
-          generate_text(result)     #create text for display with a non-reactive function
-      })
-    }) #end observe-event for analyze model submit button
-
-
-    #######################################################
-    #######################################################
-    #end code that contain the analyze functionality
-    #######################################################
-    #######################################################
-
-
-    #######################################################
-    #######################################################
-    #end code that contains the main tab functionality
-    #######################################################
-    #######################################################
-
-
-    #######################################################
-    #start code blocks that contain the load/check/clear functionality
-    #######################################################
-    #load a model
-
-    dynmbmodel <- reactive({load_model(input$currentmodel)}) # Original
-    #dynmbmodel <- reactive({load_model(NULL)})
-    #makeReactiveBinding("dynmbmodel()")
-
-    # observeEvent(input$currentmodel, {
-    #     dynmbmodel <- reactive({load_model(input$currentmodel)})
-    # })
-
-    #check that the loaded file is a proper modelbuilder model.
-    #NOT WORKING
-    #errors <- check_model(dynmbmodel())
-    #clear a loaded model by loading 'nothing'
-    # NOT WORKING
-    #######################################################
-
-    observeEvent(input$clearmodel, {
-       dynmbmodel <- reactive({load_model(NULL)})
-       makeReactiveBinding("dynmbmodel()")
+    #run model with specified settings
+    #run simulation, show a 'running simulation' message
+    result <- withProgress(message = 'Running Simulation',
+                           detail = "This may take a while", value = 0,
+                           {
+                             analyze_model(modelsettings = modelsettings, mbmodel = dynmbmodel )
+                           })
+    #create plot from results
+    output$plot  <- renderPlot({
+      generate_plots(result)
+    }, width = 'auto', height = 'auto')
+    #create text from results
+    output$text <- renderText({
+      generate_text(result)     #create text for display with a non-reactive function
     })
+  }) #end observe-event for analyze model submit button
 
-    #######################################################
-    #start code blocks that contain the import/export functionality
-    #######################################################
 
-    # these lines of code turn the export options off
-    # and only if a model has been loaded will they turn on
-    shinyjs::disable(id = "exportode")
-    shinyjs::disable("exportstochastic")
-    shinyjs::disable("exportdiscrete")
-    #shinyjs::disable("exportrxode")
-    #if a model is loaded turn on the buttons
-    observe({
-      if (!is.null(dynmbmodel() ))
-      {
-        shinyjs::enable(id = "exportode")
-        shinyjs::enable("exportstochastic")
-        shinyjs::enable("exportdiscrete")
-        # shinyjs::enable("exportrxode")
-      }
-    })
+  #######################################################
+  #######################################################
+  #end code that contain the analyze functionality
+  #######################################################
+  #######################################################
+
+
+  #######################################################
+  #######################################################
+  #end code that contains the main tab functionality
+  #######################################################
+  #######################################################
+
+
+  #######################################################
+  #start code blocks that contain the load/check/clear functionality
+  #######################################################
+  #load a model
+  observeEvent(input$currentmodel, {
+       dynmbmodel <<- load_model(input$currentmodel)
+  })
+
+  #check that the loaded file is a proper modelbuilder model.
+  #NOT WORKING
+  #errors <- check_model(dynmbmodel)
+
+  #######################################################
+  #clear a loaded model
+  #not working
+  #######################################################
+  observeEvent(input$clearmodel, {
+    #dynmbmodel <- load_model(NULL)
+    dynmbmodel <<- NULL
+  })
+
+  #######################################################
+  #start code blocks that contain the import/export functionality
+  #######################################################
+
+  # these lines of code turn the export options off
+  # and only if a model has been loaded will they turn on
+  shinyjs::disable(id = "exportode")
+  shinyjs::disable("exportstochastic")
+  shinyjs::disable("exportdiscrete")
+  #shinyjs::disable("exportrxode")
+  #if a model is loaded turn on the buttons
+  observe({
+    if (!is.null(dynmbmodel) )
+    {
+      shinyjs::enable(id = "exportode")
+      shinyjs::enable("exportstochastic")
+      shinyjs::enable("exportdiscrete")
+      # shinyjs::enable("exportrxode")
+    }
+  })
 
   output$exportode <- downloadHandler(
-      filename = function() {
-        paste0("simulate_",gsub(" ","_",dynmbmodel()$title),"_ode.R")
+    filename = function() {
+      paste0("simulate_",gsub(" ","_",dynmbmodel$title),"_ode.R")
     },
     content = function(file) {
-      generate_ode(mbmodel = dynmbmodel(), location = file)
+      generate_ode(mbmodel = dynmbmodel, location = file)
     },
     contentType = "text/plain"
   )
 
   output$exportstochastic <- downloadHandler(
-      filename = function() {
-          paste0("simulate_",gsub(" ","_",dynmbmodel()$title),"_stochastic.R")
-      },
-      content = function(file) {
-          generate_stochastic(mbmodel = dynmbmodel(), location = file)
-      },
-      contentType = "text/plain"
+    filename = function() {
+      paste0("simulate_",gsub(" ","_",dynmbmodel$title),"_stochastic.R")
+    },
+    content = function(file) {
+      generate_stochastic(mbmodel = dynmbmodel, location = file)
+    },
+    contentType = "text/plain"
   )
 
   output$exportdiscrete <- downloadHandler(
     filename = function() {
-      paste0("simulate_",gsub(" ","_",dynmbmodel()$title),"_discrete.R")
+      paste0("simulate_",gsub(" ","_",dynmbmodel$title),"_discrete.R")
     },
     content = function(file) {
-      generate_discrete(mbmodel = dynmbmodel(), location = file)
+      generate_discrete(mbmodel = dynmbmodel, location = file)
     },
     contentType = "text/plain"
   )
@@ -342,11 +314,11 @@ server <- function(input, output, session) {
   #######################################################
 
   #currently not implemented and disabled in GUI
-  observeEvent(input$importsbml, {
-  })
+  #observeEvent(input$importsbml, {
+  #})
 
-  observeEvent(input$exportsbml, {
-  })
+  #observeEvent(input$exportsbml, {
+  #})
 
   #######################################################
   #end code blocks for SBML import/export functionality
@@ -360,14 +332,14 @@ server <- function(input, output, session) {
   stopping <<- TRUE
 
   observeEvent(input$Exit, {
-      stopping <<- TRUE
-      stopApp('Exit')
+    stopping <<- TRUE
+    stopApp('Exit')
   })
 
   session$onSessionEnded(function() {
-      if (!stopping) {
-          stopApp('Exit')
-      }
+    if (!stopping) {
+      stopApp('Exit')
+    }
   })
 
   #######################################################
@@ -381,87 +353,87 @@ server <- function(input, output, session) {
 
 #This is the UI for the Main Menu of modelbuilder
 ui <- fluidPage(
-    shinyjs::useShinyjs(),
-    includeCSS("../media/modelbuilder.css"),
+  shinyjs::useShinyjs(),
+  includeCSS("../media/modelbuilder.css"),
   #add header and title
   tags$div( includeHTML("../media/header.html"), align = "center"),
   p(paste('This is modelbuilder version ',utils::packageVersion("modelbuilder"),' last updated ', utils::packageDescription('modelbuilder')$Date,sep=''), class='infotext'),
   p('Have fun building and analyzing models!', class='maintext'),
 
   navbarPage(title = "modelbuilder", id = 'alltabs', selected = "main",
-              tabPanel(title = "Main", value = "main",
-                       fluidRow(
-                         p('Load or clear a Model', class='mainsectionheader'),
-                         column(12,
-                                  fileInput("currentmodel", label = "", accept = ".Rdata", buttonLabel = "Load Model", placeholder = "No model selected"),
-                                  align = 'center' )
-                       ),
-                       fluidRow(
-                         column(12,
-                                actionButton("clearmodel", "Clear Model", class="mainbutton")
-                         ),
-                         class = "mainmenurow"
-                       ), #close fluidRow structure for input
+             tabPanel(title = "Main", value = "main",
+                      fluidRow(
+                        p('Load or clear a Model', class='mainsectionheader'),
+                        column(12,
+                               fileInput("currentmodel", label = "", accept = ".Rdata", buttonLabel = "Load Model", placeholder = "No model selected"),
+                               align = 'center' )
+                      ),
+                      fluidRow(
+                        column(12,
+                               actionButton("clearmodel", "Clear Model", class="mainbutton")
+                        ),
+                        class = "mainmenurow"
+                      ), #close fluidRow structure for input
 
-                       p('Get the R code for the currently loaded model', class='mainsectionheader'),
+                      p('Get the R code for the currently loaded model', class='mainsectionheader'),
 
-                       fluidRow(
-                           column(4,
-                                  downloadButton("exportode", "Export ODE code")
-                           ),
-                           column(4,
-                                  downloadButton("exportstochastic", "Export stochastic code")
-                           ),
-                           column(4,
-                                  downloadButton("exportdiscrete", "Export discrete-time code")
-                           ),
-                           #hide for now
-                           #column(3,
-                            #     downloadButton("exportrxode", "Export RxODE code")
-                           #),
-                           class = "mainmenurow"
-                       ), #close fluidRow structure for input
+                      fluidRow(
+                        column(4,
+                               downloadButton("exportode", "Export ODE code")
+                        ),
+                        column(4,
+                               downloadButton("exportstochastic", "Export stochastic code")
+                        ),
+                        column(4,
+                               downloadButton("exportdiscrete", "Export discrete-time code")
+                        ),
+                        #hide for now
+                        #column(3,
+                        #     downloadButton("exportrxode", "Export RxODE code")
+                        #),
+                        class = "mainmenurow"
+                      ), #close fluidRow structure for input
 
-                       fluidRow(
+                      fluidRow(
 
-                         column(12,
-                                actionButton("Exit", "Exit", class="exitbutton")
-                         ),
-                         class = "mainmenurow"
-                       ) #close fluidRow structure for input
+                        column(12,
+                               actionButton("Exit", "Exit", class="exitbutton")
+                        ),
+                        class = "mainmenurow"
+                      ) #close fluidRow structure for input
 
 
-                       #Hide for now unitl implemented
-                        #p('Import or Export SBML models', class='mainsectionheader'),
-                        #fluidRow(
-                         #   column(6,
-                          #         actionButton("importsbml", "Import a SBML model", class="mainbutton")
-                           # ),
-                            #column(6,
-                             #      actionButton("exportsbml", "Export to SMBL model", class="mainbutton")
-                            #),
-                            #class = "mainmenurow"
-                        #) #close fluidRow structure for input
-               ), #close "Main" tab
+                      #Hide for now unitl implemented
+                      #p('Import or Export SBML models', class='mainsectionheader'),
+                      #fluidRow(
+                      #   column(6,
+                      #         actionButton("importsbml", "Import a SBML model", class="mainbutton")
+                      # ),
+                      #column(6,
+                      #      actionButton("exportsbml", "Export to SMBL model", class="mainbutton")
+                      #),
+                      #class = "mainmenurow"
+                      #) #close fluidRow structure for input
+             ), #close "Main" tab
 
-              tabPanel("Build",  value = "build",
-                       fluidRow(
-                           column(12,
-                                  uiOutput('buildmodel')
-                           ),
-                           class = "mainmenurow"
-                       )
+             tabPanel("Build",  value = "build",
+                      fluidRow(
+                        column(12,
+                               uiOutput('buildmodel')
+                        ),
+                        class = "mainmenurow"
+                      )
 
-               ), #close "Build" tab
+             ), #close "Build" tab
 
              tabPanel("Analyze",  value = "analyze",
-                       fluidRow(
-                           column(12,
-                                  uiOutput('analyzemodel')
-                           ),
-                           class = "mainmenurow"
-                       ) #close fluidRow structure for input
-              ) #close "Analyze" tab
+                      fluidRow(
+                        column(12,
+                               uiOutput('analyzemodel')
+                        ),
+                        class = "mainmenurow"
+                      ) #close fluidRow structure for input
+             ) #close "Analyze" tab
   ), #close NavBarPage
 
   div(includeHTML("../media/footer.html"), align="center", style="font-size:small") #footer
