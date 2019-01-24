@@ -98,8 +98,7 @@ server <- function(input, output, session) {
       #create model, save in temporary structure
       mbmodeltmp <- generate_model(input, values)
       #check if the model is a correct mbmodel structure with all required content provided
-      mbmodelerrors = NULL
-      #mbmodelerrors = check_model(mbmodel)
+      mbmodelerrors = check_model(mbmodeltmp)
       if (is.null(mbmodelerrors)) #if no error message, create the model
       {
         mbmodel <<- mbmodeltmp
@@ -110,9 +109,10 @@ server <- function(input, output, session) {
       }
       else
       {
-        print('Your model has errors:')
-        print(mbmodelerrors)
-        print('Please fix errors and try to build model again')
+        showModal(modalDialog(
+          mbmodelerrors,
+          easyClose = FALSE
+        ))
       }
   })
 
