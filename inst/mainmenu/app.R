@@ -31,11 +31,13 @@ server <- function(input, output, session) {
       }
       #generate_buildUI generates the output elements that make up the build UI for the model
       generate_buildUI(mbmodel, output)
+      output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
     }
     else
     {
       #null_model <- reactive({load_model(NULL)})
       generate_buildUI(NULL, output)
+      output$equations = NULL
     }
   }) #end observe for build UI setup
 
@@ -93,11 +95,25 @@ server <- function(input, output, session) {
   #and the new model will replace the current model stored in mbmodel
 
   observeEvent(input$makemodel, {
-      mbmodel <<- generate_model(input, values)
-      output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
-      shinyjs::enable(id = "exportode")
-      shinyjs::enable("exportstochastic")
-      shinyjs::enable("exportdiscrete")
+      #create model, save in temporary structure
+      mbmodeltmp <- generate_model(input, values)
+      #check if the model is a correct mbmodel structure with all required content provided
+      mbmodelerrors = NULL
+      #mbmodelerrors = check_model(mbmodel)
+      if (is.null(mbmodelerrors)) #if no error message, create the model
+      {
+        mbmodel <<- mbmodeltmp
+        output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
+        shinyjs::enable(id = "exportode")
+        shinyjs::enable("exportstochastic")
+        shinyjs::enable("exportdiscrete")
+      }
+      else
+      {
+        print('Your model has errors:')
+        print(mbmodelerrors)
+        print('Please fix errors and try to build model again')
+      }
   })
 
   # writes model to Rdata file
@@ -136,57 +152,39 @@ server <- function(input, output, session) {
     }
     else
     {
-      generate_shinyinput(mbmodel, otherinputs = NULL, output)
+      #extract function and other inputs and turn them into a taglist
+      modelinputs <- generate_shinyinput(mbmodel = mbmodel, otherinputs = NULL, packagename = packagename)
+      output$modelinputs <- renderUI({modelinputs})
     }
     #set output to empty
     output$text = NULL
     output$plot = NULL
 
+
+    #display all extracted inputs on the analyze tab
     output$analyzemodel <- renderUI({
-      fluidPage(
-        #section to add buttons
-        fluidRow(column(
-          12,
-          actionButton("submitBtn", "Run Simulation", class = "submitbutton")
-        ),
-        align = "center"),
-        #end section to add buttons
+      tagList(
+        tags$div(id = "shinyapptitle", mbmodel$title),
         tags$hr(),
-        ################################
         #Split screen with input on left, output on right
         fluidRow(
-          #all the inputs in here
-          column(
-            6,
-            h2('Simulation Settings'),
-            column(
-              6,
-              uiOutput("vars"),
-              uiOutput("time")
-            ),
-            column(
-              6,
-              uiOutput("pars"),
-              uiOutput("standard")
-              #uiOutput("other")
-            )),
-          #end sidebar column for inputs
-
-          #all the outcomes here
-          column(
-            6,
-            #################################
-            #Start with results on top
-            h2('Simulation Results'),
-            plotOutput(outputId = "plot", height = "500px"),
-            # PLaceholder for results of type text
-            htmlOutput(outputId = "text"),
-            tags$hr()
-          ) #end main panel column with outcomes
-        ) #end layout with side and main panel
-      ) #end fluidpage for analyze tab
+          column(6,
+                 h2('Simulation Settings'),
+                 wellPanel(uiOutput("modelinputs"))
+          ), #end sidebar column for inputs
+          column(6,
+                 h2('Simulation Results'),
+                 plotOutput(outputId = "plot"),
+                 htmlOutput(outputId = "text")
+          ) #end column with outcomes
+        ) #end fluidrow containing input and output
+        #Instructions section at bottom as tabs
+        #h2('Instructions'),
+        #use external function to generate all tabs with instruction content
+        #withMathJax(do.call(tabsetPanel, generate_documentation(currentdocfilename)))
+      ) #end tag list
     }) # End renderUI for analyze tab
-  }, priority = 100) #end observeEvent for the analyze tab
+  }) # End observeEvent for click on analyze tab
 
 
   #runs model simulation when 'run simulation' button is pressed
