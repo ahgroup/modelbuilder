@@ -7,10 +7,10 @@
 load_model(currentmodel)
 }
 \arguments{
-\item{currentmodel}{A file name and location for the model to be loaded.}
+\item{currentmodel}{A file name and path for the model to be loaded.}
 }
 \value{
-The modelbuilder model object
+A modelbuilder model object
 }
 \description{
 This function takes the name of an Rdata file that contains a modelbuilder model

@@ -35,7 +35,6 @@ server <- function(input, output, session) {
     }
     else
     {
-      #null_model <- reactive({load_model(NULL)})
       generate_buildUI(NULL, output)
       output$equations = NULL
     }
@@ -235,31 +234,34 @@ server <- function(input, output, session) {
   #######################################################
   #load a model
   observeEvent(input$loadcustommodel, {
-        mbmodeltmp <- load_model(input$loadcustommodel) #load model from file
-        mbmodelerrors <- check_model(mbmodeltmp) #check if model is a proper mbmodel
+        #mbmodeltmp <- load_model(input$loadcustommodel$datapath) #load model from file
+        load(input$loadcustommodel$datapath)
+        mbmodelerrors <- check_model(mbmodel) #check if model is a proper mbmodel
         if (!is.null(mbmodelerrors)) #if errors occur, do not load model
         {
           showModal(modalDialog(
             "The file does not contain a valid modelbuilder model and could not be loaded."
           ))
           shinyjs::reset(id  = "loadcustommodel")
+          mbmodel <<- NULL
         }
         else #if no errors occur, save model into mbmodel structure
         {
-          mbmodel <<- mbmodeltmp
+          mbmodel <<- mbmodel
           shinyjs::enable(id = "exportode")
           shinyjs::enable("exportstochastic")
           shinyjs::enable("exportdiscrete")
+          updateSelectInput(session, "examplemodel", selected = 'none')
         }
-
   })
 
   #example models are valid
   observeEvent(input$examplemodel, {
-    if (!is.null(input$examplemodel))
+    if (input$examplemodel != 'none')
     {
       examplefile = paste0(system.file("modelexamples", package = packagename),'/',input$examplemodel)
-      mbmodel <<- load_model(examplefile) #load model from file
+      load(examplefile) #load model from file
+      mbmodel <<- mbmodel
       shinyjs::enable(id = "exportode")
       shinyjs::enable("exportstochastic")
       shinyjs::enable("exportdiscrete")
@@ -276,6 +278,7 @@ server <- function(input, output, session) {
     shinyjs::disable(id = "exportode")
     shinyjs::disable("exportstochastic")
     shinyjs::disable("exportdiscrete")
+    updateSelectInput(session, "examplemodel", selected = 'none')
     mbmodel <<- NULL
   })
 
@@ -371,7 +374,7 @@ server <- function(input, output, session) {
 #This is the UI for the Main Menu of modelbuilder
 ui <- fluidPage(
   shinyjs::useShinyjs(),
-  includeCSS("../media/packagestyle.css"),
+  includeCSS("packagestyle.css"),
   tags$div(id = "shinyheadertitle", "modelbuilder - Graphical building and analysis of simulation models"),
   tags$div(id = "infotext", paste0('This is ', packagename,  'version ',utils::packageVersion(packagename),' last updated ', utils::packageDescription(packagename)$Date,'.')),
   tags$div(id = "infotext", "Written and maintained by", a("Andreas Handel", href="http://handelgroup.uga.edu", target="_blank"), "with many contributions from", a("others.",  href="https://github.com/ahgroup/modelbuilder#contributors", target="_blank")),
@@ -384,7 +387,7 @@ ui <- fluidPage(
                                fileInput("loadcustommodel", label = "", accept = ".Rdata", buttonLabel = "Load custom model", placeholder = "No model selected")
                          ),
                         column(4,
-                               selectInput("examplemodel", "Example Models", c('SIR' = 'SIR_model.Rdata', 'SEIRS' = 'SEIRS_model.Rdata'), class="mainbutton")
+                               selectInput("examplemodel", "Example Models", c('none' = 'none', 'SIR' = 'SIR_model.Rdata', 'SEIRS' = 'SEIRS_model.Rdata'), selected = 'none')
                         ),
                         column(4,
                                 actionButton("clearmodel", "Clear Model", class="mainbutton")
