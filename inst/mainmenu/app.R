@@ -106,6 +106,11 @@ server <- function(input, output, session) {
         shinyjs::enable(id = "exportode")
         shinyjs::enable("exportstochastic")
         shinyjs::enable("exportdiscrete")
+        showModal(modalDialog(
+          "The model has been created, you should save it now",
+          downloadButton('savemodel', "Save Model"),
+          easyClose = FALSE
+        ))
       }
       else
       {
@@ -229,23 +234,45 @@ server <- function(input, output, session) {
   #start code blocks that contain the load/check/clear functionality
   #######################################################
   #load a model
-  observeEvent(input$currentmodel, {
-       mbmodel <<- load_model(input$currentmodel)
-       shinyjs::enable(id = "exportode")
-       shinyjs::enable("exportstochastic")
-       shinyjs::enable("exportdiscrete")
+  observeEvent(input$loadcustommodel, {
+        mbmodeltmp <- load_model(input$loadcustommodel) #load model from file
+        mbmodelerrors <- check_model(mbmodeltmp) #check if model is a proper mbmodel
+        if (!is.null(mbmodelerrors)) #if errors occur, do not load model
+        {
+          showModal(modalDialog(
+            "The file does not contain a valid modelbuilder model and could not be loaded."
+          ))
+          shinyjs::reset(id  = "loadcustommodel")
+        }
+        else #if no errors occur, save model into mbmodel structure
+        {
+          mbmodel <<- mbmodeltmp
+          shinyjs::enable(id = "exportode")
+          shinyjs::enable("exportstochastic")
+          shinyjs::enable("exportdiscrete")
+        }
+
   })
 
-  #check that the loaded file is a proper modelbuilder model.
-  #NOT WORKING
-  #errors <- check_model(mbmodel)
+  #example models are valid
+  observeEvent(input$examplemodel, {
+    if (!is.null(input$examplemodel))
+    {
+      examplefile = paste0(system.file("modelexamples", package = packagename),'/',input$examplemodel)
+      mbmodel <<- load_model(examplefile) #load model from file
+      shinyjs::enable(id = "exportode")
+      shinyjs::enable("exportstochastic")
+      shinyjs::enable("exportdiscrete")
+    }
+  }) #end observeevent
+
+
 
   #######################################################
   #clear a loaded model
-  #not working
   #######################################################
   observeEvent(input$clearmodel, {
-    shinyjs::reset(id  = "currentmodel")
+    shinyjs::reset(id  = "loadcustommodel")
     shinyjs::disable(id = "exportode")
     shinyjs::disable("exportstochastic")
     shinyjs::disable("exportdiscrete")
@@ -353,14 +380,15 @@ ui <- fluidPage(
              tabPanel(title = "Main", value = "main",
                       fluidRow(
                         p('Load or clear a Model', class='mainsectionheader'),
-                        column(12,
-                               fileInput("currentmodel", label = "", accept = ".Rdata", buttonLabel = "Load Model", placeholder = "No model selected"),
-                               align = 'center' )
-                      ),
-                      fluidRow(
-                        column(12,
-                               actionButton("clearmodel", "Clear Model", class="mainbutton")
+                        column(4,
+                               fileInput("loadcustommodel", label = "", accept = ".Rdata", buttonLabel = "Load custom model", placeholder = "No model selected")
+                         ),
+                        column(4,
+                               selectInput("examplemodel", "Example Models", c('SIR' = 'SIR_model.Rdata', 'SEIRS' = 'SEIRS_model.Rdata'), class="mainbutton")
                         ),
+                        column(4,
+                                actionButton("clearmodel", "Clear Model", class="mainbutton")
+                         ),
                         class = "mainmenurow"
                       ), #close fluidRow structure for input
 
