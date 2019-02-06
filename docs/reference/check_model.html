@@ -32,7 +32,7 @@
 
 <meta property="og:title" content="A function that takes a modelbuilder model and checks it for errors — check_model" />
 
-<meta property="og:description" content="This function takes a modelbuilder model, either provided as the name of an Rdata file or as an object,
+<meta property="og:description" content="This function takes a modelbuilder model object,
 and checks that all specifications and constraints for modelbuilder models are met and it is a valid model" />
 <meta name="twitter:card" content="summary" />
 
@@ -110,25 +110,25 @@ and checks that all specifications and constraints for modelbuilder models are m
 
     <div class="ref-description">
     
-    <p>This function takes a modelbuilder model, either provided as the name of an Rdata file or as an object,
+    <p>This function takes a modelbuilder model object,
 and checks that all specifications and constraints for modelbuilder models are met and it is a valid model</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>check_model</span>(<span class='no'>currentmodel</span>)</pre>
+    <pre class="usage"><span class='fu'>check_model</span>(<span class='no'>mbmodel</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>currentmodel</th>
+      <th>mbmodel</th>
       <td><p>A model object or file name and location for the model to be loaded.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An error message if the model is not properly formulated. If model is ok, no return.</p>
+    <p>An error message if the model is not properly formulated. If model is ok, it returns NULL.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -146,8 +146,6 @@ and checks that all specifications and constraints for modelbuilder models are m
       <li><a href="#details">Details</a></li>
           </ul>
 
-    <h2>Author</h2>
-    <p>Spencer D. Hall, Andreas Handel</p>
   </div>
 </div>
 

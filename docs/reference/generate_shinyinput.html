@@ -32,7 +32,7 @@
 
 <meta property="og:title" content="A helper function that takes a model and generates the shiny UI elements for the analyze tab — generate_shinyinput" />
 
-<meta property="og:description" content="This function generates input buttons and sliders for a supplied model.
+<meta property="og:description" content="This function generates numeric shiny UI inputs for a supplied model.
 This is a helper function called by the shiny app." />
 <meta name="twitter:card" content="summary" />
 
@@ -110,12 +110,12 @@ This is a helper function called by the shiny app." />
 
     <div class="ref-description">
     
-    <p>This function generates input buttons and sliders for a supplied model.
+    <p>This function generates numeric shiny UI inputs for a supplied model.
 This is a helper function called by the shiny app.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>generate_shinyinput</span>(<span class='no'>mbmodel</span>, <span class='kw'>otherinputs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>output</span>)</pre>
+    <pre class="usage"><span class='fu'>generate_shinyinput</span>(<span class='no'>mbmodel</span>, <span class='kw'>otherinputs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>packagename</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -126,21 +126,22 @@ This is a helper function called by the shiny app.</p>
     </tr>
     <tr>
       <th>otherinputs</th>
-      <td><p>additional elements to be shown in the UI</p></td>
+      <td><p>a list of other shiny inputs to include</p></td>
     </tr>
     <tr>
-      <th>output</th>
-      <td><p>shiny output structure</p></td>
+      <th>packagename</th>
+      <td><p>name of package using this function</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>No direct return. output structure is modified to contain text for display in a Shiny UI</p>
+    <p>A renderUI object that can be added to the shiny output object for display in a Shiny UI</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function is called by the Shiny app to produce the Shiny input UI elements.</p>
+    <p>This function is called by the Shiny app to produce the Shiny input UI elements.
+It is assumed that mbmodel is a mbmodel object and will be parsed to create the UI elements.</p>
     
 
   </div>
@@ -154,8 +155,6 @@ This is a helper function called by the shiny app.</p>
       <li><a href="#details">Details</a></li>
           </ul>
 
-    <h2>Author</h2>
-    <p>Andreas Handel</p>
   </div>
 </div>
 
