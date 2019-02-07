@@ -24,12 +24,9 @@ Imports:
     knitr (>= 1.15),
     rmarkdown (>= 1.10),
     shinyjs,
-    magrittr,
     stats (>= 3.4),
     tidyr (>= 0.7),
     utils (>= 3.4),
-    stringr,
-    readr,
     XML
 Depends:
     R (>= 3.4),
