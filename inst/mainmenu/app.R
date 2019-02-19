@@ -5,6 +5,17 @@ packagename = "modelbuilder"
 #make this a non-reactive global variable
 mbmodel = NULL
 
+#list of all example models that are provided and can be loaded
+allexamplemodels = c('none' = 'none',
+                     'SIR' = 'SIR_model.Rdata',
+                     'SEIRS' = 'SEIRS_model.Rdata',
+                     'Vector transmission' = 'Vector_transmission_model.Rdata',
+                    'Environmental transmission' = 'Environmental_Transmission_model.Rdata',
+                    'Cholera ID' = 'Cholera_model.Rdata',
+                     'Basic Virus Infection' = 'Basic_Virus_model.Rdata',
+                     'Bacteria Infection' = 'Basic_Bacteria_model.Rdata')
+
+
 #this function is the server part of the app
 server <- function(input, output, session) {
 
@@ -387,10 +398,10 @@ ui <- fluidPage(
                                fileInput("loadcustommodel", label = "", accept = ".Rdata", buttonLabel = "Load custom model", placeholder = "No model selected")
                          ),
                         column(4,
-                               selectInput("examplemodel", "Example Models", c('none' = 'none', 'SIR' = 'SIR_model.Rdata', 'SEIRS' = 'SEIRS_model.Rdata'), selected = 'none')
+                               selectInput("examplemodel", "Example Models", allexamplemodels , selected = 'none')
                         ),
                         column(4,
-                                actionButton("clearmodel", "Clear Model", class="mainbutton")
+                               actionButton("clearmodel", "Clear Model", class="mainbutton")
                          ),
                         class = "mainmenurow"
                       ), #close fluidRow structure for input
