@@ -1,7 +1,7 @@
 Package: modelbuilder
 Type: Package
 Title: Building Compartmental Mechanistic Models Without Coding
-Description: A package that allows building and analysis of compartmental mechanistic models without the need to write code. 
+Description: Building and analysis of compartmental mechanistic models without the need to write code. 
 Version: 0.1.5
 Date: 2019-02-26
 Authors@R: c(
@@ -20,8 +20,6 @@ Imports:
     dplyr (>= 0.7.4),
     ggplot2 (>= 2.2),
     gridExtra (>= 2.3),
-    knitr (>= 1.15),
-    rmarkdown (>= 1.10),
     shinyjs,
     stats (>= 3.4),
     tidyr (>= 0.7),
