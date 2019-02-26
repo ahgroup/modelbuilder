@@ -1,8 +1,6 @@
-# modelbuilder  0.2.0
+# modelbuilder  0.1.5
 
-* Tested package with increased functionality
-* First release to CRAN
-
+* Version with further bug-fixes and cleanups
 
 # modelbuilder  0.1.0
 
