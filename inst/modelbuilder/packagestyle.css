@@ -183,14 +183,21 @@ iframe {
 	text-align: center;
 	color: #000000;
 	background-color: #bfc8ef;
+	margin: 5px;
+}
+
+.downloadbt {
+	text-align: center;
+	color: #000000;
+	margin: 5px;
 }
 
 .exitbutton {
-	padding-top: 10px;
+	margin: 5px;
 	text-align: center;
 	color: #000000;
 	background-color: #eaac9d;
-	font-size: 1.2em;
+	font-size: 1em;
 	display: inline-block;
 }
 

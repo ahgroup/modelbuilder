@@ -44,41 +44,6 @@ analyze_model <- function(modelsettings, mbmodel) {
     return(simresult)
   }
 
-  #################################################
-  #if not present, create code for all 3 simulators
-
-  #temporary directory and files
-  tempdir = tempdir()
-  filename_ode=paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode.R")
-  filename_discrete=paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete.R")
-  filename_stochastic=paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic.R")
-
-  #paths and names for all temporary files
-  file_ode = file.path(tempdir,filename_ode)
-  file_discrete = file.path(tempdir,filename_discrete)
-  file_stochastic = file.path(tempdir,filename_stochastic)
-
-  #if not present, create code for all 3 simulators
-  if (!exists(file_ode)) #check if function/code is available, if not generate
-  {
-    modelbuilder::generate_ode(mbmodel = mbmodel, location = file_ode)
-  }
-  if (!exists(file_discrete))
-  {
-    modelbuilder::generate_discrete(mbmodel = mbmodel, location = file_discrete)
-  }
-  if (!exists(file_stochastic))
-  {
-    modelbuilder::generate_stochastic(mbmodel = mbmodel, location = file_stochastic)
-  }
-  #source files
-  source(file_ode)
-  source(file_discrete)
-  source(file_stochastic)
-
-
-  datall = NULL #will hold data for all different models and replicates
-
   #save all results to a list for processing plots and text
   #list corresponds to number of plots
   #1 plot for time-series only
@@ -86,18 +51,53 @@ analyze_model <- function(modelsettings, mbmodel) {
   listlength = ifelse(modelsettings$scanparam == 1, 2, 1)
   #here we do all simulations in the same figure
   result = vector("list", listlength) #create empty list of right size for results
+  datall = NULL #will hold data for all different models and replicates
+
+  #make a temp directory to save file
+  tempdir = tempdir()
+
+  #################################################
+  #check what type of model
+  #if not present, create code for simulator
+  if (grepl('_ode_',modelsettings$modeltype)) #need to always start with ode_ in model specification
+  {
+    modelsettings$currentmodel = 'ode'
+    currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode")
+    sim_filename = paste0(currentmodel,".R")
+    sim_file = file.path(tempdir, sim_filename)
+    if (!exists(sim_file)) {modelbuilder::generate_ode(mbmodel = mbmodel, location = sim_file)}
+  }
+  if (grepl('_discrete_',modelsettings$modeltype))
+  {
+    modelsettings$currentmodel = 'discrete'
+    currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete")
+    sim_filename = paste0(currentmodel,".R")
+    sim_file = file.path(tempdir, sim_filename)
+    if (!exists(sim_file)) {modelbuilder::generate_discrete(mbmodel = mbmodel, location = sim_file)}
+  }
+  if (grepl('_stochastic_',modelsettings$modeltype))
+  {
+    modelsettings$currentmodel = 'stochastic'
+    currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic")
+    sim_filename = paste0(currentmodel,".R")
+    sim_file = file.path(tempdir, sim_filename)
+    if (!exists(sim_file)) {modelbuilder::generate_stochastic(mbmodel = mbmodel, location = sim_file)}
+  }
+  #source file
+  source(sim_file)
+
 
 
   ##################################
   #stochastic dynamical model execution
   ##################################
-  if (grepl('_stochastic_',modelsettings$modeltype))
-  {
-    modelsettings$currentmodel = 'stochastic'
-    currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic")
     for (nn in 1:modelsettings$nreps)
     {
-      simresult = runsimulation(modelsettings, currentmodel)
+      modelsettings$rngseed = modelsettings$rngseed + 1 #need to update RNG seed each time to get different runs
+      simresult[[nn]] = runsimulation(modelsettings, currentmodel)
+    }
+
+
       if (class(simresult)!="list")
       {
         result <- 'Model run failed. Maybe unreasonable parameter values?'
@@ -106,33 +106,16 @@ analyze_model <- function(modelsettings, mbmodel) {
       #data for plots and text
       #needs to be in the right format to be passed to generate_plots and generate_text
       #see documentation for those functions for details
-      simresult <- simresult$ts
-      colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
+      colnames(simresult$ts)[1] = 'xvals' #rename time to xvals for consistent plotting
       #reformat data to be in the right format for plotting
-      dat = tidyr::gather(as.data.frame(simresult), -xvals, value = "yvals", key = "varnames")
+      dat = tidyr::gather(as.data.frame(simresult$ts), -xvals, value = "yvals", key = "varnames")
       dat$IDvar = paste(dat$varnames,nn,sep='') #make a variable for plotting same color lines for each run in ggplot2
       dat$nreps = nn
       datall = rbind(datall,dat)
-      modelsettings$rngseed = modelsettings$rngseed + 1 #need to update RNG seed each time to get different runs
     }
-  }
 
-  ##################################
-  #ode or discrete dynamical model execution
-  ##################################
-  if (grepl('_ode_',modelsettings$modeltype) | grepl('_discrete_',modelsettings$modeltype))
-  {
-    if (grepl('_ode_',modelsettings$modeltype)) #need to always start with ode_ in model specification
-    {
-      modelsettings$currentmodel = 'ode'
-      currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode")
-    }
-    if (grepl('_discrete_',modelsettings$modeltype))
-    {
-      modelsettings$currentmodel = 'discrete'
-      currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete")
-    }
-    if (modelsettings$scanparam == 1)
+
+    if (modelsettings$scanparam == 1) #scan over parameter
     {
       npar = modelsettings$parnum
       if (modelsettings$pardist == 'lin') {parvals = seq(modelsettings$parmin,modelsettings$parmax,length=npar)}
@@ -162,7 +145,7 @@ analyze_model <- function(modelsettings, mbmodel) {
     }
     else
     {
-      simresult = runsimulation(modelsettings, currentmodel)
+      simresult = runsimulation(modelsettings, currentmodel) #single run
       #if error occurs we exit
       if (class(simresult)!="list")
       {
@@ -178,7 +161,6 @@ analyze_model <- function(modelsettings, mbmodel) {
       dat$nreps = 1
       datall = rbind(datall,dat)
     }
-  }
 
 
   #time-series
@@ -220,6 +202,7 @@ analyze_model <- function(modelsettings, mbmodel) {
     result[[1]]$maketext = FALSE #if true we want the generate_text function to process data and generate text, if 0 no result processing will occur insinde generate_text
     result[[1]]$showtext = NULL #text for each plot can be added here which will be passed through to generate_text and displayed for each plot
     result[[1]]$finaltext = NULL
+    result[[1]]$ncols = 2
   }
 
   return(result)

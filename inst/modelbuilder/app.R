@@ -1,18 +1,15 @@
-#This is a bit of code and instructions for deployment of the package to shinyappsio
+#Instructions for deployment of the package to shinyappsio
 #to deploy, follow these steps:
-#1. go into the folder where this file resides
-#2. copy the regular app.R file into this folder, add this bit of code on top of it
+#1. set working directory to folder where this file (app.R) resides
 #3. install the package through CRAN or github if we want to use the github version
 #devtools::install_github('ahgroup/modelbuilder')
-#4. to deploy, run the following
-#run rsconnect::deployApp()
-
+#4. uncomment the library() command below
 #this line of code needs to be uncommented  for shinyappsio deployment
 #should not be present for regular package use
-library('modelbuilder')
+#library('modelbuilder')
+#5. deploy by running the following
+#run rsconnect::deployApp()
 
-#copy this code on top of the regular app.R file
-#app.R file of package starts below
 ##############################################
 #This is the Shiny App for the main menu of the modelbuilder package
 
@@ -460,13 +457,13 @@ ui <- fluidPage(
 
                       fluidRow(
                         column(4,
-                               downloadButton("exportode", "Export ODE code")
+                               downloadButton("exportode", "Export ODE code", class='downloadbt')
                         ),
                         column(4,
-                               downloadButton("exportstochastic", "Export stochastic code")
+                               downloadButton("exportstochastic", "Export stochastic code", class='downloadbt')
                         ),
                         column(4,
-                               downloadButton("exportdiscrete", "Export discrete-time code")
+                               downloadButton("exportdiscrete", "Export discrete-time code", class='downloadbt')
                         ),
                         #hide for now
                         #column(3,
