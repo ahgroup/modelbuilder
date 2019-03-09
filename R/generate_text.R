@@ -8,14 +8,14 @@
 #'    Specific entries for this function are 'maketext', 'showtext' and 'finaltext'.
 #'    If 'maketext' is set to TRUE (or not provided) the function processes the data corresponding to each plot
 #'    and reports min/max/final values (lineplots) or correlation coefficient (scatterplot)
-#'    If 'maketext' is FALSE or missing, no text based on the data is generated.
+#'    If 'maketext' is FALSE, no text based on the data is generated.
 #'    If the entries 'showtext' or 'finaltext' are present, their values
 #'    will be returned for each plot or for all together.
 #'    The overall message of finaltext should be in the 1st plot.
 #' @return HTML formatted text for display in a Shiny UI.
 #' @details This function is called by the Shiny server to produce output returned to the Shiny UI.
 #' @author Andreas Handel
-#' @importFrom stats median
+#' @importFrom stats median reshape
 #' @export
 
 generate_text <- function(res)
@@ -63,7 +63,10 @@ generate_text <- function(res)
       }
       else
       {
-        dat = tidyr::gather(rawdat, -xvals, value = "yvals", key = "varnames")
+        #using tidyr to reshape
+        #dat = tidyr::gather(rawdat, -xvals, value = "yvals", key = "varnames")
+        #using basic reshape function to reformat data
+        dat = stats::reshape(rawdat, varying = colnames(rawdat)[-1], v.names = 'yvals', timevar = "varnames", times = colnames(rawdat)[-1], direction = 'long', new.row.names = NULL); dat$id <- NULL
       }
 
       #code variable names as factor and level them so they show up right
@@ -78,8 +81,8 @@ generate_text <- function(res)
       xlabel =  resnow$xlab
       ylabel =  resnow$ylab
 
-      #if missing or false, we won't create text based on data as described below
-      if (is.null(resnow$maketext) || resnow$maketext == FALSE) {maketext = FALSE} else {maketext = TRUE}
+      #if not missing and false, we won't create text based on data as described below
+      if (!is.null(resnow$maketext) && resnow$maketext == FALSE) {maketext = FALSE} else {maketext = TRUE}
 
       if (maketext == TRUE) #if the app wants text display based on result processing, do the stuff below
       {
@@ -123,7 +126,7 @@ generate_text <- function(res)
           if (plottype == 'Scatterplot' )
           {
             rcc = stats::cor.test(vardat[,1],y=vardat[,2], alternative = c("two.sided"), method = c("spearman"))
-            newtxt = paste('Rank Cor. Coef. between',xlabel,' and ',ylabel,' is:',format(rcc$estimate, digits = 2, nsmall = 2),"<br/>")
+            newtxt = paste0('Rank Cor. Coef. between ',xlabel,' and ',ylabel,' is: ',format(rcc$estimate, digits = 2, nsmall = 2),".<br/>")
           }
 
           if (plottype == 'Boxplot' )

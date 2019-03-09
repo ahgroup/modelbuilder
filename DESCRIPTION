@@ -20,6 +20,7 @@ Imports:
     dplyr (>= 0.7.4),
     ggplot2 (>= 2.2),
     gridExtra (>= 2.3),
+    plotly,
     shinyjs,
     stats (>= 3.4),
     tidyr (>= 0.7),

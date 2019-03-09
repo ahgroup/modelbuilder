@@ -15,15 +15,15 @@ modelsettings$modeltype = "_ode_"
 simresult <- analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)
 
 
-test_that("generate_plots returns a plot without specifying anything",
+test_that("generate_ggplot returns a plot without specifying anything",
 {
-  expect_is( modelbuilder::generate_plots(simresult), "ggplot" )
+  expect_is( modelbuilder::generate_ggplot(simresult), "ggplot" )
 })
 
-test_that("generate_plots returns a plot when choosing scatterplot or boxplot",
+test_that("generate_ggplot returns a plot when choosing scatterplot or boxplot",
 {
             simresult[[1]]$plottype = "Scatterplot"
-            expect_is( modelbuilder::generate_plots(simresult), "ggplot" )
+            expect_is( modelbuilder::generate_ggplot(simresult), "ggplot" )
             simresult[[1]]$plottype = "Boxplot"
-            expect_is( modelbuilder::generate_plots(simresult), "ggplot" )
+            expect_is( modelbuilder::generate_ggplot(simresult), "ggplot" )
 })

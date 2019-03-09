@@ -22,6 +22,7 @@ generate_shinyinput <- function(mbmodel, otherinputs = NULL, packagename)
 
     ###########################################
     #create UI elements as input/output for the shiny app
+	#done by parsing a modelbuilder model structure
 
     #numeric input elements for all variable initial conditions
     nvars = length(mbmodel$var)  #number of variables/compartments in model
@@ -60,15 +61,30 @@ generate_shinyinput <- function(mbmodel, otherinputs = NULL, packagename)
             ))
     })
 
+	#browser()
+
     #standard additional input elements for each model
     standardui <- shiny::tagList(
             shiny::numericInput("nreps", "Number of simulations", min = 1, max = 500, value = 1, step = 1),
             shiny::selectInput("modeltype", "Model to run",c("ODE" = "_ode_", 'stochastic' = '_stochastic_', 'discrete time' = '_discrete_'), selected = '_ode_'),
             shiny::numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
-            shiny::selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both"))
-            ) #end taglist
+            shiny::selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both")),
+            shiny::selectInput("plotengine", "plot engine",c("ggplot" = "ggplot", "plotly" = "plotly"))
+    ) #end taglist
 
     standardui = lapply(standardui,myclassfct)
+
+    scanparui <- shiny::tagList(
+        shiny::selectInput("scanparam", "Scan parameter", c("No" = 0, "Yes" = 1)),
+        shiny::selectInput("partoscan", "Parameter to scan", sapply(mbmodel$par, function(x) x[[1]]) ),
+        shiny::numericInput("parmin", "Lower value of parameter", min = 0, max = 1000, value = 1, step = 1),
+        shiny::numericInput("parmax", "Upper value of parameter", min = 0, max = 1000, value = 10, step = 1),
+        shiny::numericInput("parnum", "Number of samples", min = 1, max = 1000, value = 10, step = 1),
+        shiny::selectInput("pardist", "Spacing of parameter values", c('linear' = 'lin', 'logarithmic' = 'log'))
+    ) #end taglist
+
+    scanparui = lapply(scanparui,myclassfct)
+
 
     otherargs = NULL
     if (!is.null(otherinputs))
@@ -78,16 +94,19 @@ generate_shinyinput <- function(mbmodel, otherinputs = NULL, packagename)
 
     #return structure
     modelinputs <- tagList(
-        p(actionButton("submitBtn", "Run Simulation", class = "submitbutton"), align = 'center'),
+        p(
+            actionButton("submitBtn", "Run Simulation", class = "submitbutton"),
+            actionButton(inputId = "reset", label = "Reset Inputs", class = "submitbutton"),
+            align = 'center'),
         allv,
         allp,
         allt,
         standardui,
+        p(scanparui),
         otherargs
     ) #end tagList
 
     return(modelinputs)
-
 
 } #end overall function
 

@@ -5,6 +5,7 @@ packagename = "modelbuilder"
 #make this a non-reactive global variable
 mbmodel = NULL
 
+
 #list of all example models that are provided and can be loaded
 allexamplemodels = c('none' = 'none',
                      'SIR' = 'SIR_model.Rdata',
@@ -18,6 +19,10 @@ allexamplemodels = c('none' = 'none',
 
 #this function is the server part of the app
 server <- function(input, output, session) {
+
+  #to get plot engine be object to always be processed
+  output$plotengine <- renderText('ggplot')
+  outputOptions(output, "plotengine", suspendWhenHidden = FALSE)
 
   #might not need those as reactives, but seems to work so leave for now
   values = reactiveValues(nvar = 1, npar = 1, nflow = rep(1, 100))
@@ -189,7 +194,8 @@ server <- function(input, output, session) {
           ), #end sidebar column for inputs
           column(6,
                  h2('Simulation Results'),
-                 plotOutput(outputId = "plot"),
+                 conditionalPanel("output.plotengine == 'ggplot'", shiny::plotOutput(outputId = "ggplot") ),
+                 conditionalPanel("output.plotengine == 'plotly'", plotly::plotlyOutput(outputId = "plotly") ),
                  htmlOutput(outputId = "text")
           ) #end column with outcomes
         ) #end fluidrow containing input and output
@@ -201,36 +207,64 @@ server <- function(input, output, session) {
     }) # End renderUI for analyze tab
   }) # End observeEvent for click on analyze tab
 
+  ###############
+  #Code to reset the model settings
+  ###############
+  observeEvent(input$reset, {
+    modelinputs <- generate_shinyinput(mbmodel = mbmodel, otherinputs = NULL, packagename = packagename)
+    output$modelinputs <- renderUI({modelinputs})
+    output$plotly <- NULL
+    output$ggplot <- NULL
+    output$text <- NULL
+  })
+
+
 
   #runs model simulation when 'run simulation' button is pressed
   observeEvent(input$submitBtn, {
 
-    #extract current model settings from UI input elements
-    modelsettings = isolate(reactiveValuesToList(input)) #get all shiny inputs
-    #browser()
     #run model with specified settings
     #run simulation, show a 'running simulation' message
-    result <- withProgress(message = 'Running Simulation',
-                           detail = "This may take a while", value = 0,
-                           {
-                             analyze_model(modelsettings = modelsettings, mbmodel = mbmodel )
-                           })
-    #create plot from results
-    output$plot  <- renderPlot({
-      generate_plots(result)
-    }, width = 'auto', height = 'auto')
-    #create text from results
-    output$text <- renderText({
-      generate_text(result)     #create text for display with a non-reactive function
-    })
+    withProgress(message = 'Running Simulation',
+                 detail = "This may take a while", value = 0,
+                 {
+                   #remove previous plots and text
+                   output$ggplot <- NULL
+                   output$plotly <- NULL
+                   output$text <- NULL
+                   modelsettings = isolate(reactiveValuesToList(input)) #get all shiny inputs
+                   result <- analyze_model(modelsettings = modelsettings, mbmodel = mbmodel )
+                   #if things worked, result contains a list structure for processing with the plot and text functions
+                   #if things failed, result contains a string with an error message
+                   if (is.character(result))
+                   {
+                     output$text <- renderText({ paste("<font color=\"#FF0000\"><b>", result, "</b></font>") })
+                   }
+                   else #create plots and text, for plots, do either ggplot or plotly
+                   {
+                     if (modelsettings$plotengine == 'ggplot')
+                     {
+                       output$plotengine <- renderText('ggplot')
+                       output$ggplot  <- shiny::renderPlot({ generate_ggplot(result) })
+                     }
+                     if (modelsettings$plotengine == 'plotly')
+                     {
+                       output$plotengine <- renderText('plotly')
+                       output$plotly  <- plotly::renderPlotly({ generate_plotly(result) })
+                     }
+                     #create text from results
+                     output$text <- renderText({ generate_text(result) })
+                   }
+                 }) #end with-progress wrapper
   }) #end observe-event for analyze model submit button
-
 
   #######################################################
   #######################################################
   #end code that contain the analyze functionality
   #######################################################
   #######################################################
+
+
 
 
   #######################################################
