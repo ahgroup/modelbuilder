@@ -134,9 +134,12 @@ analyze_model <- function(modelsettings, mbmodel) {
     }
     if (modelsettings$scanparam == 1)
     {
-      if (modelsettings$pardist == 'lin') {parvals = seq(modelsettings$parmin,modelsettings$parmax,length=modelsettings$parnum)}
-      if (modelsettings$pardist == 'log') {parvals = 10^seq(log10(modelsettings$parmin),log10(modelsettings$parmax),length=modelsettings$parnum)}
-      for (n in 1:modelsettings$parnum)
+      npar = modelsettings$parnum
+      if (modelsettings$pardist == 'lin') {parvals = seq(modelsettings$parmin,modelsettings$parmax,length=npar)}
+      if (modelsettings$pardist == 'log') {parvals = 10^seq(log10(modelsettings$parmin),log10(modelsettings$parmax),length=npar)}
+      maxvals = matrix(0 ,nrow = npar, ncol = length(mbmodel$var))
+      finalvals = maxvals
+      for (n in 1:npar)
       {
         x=which(names(modelsettings) == modelsettings$partoscan) #find parameter to vary
         modelsettings[[x]] = parvals[n] #set to new value
@@ -149,11 +152,12 @@ analyze_model <- function(modelsettings, mbmodel) {
         dat$nreps = n
         datall = rbind(datall,dat)
         #get max and final values for a parameter scanning plot
-        groupdat = dplyr::group_by(dat,varnames)
-        finalvals = dplyr::summarize(groupdat,last(yvals))
-        maxvals = dplyr::summarize(groupdat,last(yvals))
-        #scandata = data.frame(xvals = parvals, )
-        browser()
+        maxvals[n,] = sapply(simresult[,-1],max)
+        finalvals[n,] = sapply(simresult[,-1],utils::tail,1)
+        colnames(maxvals) <- paste0(colnames(simresult)[-1],'max')
+        colnames(finalvals) <- paste0(colnames(simresult)[-1],'final')
+        scandata = data.frame(xvals = parvals, cbind(maxvals,finalvals))
+        #browser()
       }
     }
     else
@@ -176,31 +180,15 @@ analyze_model <- function(modelsettings, mbmodel) {
     }
   }
 
+
   #time-series
   result[[1]]$dat = datall
-
-  if (modelsettings$scanparam == 1)
-  {
-    result[[2]]$dat = scandata
-  }
-
-
-  ##################################
-  #default for text display, used by most basic simulation models
-  #can/will be potentially overwritten below for specific types of models
-  ##################################
 
   result[[1]]$maketext = TRUE #indicate if we want the generate_text function to process data and generate text
   result[[1]]$showtext = NULL #text can be added here which will be passed through to generate_text and displayed for EACH plot
   result[[1]]$finaltext = 'Numbers are rounded to 2 significant digits.' #text can be added here which will be passed through to generate_text and displayed once
 
-  ##################################
-  #additional settings for all types of simulators
-  ##################################
-
-
   #Meta-information for each plot
-  #Might not want to hard-code here, can decide later
   result[[1]]$plottype = "Lineplot"
   result[[1]]$xlab = "Time"
   result[[1]]$ylab = "Numbers"
@@ -211,6 +199,28 @@ analyze_model <- function(modelsettings, mbmodel) {
   result[[1]]$yscale = 'identity'
   if (plotscale == 'x' | plotscale == 'both') { result[[1]]$xscale = 'log10'}
   if (plotscale == 'y' | plotscale == 'both') { result[[1]]$yscale = 'log10'}
+
+
+  if (modelsettings$scanparam == 1)
+  {
+    result[[2]]$dat = scandata
+    result[[2]]$plottype = "Scatterplot"
+    result[[2]]$xlab = modelsettings$samplepar
+    result[[2]]$ylab = "Outcomes"
+    result[[2]]$legend = "Outcomes"
+    result[[2]]$linesize = 3
+    plotscale = modelsettings$plotscale
+    result[[2]]$xscale = 'identity'
+    result[[2]]$yscale = 'identity'
+    if (plotscale == 'x' | plotscale == 'both') { result[[2]]$xscale = 'log10'}
+    if (plotscale == 'y' | plotscale == 'both') { result[[2]]$yscale = 'log10'}
+    result[[2]]$maketext = FALSE #if true we want the generate_text function to process data and generate text, if 0 no result processing will occur insinde generate_text
+    result[[2]]$showtext = NULL #text for each plot can be added here which will be passed through to generate_text and displayed for each plot
+    result[[2]]$finaltext = NULL
+    result[[1]]$maketext = FALSE #if true we want the generate_text function to process data and generate text, if 0 no result processing will occur insinde generate_text
+    result[[1]]$showtext = NULL #text for each plot can be added here which will be passed through to generate_text and displayed for each plot
+    result[[1]]$finaltext = NULL
+  }
 
   return(result)
 }

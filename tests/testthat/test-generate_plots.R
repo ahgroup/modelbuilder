@@ -11,6 +11,7 @@ modelsettings$nreps = 1
 modelsettings$rngseed = 123
 modelsettings$plotscale = 'lin'
 modelsettings$modeltype = "_ode_"
+modelsettings$scanparam = 0
 
 simresult <- analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)
 

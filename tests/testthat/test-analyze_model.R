@@ -14,6 +14,7 @@ test_that("use SIR model to test analyze_model function",
   modelsettings$nreps = 1
   modelsettings$plotscale = 'lin'
   modelsettings$rngseed = 115
+  modelsettings$scanparam = 0
 
   #test ODE code
   modelsettings$modeltype = "_ode_"
