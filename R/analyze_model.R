@@ -23,9 +23,10 @@ analyze_model <- function(modelsettings, mbmodel) {
 
 
   #short function to call/run model
-  runsimulation <- function(modelsettings, currentmodel)
+  runsimulation <- function(modelsettings)
   {
     #extract modeslettings inputs needed for simulator function
+    currentmodel = modelsettings$currentmodel
     modinput = unlist(modelsettings, recursive = TRUE)
     x = names(formals(currentmodel)$vars); x = x[x!=""] #get rid of empty element
     x2 = match(x, names(modinput))
@@ -61,72 +62,57 @@ analyze_model <- function(modelsettings, mbmodel) {
   #if not present, create code for simulator
   if (grepl('_ode_',modelsettings$modeltype)) #need to always start with ode_ in model specification
   {
-    modelsettings$currentmodel = 'ode'
-    currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode")
-    sim_filename = paste0(currentmodel,".R")
-    sim_file = file.path(tempdir, sim_filename)
+    modelsettings$currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode")
+    sim_file = file.path(tempdir, paste0(modelsettings$currentmodel,".R"))
     if (!exists(sim_file)) {modelbuilder::generate_ode(mbmodel = mbmodel, location = sim_file)}
   }
   if (grepl('_discrete_',modelsettings$modeltype))
   {
-    modelsettings$currentmodel = 'discrete'
-    currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete")
-    sim_filename = paste0(currentmodel,".R")
-    sim_file = file.path(tempdir, sim_filename)
+    modelsettings$currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete")
+    sim_file = file.path(tempdir, paste0(modelsettings$currentmodel,".R"))
     if (!exists(sim_file)) {modelbuilder::generate_discrete(mbmodel = mbmodel, location = sim_file)}
   }
   if (grepl('_stochastic_',modelsettings$modeltype))
   {
-    modelsettings$currentmodel = 'stochastic'
-    currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic")
-    sim_filename = paste0(currentmodel,".R")
-    sim_file = file.path(tempdir, sim_filename)
+    modelsettings$currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic")
+    sim_file = file.path(tempdir, paste0(modelsettings$currentmodel,".R"))
     if (!exists(sim_file)) {modelbuilder::generate_stochastic(mbmodel = mbmodel, location = sim_file)}
   }
   #source file
   source(sim_file)
 
-
-
   ##################################
   #stochastic dynamical model execution
   ##################################
-    for (nn in 1:modelsettings$nreps)
-    {
-      modelsettings$rngseed = modelsettings$rngseed + 1 #need to update RNG seed each time to get different runs
-      simresult[[nn]] = runsimulation(modelsettings, currentmodel)
-    }
+  simresult = vector("list", modelsettings$nreps) #create empty list of right size for results
+  for (nn in 1:modelsettings$nreps)
+  {
+    modelsettings$rngseed = modelsettings$rngseed + 1 #need to update RNG seed each time to get different runs
+    simresulttmp = runsimulation(modelsettings)
+    simresult[[nn]] = simresulttmp$ts
+  }
+  dat = purrr::map(simresult, tidyr::gather,  key = 'varnames', value = "yvals", -time)
+  dat = purrr::map(dat, dplyr::rename, xvals = time)
+  #this is not working
+  browser()
+  dat = purrr::map(dat, dplyr::mutate, IDvar = paste0(varnames,.x))
+  #i don't know if i need this line
+  #dat$nreps = nn
 
 
-      if (class(simresult)!="list")
-      {
-        result <- 'Model run failed. Maybe unreasonable parameter values?'
-        return(result)
-      }
-      #data for plots and text
-      #needs to be in the right format to be passed to generate_plots and generate_text
-      #see documentation for those functions for details
-      colnames(simresult$ts)[1] = 'xvals' #rename time to xvals for consistent plotting
-      #reformat data to be in the right format for plotting
-      dat = tidyr::gather(as.data.frame(simresult$ts), -xvals, value = "yvals", key = "varnames")
-      dat$IDvar = paste(dat$varnames,nn,sep='') #make a variable for plotting same color lines for each run in ggplot2
-      dat$nreps = nn
-      datall = rbind(datall,dat)
-    }
 
-
-    if (modelsettings$scanparam == 1) #scan over parameter
-    {
+  if (modelsettings$scanparam == 1) #scan over parameter
+  {
       npar = modelsettings$parnum
       if (modelsettings$pardist == 'lin') {parvals = seq(modelsettings$parmin,modelsettings$parmax,length=npar)}
       if (modelsettings$pardist == 'log') {parvals = 10^seq(log10(modelsettings$parmin),log10(modelsettings$parmax),length=npar)}
       maxvals = matrix(0 ,nrow = npar, ncol = length(mbmodel$var))
       finalvals = maxvals
+      x=which(names(modelsettings) == modelsettings$partoscan) #find parameter to vary
       for (n in 1:npar)
       {
-        x=which(names(modelsettings) == modelsettings$partoscan) #find parameter to vary
         modelsettings[[x]] = parvals[n] #set to new value
-        simresult = runsimulation(modelsettings, currentmodel)
+        simresult = runsimulation(modelsettings)
         simresult <- simresult$ts
         colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
         #reformat data to be in the right format for plotting
@@ -145,7 +131,7 @@ analyze_model <- function(modelsettings, mbmodel) {
     }
     else
     {
-      simresult = runsimulation(modelsettings, currentmodel) #single run
+      simresult = runsimulation(modelsettings) #single run
       #if error occurs we exit
       if (class(simresult)!="list")
       {
@@ -161,7 +147,6 @@ analyze_model <- function(modelsettings, mbmodel) {
       dat$nreps = 1
       datall = rbind(datall,dat)
     }
-
 
   #time-series
   result[[1]]$dat = datall
