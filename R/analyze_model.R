@@ -39,7 +39,7 @@ analyze_model <- function(modelsettings, mbmodel) {
     timeargs = modinput[x2]
     currentargs = list(vars = setNames(as.numeric(varargs), names(varargs)), pars = setNames(as.numeric(parargs), names(parargs)), time = setNames(as.numeric(timeargs), names(timeargs)))
     #at random seed input for stochastic models
-    if (modelsettings$currentmodel == "stochastic") {currentargs$rngseed = modelsettings$rngseed}
+    if (grepl('_stochastic_',modelsettings$modeltype)) {currentargs$rngseed = modelsettings$rngseed}
     #run simulation, try command catches error from running code.
     simresult <- try( do.call(currentmodel, args = currentargs ) )
     return(simresult)
@@ -52,7 +52,6 @@ analyze_model <- function(modelsettings, mbmodel) {
   listlength = ifelse(modelsettings$scanparam == 1, 2, 1)
   #here we do all simulations in the same figure
   result = vector("list", listlength) #create empty list of right size for results
-  datall = NULL #will hold data for all different models and replicates
 
   #make a temp directory to save file
   tempdir = tempdir()
@@ -82,71 +81,54 @@ analyze_model <- function(modelsettings, mbmodel) {
   source(sim_file)
 
   ##################################
-  #stochastic dynamical model execution
+  #dynamical model execution
   ##################################
-  simresult = vector("list", modelsettings$nreps) #create empty list of right size for results
-  for (nn in 1:modelsettings$nreps)
+  if (grepl('_stochastic_',modelsettings$modeltype))
   {
-    modelsettings$rngseed = modelsettings$rngseed + 1 #need to update RNG seed each time to get different runs
-    simresulttmp = runsimulation(modelsettings)
-    simresult[[nn]] = simresulttmp$ts
+    #replicate modelsettings as list based on number of reps for stochastic
+    allmodset=rep(list(modelsettings),times = modelsettings$nreps)
+    rngvec = seq(modelsettings$rngseed,modelsettings$rngseed+modelsettings$nreps-1)
+    #give the rngseed entry in each list a consecutive value
+    xx = purrr::map2(allmodset, rngvec, ~replace(.x, "rngseed", .y))
   }
-  dat = purrr::map(simresult, tidyr::gather,  key = 'varnames', value = "yvals", -time)
-  dat = purrr::map(dat, dplyr::rename, xvals = time)
-  #this is not working
-  browser()
-  dat = purrr::map(dat, dplyr::mutate, IDvar = paste0(varnames,.x))
-  #i don't know if i need this line
-  #dat$nreps = nn
-
-
-
-  if (modelsettings$scanparam == 1) #scan over parameter
+  if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 1) #scan over a parameter
   {
-      npar = modelsettings$parnum
-      if (modelsettings$pardist == 'lin') {parvals = seq(modelsettings$parmin,modelsettings$parmax,length=npar)}
-      if (modelsettings$pardist == 'log') {parvals = 10^seq(log10(modelsettings$parmin),log10(modelsettings$parmax),length=npar)}
-      maxvals = matrix(0 ,nrow = npar, ncol = length(mbmodel$var))
-      finalvals = maxvals
-      x=which(names(modelsettings) == modelsettings$partoscan) #find parameter to vary
-      for (n in 1:npar)
-      {
-        modelsettings[[x]] = parvals[n] #set to new value
-        simresult = runsimulation(modelsettings)
-        simresult <- simresult$ts
-        colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
-        #reformat data to be in the right format for plotting
-        dat = tidyr::gather(as.data.frame(simresult), -xvals, value = "yvals", key = "varnames")
-        dat$IDvar = paste(dat$varnames,n,sep='') #make a variable for plotting same color lines for each run in ggplot2
-        dat$nreps = n
-        datall = rbind(datall,dat)
-        #get max and final values for a parameter scanning plot
-        maxvals[n,] = sapply(simresult[,-1],max)
-        finalvals[n,] = sapply(simresult[,-1],utils::tail,1)
-        colnames(maxvals) <- paste0(colnames(simresult)[-1],'max')
-        colnames(finalvals) <- paste0(colnames(simresult)[-1],'final')
-        scandata = data.frame(xvals = parvals, cbind(maxvals,finalvals))
-        #browser()
-      }
-    }
-    else
-    {
-      simresult = runsimulation(modelsettings) #single run
-      #if error occurs we exit
-      if (class(simresult)!="list")
-      {
-        result <- 'Model run failed. Maybe unreasonable parameter values?'
-        return(result)
-      }
-      simresult <- simresult$ts
-      colnames(simresult)[1] = 'xvals' #rename time to xvals for consistent plotting
-      #reformat data to be in the right format for plotting
-      rawdat = as.data.frame(simresult)
-      dat = stats::reshape(rawdat, varying = colnames(rawdat)[-1], v.names = 'yvals', timevar = "varnames", times = colnames(rawdat)[-1], direction = 'long', new.row.names = NULL); dat$id <- NULL
-      dat$IDvar = dat$varnames #make variables in case data is combined with stochastic runs. not used for ode.
-      dat$nreps = 1
-      datall = rbind(datall,dat)
-    }
+    npar = modelsettings$parnum
+    if (modelsettings$pardist == 'lin') {parvals = seq(modelsettings$parmin,modelsettings$parmax,length=npar)}
+    if (modelsettings$pardist == 'log') {parvals = 10^seq(log10(modelsettings$parmin),log10(modelsettings$parmax),length=npar)}
+    #replicate modelsettings as list based on how many parameter samples there are
+    allmodset = rep(list(modelsettings), times = npar)
+    #give the parameter to be changed its values
+    xx = purrr::map2(allmodset, parvals, ~replace(.x, modelsettings$partoscan, .y))
+
+  }
+  if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 0) #no parameter scan
+  {
+    xx = modelsettings
+  }
+  #run all simulations for each modelsetting, store in list simresult
+  #since the simulation is returned as list, extract data frame only
+  simresult <- purrr::map(xx,runsimulation)%>% unlist(recursive = FALSE, use.names = FALSE)
+  if (class(simresult)!="list")
+  {
+    result <- 'Model run failed. Maybe unreasonable parameter values?'
+    return(result)
+  }
+  #convert data to long format
+  dat = purrr::map(simresult, tidyr::gather,  key = 'varnames', value = "yvals", -time)
+  #rename time to xvals
+  dat = purrr::map(dat, dplyr::rename, xvals = time)
+  #convert list into single data frame, add IDvar variable
+  dat = dplyr::bind_rows(dat, .id = "IDvar")
+  #assign IDvar combination of number and variable name - the way the plotting functions need it
+  datall = dplyr::mutate(dat, IDvar = paste0(varnames,IDvar))
+  browser()
+  xx = group_by(datall,IDvar)
+  mfvals = mutate(xx, max = max(yvals), final = last(yvals))
+    #save final results
+    #colnames(maxvals) <- paste0(colnames(simresult)[-1],'max')
+    #colnames(finalvals) <- paste0(colnames(simresult)[-1],'final')
+    scandata = data.frame(xvals = parvals, cbind(maxvals,finalvals))
 
   #time-series
   result[[1]]$dat = datall
