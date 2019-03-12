@@ -17,6 +17,10 @@ check_model <- function(mbmodel) {
     #check that no non-standard characters are used in title. only letters and numbers and spaces are allowed.
     pattern = "^[A-Za-z0-9 ]+$"
     if (!grepl(pattern,mbmodel$title)) {mberror = "Please only use letters, numbers and spaces in title"; return(mberror) }
+    #check that title starts with a letter. Needed since title will be name of R function and those need to start with letter.
+    pattern = "^[A-Za-z]"
+    if (!grepl(pattern,mbmodel$title[1])) {mberror = "Model name needs to start with a letter."; return(mberror) }
+
 
     ################################
     #check all time related fields

@@ -65,14 +65,20 @@ generate_shinyinput <- function(mbmodel, otherinputs = NULL, packagename)
 
     #standard additional input elements for each model
     standardui <- shiny::tagList(
-            shiny::numericInput("nreps", "Number of simulations", min = 1, max = 500, value = 1, step = 1),
-            shiny::selectInput("modeltype", "Model to run",c("ODE" = "_ode_", 'stochastic' = '_stochastic_', 'discrete time' = '_discrete_'), selected = '_ode_'),
-            shiny::numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1),
             shiny::selectInput("plotscale", "Log-scale for plot:",c("none" = "none", 'x-axis' = "x", 'y-axis' = "y", 'both axes' = "both")),
-            shiny::selectInput("plotengine", "plot engine",c("ggplot" = "ggplot", "plotly" = "plotly"))
+            shiny::selectInput("plotengine", "plot engine",c("ggplot" = "ggplot", "plotly" = "plotly")),
+            shiny::selectInput("modeltype", "Model to run",c("ODE" = "_ode_", 'stochastic' = '_stochastic_', 'discrete time' = '_discrete_'), selected = '_ode_')
     ) #end taglist
 
     standardui = lapply(standardui,myclassfct)
+
+    #standard additional input elements for each model
+    stochasticui <- shiny::tagList(
+        shiny::numericInput("nreps", "Number of simulations", min = 1, max = 500, value = 1, step = 1),
+        shiny::numericInput("rngseed", "Random number seed", min = 1, max = 1000, value = 123, step = 1)
+    ) #end taglist
+
+    stochasticui = lapply(stochasticui,myclassfct)
 
     scanparui <- shiny::tagList(
         shiny::selectInput("scanparam", "Scan parameter", c("No" = 0, "Yes" = 1)),
@@ -102,6 +108,9 @@ generate_shinyinput <- function(mbmodel, otherinputs = NULL, packagename)
         allp,
         allt,
         standardui,
+        p('Settings for stochastic model:'),
+        stochasticui,
+        p('Settings for optional parameter scan for ODE/discrete models:'),
         p(scanparui),
         otherargs
     ) #end tagList

@@ -45,13 +45,6 @@ analyze_model <- function(modelsettings, mbmodel) {
     return(simresult)
   }
 
-  #save all results to a list for processing plots and text
-  #list corresponds to number of plots
-  #1 plot for time-series only
-  #2 plots if we sample over parameter
-  listlength = ifelse(modelsettings$scanparam == 1, 2, 1)
-  #here we do all simulations in the same figure
-  result = vector("list", listlength) #create empty list of right size for results
 
   #make a temp directory to save file
   tempdir = tempdir()
@@ -85,6 +78,8 @@ analyze_model <- function(modelsettings, mbmodel) {
   ##################################
   if (grepl('_stochastic_',modelsettings$modeltype))
   {
+    #1 plot for time-series only
+    listlength =  1
     #replicate modelsettings as list based on number of reps for stochastic
     allmodset=rep(list(modelsettings),times = modelsettings$nreps)
     rngvec = seq(modelsettings$rngseed,modelsettings$rngseed+modelsettings$nreps-1)
@@ -93,6 +88,10 @@ analyze_model <- function(modelsettings, mbmodel) {
   }
   if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 1) #scan over a parameter
   {
+    #save all results to a list for processing plots and text
+    #list corresponds to number of plots
+    #2 plots if we sample over parameter
+    listlength =  2
     npar = modelsettings$parnum
     if (modelsettings$pardist == 'lin') {parvals = seq(modelsettings$parmin,modelsettings$parmax,length=npar)}
     if (modelsettings$pardist == 'log') {parvals = 10^seq(log10(modelsettings$parmin),log10(modelsettings$parmax),length=npar)}
@@ -104,11 +103,13 @@ analyze_model <- function(modelsettings, mbmodel) {
   }
   if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 0) #no parameter scan
   {
-    xx = modelsettings
+    #1 plot for time-series only
+    listlength =  1
+    xx = rep(list(modelsettings),times = 1) #don't really replicate list, but get it into right structure
   }
   #run all simulations for each modelsetting, store in list simresult
   #since the simulation is returned as list, extract data frame only
-  simresult <- purrr::map(xx,runsimulation)%>% unlist(recursive = FALSE, use.names = FALSE)
+  simresult <- purrr::map(xx,runsimulation) %>% unlist(recursive = FALSE, use.names = FALSE)
   if (class(simresult)!="list")
   {
     result <- 'Model run failed. Maybe unreasonable parameter values?'
@@ -122,15 +123,9 @@ analyze_model <- function(modelsettings, mbmodel) {
   dat = dplyr::bind_rows(dat, .id = "IDvar")
   #assign IDvar combination of number and variable name - the way the plotting functions need it
   datall = dplyr::mutate(dat, IDvar = paste0(varnames,IDvar))
-  browser()
-  xx = group_by(datall,IDvar)
-  mfvals = mutate(xx, max = max(yvals), final = last(yvals))
-    #save final results
-    #colnames(maxvals) <- paste0(colnames(simresult)[-1],'max')
-    #colnames(finalvals) <- paste0(colnames(simresult)[-1],'final')
-    scandata = data.frame(xvals = parvals, cbind(maxvals,finalvals))
 
   #time-series
+  result = vector("list", listlength) #create empty list of right size for results
   result[[1]]$dat = datall
 
   result[[1]]$maketext = TRUE #indicate if we want the generate_text function to process data and generate text
@@ -150,8 +145,18 @@ analyze_model <- function(modelsettings, mbmodel) {
   if (plotscale == 'y' | plotscale == 'both') { result[[1]]$yscale = 'log10'}
 
 
-  if (modelsettings$scanparam == 1)
+  if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 1) #scan over a parameter
   {
+    xx = dplyr::group_by(datall,IDvar,varnames)
+    maxvals = dplyr::summarise(xx, yvals = max(yvals))
+    maxvals = dplyr::mutate(maxvals, varnames = paste0(varnames,'max'))
+    maxvals = dplyr::select(ungroup(maxvals), -IDvar)
+    maxvals$xvals = parvals
+    finalvals = dplyr::summarise(xx, yvals = dplyr::last(yvals))
+    finalvals = dplyr::mutate(finalvals, varnames = paste0(varnames,'final'))
+    finalvals = dplyr::select(dplyr::ungroup(finalvals), -IDvar)
+    finalvals$xvals = parvals
+    scandata = rbind(maxvals,finalvals)
     result[[2]]$dat = scandata
     result[[2]]$plottype = "Scatterplot"
     result[[2]]$xlab = modelsettings$samplepar

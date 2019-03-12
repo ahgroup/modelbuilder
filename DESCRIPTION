@@ -21,6 +21,7 @@ Imports:
     ggplot2 (>= 2.2),
     gridExtra (>= 2.3),
     plotly,
+    purrr,
     shinyjs,
     stats (>= 3.4),
     tidyr (>= 0.7),
