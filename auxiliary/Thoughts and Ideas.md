@@ -2,9 +2,9 @@
 
 
 ## Future features/to-do
-* Add a repository for user contributed models to package/github
-* 
-
+* Add a repository for user contributed models to package/github site
+* do import/export to SBML 
+* add code to generate figure
 
 ## Package coding conventions
 * The name of the non-reactive modelbuilder object must be mbmodel
@@ -13,8 +13,8 @@
 
 ## Current package structure 
 * Currently, user loads package, starts main menu with `modelbuilder()`
-* Main menu lets users build a new model, load an existing model, modify or analyze existing model, export code for existing model, and do import/export to SBML. Only some of the features are currently implemented/working.
-* Each model is saved as list structure called 'model' and stored in Rdata files.
+* Main menu lets users build a new model, load an existing model, modify or analyze existing model, export code for existing model
+* Each model is saved as list structure called 'mbmodel' and stored in Rdata files.
 * Several functions take the model structure and turn it into R code/functions for implementing the model as ODE, stochastic/adaptivetau, discrete time, RxODE, SBML, etc. (only some implemented yet)
 * As model is built, a diagram is drawn 
 * As model is built, equations are written to screen as Latex/shiny output object 
