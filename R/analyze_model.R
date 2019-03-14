@@ -3,7 +3,7 @@
 #' @description This function takes a modelbuilder model and model settings.
 #' It runs the simulation determined by the model settings and returns simulation results.
 #'
-#' @param modelsettings vector of model settings:
+#' @param modelsettings a list of model settings:
 #' \itemize{
 #' \item modeltype : A string indicating the type of model. Accepted values are "ode", "stochastic", and "discrete".
 #' \item rngseed : A random number seed for the simulation.
@@ -14,7 +14,7 @@
 #' \item times : named vector of values for tstart, tfinal, dt
 #' }
 #' @param mbmodel A modelbuilder model object.
-#' @return A list named "result" with the simulated dataframe and associated metadata.
+#' @return A list named "result" with each simulation and associated metadata as a sub-list.
 #' @details This function runs a modelbuilder model for specific settings.
 #' @importFrom stats setNames
 #' @export
