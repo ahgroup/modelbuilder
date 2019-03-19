@@ -7,7 +7,7 @@
 generate_stochastic(mbmodel, location = NULL)
 }
 \arguments{
-\item{mbmodel}{a modelbuilder model structure, either as list object or Rdata file name}
+\item{mbmodel}{a modelbuilder model structure, either as list object or file name}
 
 \item{location}{a filename and path to save the simulation code to. Default is current directory}
 }
@@ -20,7 +20,7 @@ the name of the file is simulate_model$title_adaptivetau.R
 The model needs to adhere to the structure specified by the modelbuilder package
 models built using the modelbuilder package automatically have the right structure
 a user can also build a model list structure themselves following the specifications
-if the user provides an Rdata file name, this file needs to contain an object called 'model'
+if the user provides an file name, this file needs to contain an object called 'model'
 and contain a valid modelbuilder model structure
 }
 \details{
