@@ -68,7 +68,11 @@ check_model <- function(mbmodel) {
     math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ","")
     allsymbols = c(math_symbols,varnames,parnames)
     if (sum(!(flowsymbols %in% allsymbols)) >0) {mberror = "Your flows contain non-defined variables/parameters or non-allowed symbols"; return(mberror)}
-
+    #STILL NEED TO WRITE THE FOLLOWING CHECK
+    #check that each flow shows up at most twice
+    #branched flows, e.g. -bSI leaving a compartment and fbSI arriving in one and (1-f)bSI in another
+    #are not allowed. Those flows need during the model building stage be written as 2 independent flows
+    #-bfSI/bfSI and -(1-f)bSI/(1-f)bSI
 
     #if no problems occured, return mberror which should be NULL
     return(mberror)
