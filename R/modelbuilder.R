@@ -1,6 +1,6 @@
-#' @title The main menu for the modelbuilder package
+#' @title Load the main menu for the modelbuilder package
 #'
-#' @description This function opens a menu which allows the user to build or analyze models
+#' @description This function opens a shiny app menu which allows the user to build or analyze models
 #'
 #' @details Run this function with no arguments to start the main menu
 #' @examples
@@ -14,7 +14,7 @@ modelbuilder <- function() {
   while (cond == 1)
   {
     appname <- NULL
-    appDir <- system.file("mainmenu", package = "modelbuilder")
+    appDir <- system.file("modelbuilder", package = "modelbuilder")
     appname = shiny::runApp(appDir = appDir, launch.browser= TRUE)
     if (!is.null(appname) & appname != "Exit")     #run the shiny app chosen
     {
@@ -30,7 +30,8 @@ modelbuilder <- function() {
 }
 
 #needed to prevent NOTE messages on CRAN checks
-utils::globalVariables(c("xvals", "yvals", "varnames","IDvar","style"))
+utils::globalVariables(c("xvals", "yvals", "varnames","IDvar","style","time"))
+
 
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("Welcome to the modelbuilder package. Type modelbuilder() to get started.")

@@ -30,6 +30,3 @@ It runs the simulation determined by the model settings and returns simulation r
 \details{
 This function runs a modelbuilder model for specific settings.
 }
-\author{
-Spencer D. Hall, Andreas Handel
-}

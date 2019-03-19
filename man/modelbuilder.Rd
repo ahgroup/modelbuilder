@@ -2,12 +2,12 @@
 % Please edit documentation in R/modelbuilder.R
 \name{modelbuilder}
 \alias{modelbuilder}
-\title{The main menu for the modelbuilder package}
+\title{Load the main menu for the modelbuilder package}
 \usage{
 modelbuilder()
 }
 \description{
-This function opens a menu which allows the user to build or analyze models
+This function opens a shiny app menu which allows the user to build or analyze models
 }
 \details{
 Run this function with no arguments to start the main menu

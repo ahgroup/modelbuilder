@@ -29,7 +29,12 @@ The audience for this app are individuals interested in dynamical models who are
 
 
 ## Installing the package 
-The package is currently only on Github. Install from there.
+The package is currently only on Github. Install from there using devtools with these commands.
+
+```{r, eval=FALSE, echo=TRUE}
+install.pacakges('devtools') #if not installed
+devtools::install_github('ahgroup/modelbuilder')
+```
 
 Package installation is a one-time process, unless R itself is being upgraded/reinstalled. Note that the package depends on other packages, which will also be installed as needed.
 
@@ -49,41 +54,47 @@ modelbuilder()
 This will bring up a graphical user interface from which everything is done. Once your are done using `modelbuilder`, simply close the graphical user interface.
 
 
+## Main menu
+
+* The 'Main' tab allows you to load a previously created and saved model, which needs to be built by the modelbuilder package and stored in an .Rdata file. During loading, the package will check to ensure the model is valid. Alternatively, you can load a few example models. 
+* To remove a currently loaded model, clear it. 
+* If a model is loaded, you can export the R code that runs the model as either ODE, stochastic or discrete-time model. Note that this is a 'one-way' process, you can (currently) not edit the R code you receive and load it back into `modelbuilder`. Thus, this functionality is meant if you are ready to take matters in your own hand and modify the code beyond what can be done with the `modelbuilder` package.
+
 ## Building a model
 
-The 'build' tab allows you to either build a new model, or modify an existing, loaded model (modify functionality not yet fully implemented). 
+* The 'build' tab allows you to either build a new model if currently no model is loaded, or modify an existing, currently loaded model. 
+* You should probably first sketch out your model as a diagram (and/or equations) so you know which compartments, parameters and processes/flows to include.
+* Use the add/remove buttons to add variables/flows/parameters to the model. 
+* A few notes on model building: 
+    - You need to fill all empty fields.
+    - All variables need to start with an uppercase letter, all parameters need to start with a lowercase letter. Only letters and numbers are allowed. 
+    - Flows can include variables, parameters and the following mathematical symbols: +-*/^() Other symbols (e.g. `sin` or `cos`) are not yet implemented.
+    - If a flow indicates moving from one compartment to another, you need to write it twice. E.g. if susceptible move to infected, you need a `-bSI` outflow for the susceptibles and the corresponding `bSI` inflow for infected.
+    - Every parameter used in one of the flows must be specified in the _model parameter_ section.
 
-Under the build tab, you can graphically build a model by adding variables, flows and parameters. Once you finished specifying your model, you can generate it. This checks for errors, if none are present it will create the underlying model object and show the equations as set of differential equations for the underlying model.
-
-Once you're done building the model, and you're happy with it, you should save model. This will save your model in an Rdata file in the location you specify.
-
-
+* Once you think your model is correct, press the _Make Model_ button. `modelbuilder` will check to make sure all the information you entered seems valid and follows the above listed rules. **That does not mean your model is correct/right!** It only means that the error checks couldn't find anything that made it look like an improperly defined `modelbuilder` model object. If there are errors, you will be told to fix them. Once no errors are found, you have the option to save your model as an .Rdata file. This is recommended if you want to later load and further edit or analyze it. If you don't save and `modelbuilder` closes for whatever reasons, your model is gone.
+* Once your model has been created, you will see the equations displayed. Check them to make sure they look as you expect, of not modify your model. 
+* NOT YET IMPLEMENTED:
+  - A diagram for the model will be drawn
+  - You can download the diagram and the equations as figures
 
 
 ## Analyzing a model
-to analyze a model, you first need to load one (in the form of an Rdata file) that you or someone else previously built. 
 
-Once you have created a model, saved it, and produced a function for a specific implementation for instance an ODE function, you can use the analyze tab to simulate your model for different parameter values and graphically analyze the results.
-By clicking the "export scenario" button, you can export the code that runs the model with the settings you chose and produces the figures shown in the GUI.
-
-Similarly, by pressing the save diagram button, you can save the diagram for the model as a PNG file in the location you want.
-
-If you previously built a model, you can load it with the load model button. Once the model is loaded you can further modify it and save a modified version.
+* To analyze a model, you first need to load one or create one with the build functionality. 
+* nce you have loaded or created a model, you can use the analyze tab to simulate your model for different parameter values and graphically analyze the results. You can choose if you want to run the model as ODE, stochastic or discrete time model.
+* NOT YET IMPLEMENTED:
+  - Export code that runs the model with chosen settingsand produces the figure shown in the GUI.
 
 
 
-## Exporting model code
-If you want to perform analyses beyond what you can do through the graphical interface, you have the option of exporting code for the model as R function. You can choose if you want code for an ODE, discrete-time, or stochastic model. 
+## Roadmap
 
+In addition to the not-yet implemented features stated above, the following are planned:
 
+- Have import/export function to interface with SBML
 
-## Further ideas
+Let us know if there are others you want to see implemented!
 
-**Most features are not yet implemented, this is a roadmap!**
-
-
-a model diagram (not yet implemented)
-
-Have an import button that allows users to import models that are written in for instance SMBL
 
 ## References

@@ -13,7 +13,7 @@
 #' @author Andreas Handel
 #' @export
 
-generate_diagram <- function(model) {
+generate_flowchart_ggplot <- function(model) {
 
     #if the model is passed in as a string, it is assumed to be the
     #location/name of an Rdata file containing an model and we'll load it
@@ -77,27 +77,46 @@ generate_diagram <- function(model) {
 
             #find which variables this flow shows up in
             connectvars = unname(which(flowmatred == currentflow, arr.ind = TRUE)[,1])
-            #if no other variable, make a flow that goes from current compartment to nowhere
+
+            ###########################################################################################
+            #make different connections for different flows
+            #note that the only types of flows allowed are these:
+            #* flows that enter/leave compartments from 'nowhere'
+            #* flows that connect a compartment with itself (e.g. a growth term)
+            #* flows that connect 2 compartments.
+            #branched flows, e.g. -bSI leaving a compartment and fbSI arriving in one and (1-f)bSI in another
+            #are not allowed. Those flows need during the model building stage be written as 2 independent flows
+            #-bfSI/bfSI and -(1-f)bSI/(1-f)bSI
+
+
+            ###########################################################################################
+            #if flow shows up as single term
+            #i.e. a variable has an inflow or outflow not leading to another variable
+            #make a flow that goes from current compartment to nowhere
             if (length(connectvars) == 1 && currentsign == "+") #an inflow, coming from top
             {
-                browser()
-                #plot4 = plot4 + ggplot2::geom_segment(aes(x = d$xcenter[i], y = d$ymax[i]+0.1, xend = d$xcenter[i], yend = d$ymax[i] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
+                plot4 = plot4 + ggplot2::geom_segment(aes(x = d$xcenter[i], y = d$ymax[i]+0.1, xend = d$xcenter[i], yend = d$ymax[i] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
                 browser()
             }
             if (length(connectvars) == 1 && currentsign == "-") #an outflow
             {
-                browser()
-                #plot4 = plot4 + ggplot2::geom_segment(aes(x = d$xcenter[i], y = d$ymin[i], xend = d$xcenter[i], yend = d$ymin[i]-0.1), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
+                plot4 = plot4 + ggplot2::geom_segment(aes(x = d$xcenter[i], y = d$ymin[i], xend = d$xcenter[i], yend = d$ymin[i]-0.1), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
                 browser()
             }
-            #if one other variable, connect with arrow
-            if (length(connectvars) == 2 && currentsign == "+") #an inflow
+
+            ###########################################################################################
+            #if flow shows up twice
+            #i.e. a variable has an inflow or outflow that leads to another variable
+            #make a flow that goes from current compartment to nowhere
+
+            #since every inflow is connected to an outflow, we only need to assign arrows
+            #for outflows and connect them to the inflow variable
+            if (length(connectvars) == 2 && currentsign == "-") #an outflow
             {
                 linkvar = connectvars[which(connectvars != i)] #find number of variable to link to
                 if (abs(linkvar-i)==1) #if the variables are neighbors, make straight arrow, otherwise curved
                 {
-                    browser()
-                    #plot4 = plot4 + geom_segment(aes(x = d$xmax[linkvar], y = d$ycenter[linkvar], xend = d$xmin[i], yend = d$ycenter[i] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
+                    plot4 = plot4 + geom_segment(aes(x = d$xmax[i], y = d$ycenter[i], xend = d$xmin[linkvar], yend = d$ycenter[linkvar] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"), linejoin='mitre')
                     browser()
                 }
                 else
@@ -105,22 +124,8 @@ generate_diagram <- function(model) {
                     #curvedarrow(from=elpos[linkvar,],to=elpos[i,],curve=0.4)
                 }
             }
-            if (length(connectvars) == 2 && currentsign == "-") #an outflow
-            {
-                linkvar = connectvars[which(connectvars != i)] #find number of variable to link to
-                if (abs(linkvar-i)==1) #if the variables are neighbors, make straight arrow, otherwise curved
-                {
-                    browser()
-                    #plot4 = plot4 + geom_segment(aes(x = d$xmax[i], y = d$ycenter[i], xend = d$xmin[linkvar], yend = d$ycenter[linkvar] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"))
-                    plot5 = plot4 + geom_segment(aes(x = d$xmax[i], y = d$ycenter[i], xend = d$xmin[linkvar], yend = d$ycenter[linkvar] ))
-                    browser()
-                }
-                else
-                {
-                    #diagram::curvedarrow(from=elpos[i,], to=elpos[linkvar,],curve=0.4)
-                }
-            }
-            #more than one variable, i.e. a splitting flow, is currently not allowed
+
+            #Note: flows connecting more than 2 variables, i.e. a splitting flow, is currently not allowed
             #could possibly be implemented using treearrow
         } #end loop over flows for each variable
     } #end loop over all variables

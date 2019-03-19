@@ -5,7 +5,7 @@
 #' @param res A list structure containing all simulation results that are to be plotted.
 #'    The length of the list indicates the number of separate plots to make.
 #'    Each list entry corresponds to one plot and
-#'    needs to contain the following information/elements:
+#'    needs to contain the following information/elements: \cr
 #'    1. A data frame called "dat" or "ts". If the data frame is "ts" it is assumed to be
 #'    a time series and by default a line plot will be produced and labeled Time/Numbers.
 #'    For plotting, the data needs to be in a format with one column called xvals, one column yvals,
@@ -14,26 +14,31 @@
 #'    If a column 'varnames' exist, it is assumed the data is in the right format. Otherwise it will be transformed.
 #'    An optional column called IDvar can be provided for further grouping (i.e. multiple lines for stochastic simulations).
 #'    If plottype is 'mixedplot' an additional column called 'style' indicating line or point plot
-#'    for each variable is needed.
-#'    2. Meta-data for the plot, provided in the following variables:
-#'    optional: plottype - One of "Lineplot" (default is nothing is provided),"Scatterplot","Boxplot", "Mixedplot".
-#'    optional: xlab, ylab - Strings to label axes.
-#'    optional: xscale, yscale - Scaling of axes, valid ggplot2 expression, e.g. "identity" or "log10".
-#'    optional: xmin, xmax, ymin, ymax - Manual min and max for axes.
-#'    optional: legendtitle - Legend title, if NULL/not supplied no legend will be plotted.
-#'    optional: linesize - Width of line, numeric, i.e. 1.5, 2, etc. set to 1.5 if not supplied.
-#'    optional: title - A title for each plot.
+#'    for each variable is needed. \cr
+#'    2. Meta-data for the plot, provided in the following variables: \cr
+#'    optional: plottype - One of "Lineplot" (default if nothing is provided),"Scatterplot","Boxplot", "Mixedplot". \cr
+#'    optional: xlab, ylab - Strings to label axes. \cr
+#'    optional: xscale, yscale - Scaling of axes, valid ggplot2 expression, e.g. "identity" or "log10". \cr
+#'    optional: xmin, xmax, ymin, ymax - Manual min and max for axes. \cr
+#'    optional: makelegend - TRUE/FALSE, add legend to plot. Assume true if not provided. \cr
+#'    optional: legendtitle - Legend title, if NULL/not supplied, default is used \cr
+#'    optional: legendlocation - if "left" is specified, top left. Otherwise top. \cr
+#'    optional: linesize - Width of line, numeric, i.e. 1.5, 2, etc. set to 1.5 if not supplied. \cr
+#'    optional: title - A title for each plot. \cr
+#'    optional: for multiple plots, specify res[[1]]$ncols to define number of columns \cr
 #'
-#' @return A plot structure for display in a Shiny UI.
+#' @return A ggplot plot structure for display in a Shiny UI.
 #' @details This function is called by the Shiny server to produce plots returned to the Shiny UI.
 #' Create plots run the simulation with default parameters just call the function:
 #' result <- simulate_basicbacteria()
-#' @author Andreas Handel
-#' @import ggplot2
+#' plot <- generate_ggplot(result)
+#' @rawNamespace import(ggplot2, except = last_plot)
+#' @importFrom stats reshape
 #' @importFrom gridExtra grid.arrange
+#' @author Andreas Handel
 #' @export
 
-generate_plots <- function(res)
+generate_ggplot <- function(res)
 {
 
     #nplots contains the number of plots to be produced.
@@ -41,7 +46,7 @@ generate_plots <- function(res)
 
     allplots=list() #will hold all plots
 
-    #lower and upper bounds for plots, these are used if none are provided by calling fuction
+    #lower and upper bounds for plots, these are used if none are provided by calling function
     lb = 1e-10;
     ub = 1e20;
 
@@ -64,8 +69,6 @@ generate_plots <- function(res)
 
       plottype <- if(is.null(resnow$plottype)) {'Lineplot'} else  {resnow$plottype} #if nothing is provided, we assume a line plot. That could lead to silly plots.
 
-
-
       #if the first column is called 'Time' (as returned from several of the simulators)
       #rename to xvals for consistency and so the code below will work
       if ( colnames(rawdat)[1] == 'Time' | colnames(rawdat)[1] == 'time' ) {colnames(rawdat)[1] <- 'xvals'}
@@ -80,15 +83,14 @@ generate_plots <- function(res)
       }
       else
       {
-        dat = tidyr::gather(rawdat, -xvals, value = "yvals", key = "varnames")
+        #using basic reshape function to reformat data
+        dat = stats::reshape(rawdat, varying = colnames(rawdat)[-1], v.names = 'yvals', timevar = "varnames", times = colnames(rawdat)[-1], direction = 'long', new.row.names = NULL)
+		dat$id <- NULL
       }
 
       #code variable names as factor and level them so they show up right in plot - factor is needed for plotting and text
       mylevels = unique(dat$varnames)
       dat$varnames = factor(dat$varnames, levels = mylevels)
-
-      #browser()
-
 
       #see if user/calling function supplied x- and y-axis transformation information
       xscaletrans <- ifelse(is.null(resnow$xscale), 'identity',resnow$xscale)
@@ -109,16 +111,17 @@ generate_plots <- function(res)
       #set line size as given by app or to 1.5 by default
       linesize = ifelse(is.null(resnow$linesize), 1.5, resnow$linesize)
 
-      #if the IDvar variable exists, use it for further stratification, otherwise just stratify on varnames
-      if (is.null(dat$IDvar))
+       #if the IDvar variable exists, use it for further stratification, otherwise just stratify on varnames
+	  if (is.null(dat$IDvar))
       {
         p1 = ggplot2::ggplot(dat, ggplot2::aes(x = xvals, y = yvals, color = varnames, linetype = varnames, shape = varnames) )
       }
-      if (!is.null(dat$IDvar))
+      else
       {
         p1 = ggplot2::ggplot(dat, ggplot2::aes(x = xvals, y = yvals, color = varnames, linetype = varnames, group = IDvar) )
       }
 
+      ###choose between different types of plots
       if (plottype == 'Scatterplot')
       {
         p2 = p1 + ggplot2::geom_point( size = linesize, na.rm=TRUE)
@@ -127,7 +130,7 @@ generate_plots <- function(res)
       {
         p2 = p1 + ggplot2::geom_boxplot()
       }
-      if (plottype == 'Lineplot') #if nothing is provided for plottype, we assume a lineplot is wanted
+      if (plottype == 'Lineplot')
       {
         p2 = p1 + ggplot2::geom_line(size = linesize, na.rm=TRUE)
       }
@@ -140,35 +143,57 @@ generate_plots <- function(res)
 
 
 
-      #no numbering/labels on x-axis for boxplots
-      if (plottype == 'Boxplot')
+	 #set x-axis. no numbering/labels on x-axis for boxplots
+	 if (plottype == 'Boxplot')
       {
         p3 = p2 + ggplot2::scale_x_continuous(trans = xscaletrans, limits=c(xmin,xmax), breaks = NULL, labels = NULL)
       }
-      if (plottype != 'Boxplot')
+      else
       {
         p3 = p2 + ggplot2::scale_x_continuous(trans = xscaletrans, limits=c(xmin,xmax))
         if (!is.null(resnow$xlab)) { p3 = p3 + ggplot2::xlab(resnow$xlab) }
       }
 
-      #apply y-axis
-      p5 = p3 + ggplot2::scale_y_continuous(trans = yscaletrans, limits=c(ymin,ymax))
-      if (!is.null(resnow$ylab)) { p5 = p5 + ggplot2::ylab(resnow$ylab) }
+      #apply y-axis and if provided, label
+      p4 = p3 + ggplot2::scale_y_continuous(trans = yscaletrans, limits=c(ymin,ymax))
+      if (!is.null(resnow$ylab)) { p4 = p4 + ggplot2::ylab(resnow$ylab) }
 
-      #do legend
-      if (is.null(resnow$legend))
+      #apply title if provided
+      if (!is.null(resnow$title))
       {
-        p6 = p5 + ggplot2::theme(legend.position="none")
+        p4 = p4 + ggplot2::ggtitle(resnow$title)
+      }
+
+      #modify overall theme
+      p5 = p4 + ggplot2::theme_bw(base_size = 18)
+
+
+      #do legend if TRUE or not provided
+      if (is.null(resnow$makelegend) || resnow$makelegend)
+      {
+        if (!is.null(resnow$legendlocation) && resnow$legendlocation == "left")
+        {
+             legendlocation = c(0,1)
+        }
+        else #default placement on top
+        {
+           legendlocation = "top"
+        }
+        legendtitle = ifelse(is.null(resnow$legendtitle), "Variables", resnow$legendtitle)
+
+        p5a = p5 + ggplot2::theme(legend.key.width = grid::unit(3, "line"))
+        p5b = p5a + ggplot2::theme(legend.position = legendlocation)
+        p5c = p5b + ggplot2::scale_linetype_discrete(name = legendtitle) + ggplot2::scale_shape_discrete(name = legendtitle)
+        p6 = p5c + guides(fill=guide_legend(title.position="top", nrow=3, byrow=TRUE))
       }
       else
       {
-        p6 = p5 + ggplot2::theme(legend.key.width = grid::unit(3,"line")) + ggplot2::scale_colour_discrete(name  = resnow$legend) + ggplot2::scale_linetype_discrete(name = resnow$legend) + ggplot2::scale_shape_discrete(name = resnow$legend)
+          p6 = p5 + ggplot2::theme(legend.position="none")
       }
 
-      #apply title if provided
-      if (!is.null(resnow$title)) { p6 = p6 + ggplot2::ggtitle(resnow$title) }
+      #modify overall theme
+      pfinal = p6
 
-      pfinal = p6 + ggplot2::theme_bw()
       allplots[[n]] = pfinal
 
     } #end loop over individual plots
@@ -180,15 +205,18 @@ generate_plots <- function(res)
     #cowplot is an alternative to arrange plots.
     #There's a reason I ended up using grid.arrange() instead of cowplot but I can't recall
 
-    if (n>1)
+    if (nplots>1)
     {
       #number of columns needs to be stored in 1st list element
-      gridExtra::grid.arrange(grobs = allplots, ncol = res[[1]]$ncol)
+      #browser()
+      resultplot <- gridExtra::grid.arrange(grobs = allplots, ncol = res[[1]]$ncols)
+      #resultplot <- gridExtra::arrangeGrob(grobs = allplots, ncol = res[[1]]$ncol)
       #cowplot::plot_grid(plotlist = allplots, ncol = res[[1]]$ncol)
 
     }
-    if (n==1)
+    if (nplots==1)
     {
-      graphics::plot(pfinal)
+      resultplot <- pfinal
     }
+    return(resultplot)
 }

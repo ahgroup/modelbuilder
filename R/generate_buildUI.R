@@ -39,18 +39,9 @@ generate_buildUI <- function(mbmodel, output)
             ),
 
 
-            tags$p('All variables need to start with an uppercase letter, all parameters need to start with a lowercase letter. Only letters and numbers are allowed. Flows need to include variables, parameters and the following mathematical symbols: +,-,*,/,^,()'),
-            #fluidRow(
-            fluidRow(
-                column(6,
-                       actionButton("makemodel", "Make model", class="submitbutton")
-                ),
-                column(6,
-                       downloadButton('savemodel', "Save Model", class="savebutton")
+            tags$p("All variables need to start with an uppercase letter, all parameters need to start with a lowercase letter. Only letters and numbers are allowed. Flows can include variables, parameters and the following mathematical symbols: +-*/^()"),
                        #downloadButton("savediagram", "Save Diagram", class="savebutton")
-                ),
-                align = "center"
-            ),
+            actionButton("makemodel", "Make model", class="submitbutton"),
             tags$br(),
             fluidRow(
                 column(4,
@@ -132,8 +123,8 @@ generate_buildUI <- function(mbmodel, output)
                           6,
 
                           #################################
-                          h2('Model Diagram'),
-                          plotOutput(outputId = "diagram", height = "500px"),
+                          #h2('Model Diagram'),
+                          #plotOutput(outputId = "diagram", height = "500px"),
                           # Placeholder for results of type text
                           h2('Model Equations'),
                           uiOutput(outputId = "equations")

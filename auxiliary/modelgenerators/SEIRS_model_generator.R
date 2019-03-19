@@ -68,11 +68,11 @@ par[[5]]$parval = 1
 
 par[[6]]$parname = c('m')
 par[[6]]$partext = 'births'
-par[[6]]$parval = 1
+par[[6]]$parval = 0
 
 par[[7]]$parname = c('n')
 par[[7]]$partext = 'deaths'
-par[[7]]$parval = 1
+par[[7]]$parval = 0
 
 mbmodel$par = par
 

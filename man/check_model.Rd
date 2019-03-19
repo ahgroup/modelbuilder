@@ -4,21 +4,18 @@
 \alias{check_model}
 \title{A function that takes a modelbuilder model and checks it for errors}
 \usage{
-check_model(currentmodel)
+check_model(mbmodel)
 }
 \arguments{
-\item{currentmodel}{A model object or file name and location for the model to be loaded.}
+\item{mbmodel}{A model object or file name and location for the model to be loaded.}
 }
 \value{
-An error message if the model is not properly formulated. If model is ok, no return.
+An error message if the model is not properly formulated. If model is ok, it returns NULL.
 }
 \description{
-This function takes a modelbuilder model, either provided as the name of an Rdata file or as an object,
+This function takes a modelbuilder model object,
 and checks that all specifications and constraints for modelbuilder models are met and it is a valid model
 }
 \details{
 This function is a helper function
-}
-\author{
-Spencer D. Hall, Andreas Handel
 }
