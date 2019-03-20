@@ -59,6 +59,7 @@ generate_flowchart_ggplot <- function(model) {
     plot3 <- plot2 + geom_text(data=d, aes(x=xcenter, y=ycenter, label=vartext), size=4)
     plot4 <- plot3 + theme_void()
 
+    browser()
 
     #add flow arrows to compartments
     arrs=1.4; #arrowsize
