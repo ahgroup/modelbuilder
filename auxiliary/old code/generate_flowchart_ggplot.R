@@ -132,5 +132,7 @@ generate_flowchart_ggplot <- function(model) {
     } #end loop over all variables
     #place all compartments sequentially
 
+    browser()
+
     return(plot4)
 }
