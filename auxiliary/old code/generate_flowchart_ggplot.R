@@ -77,7 +77,7 @@ generate_flowchart_ggplot <- function(model) {
             #find which variables this flow shows up in
             connectvars = unname(which(flowmatred == currentflow, arr.ind = TRUE)[,1])
 
-            browser()
+            # browser()
 
             ###########################################################################################
             #make different connections for different flows
@@ -118,7 +118,7 @@ generate_flowchart_ggplot <- function(model) {
                 if (abs(linkvar-i)==1) #if the variables are neighbors, make straight arrow, otherwise curved
                 {
                     plot4 = plot4 + geom_segment(aes(x = d$xmax[i], y = d$ycenter[i], xend = d$xmin[linkvar], yend = d$ycenter[linkvar] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"), linejoin='mitre')
-                    # browser()
+                    browser()
                 }
                 else
                 {
