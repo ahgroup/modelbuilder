@@ -93,5 +93,5 @@ time[[3]]$timeval = 0.1
 mbmodel$time = time
 
 modelname = gsub(" ","_",mbmodel$title)
-rdatafile = paste0(modelname,'.Rdata')
-save(mbmodel,file = rdatafile)
+rdatafile = paste0(modelname,'.rds')
+saveRDS(mbmodel,file = rdatafile)

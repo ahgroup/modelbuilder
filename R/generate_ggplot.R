@@ -110,7 +110,6 @@ generate_ggplot <- function(res)
 
       #set line size as given by app or to 1.5 by default
       linesize = ifelse(is.null(resnow$linesize), 1.5, resnow$linesize)
-
        #if the IDvar variable exists, use it for further stratification, otherwise just stratify on varnames
 	  if (is.null(dat$IDvar))
       {
@@ -184,7 +183,8 @@ generate_ggplot <- function(res)
         p5a = p5 + ggplot2::theme(legend.key.width = grid::unit(3, "line"))
         p5b = p5a + ggplot2::theme(legend.position = legendlocation)
         p5c = p5b + ggplot2::scale_linetype_discrete(name = legendtitle) + ggplot2::scale_shape_discrete(name = legendtitle)
-        p6 = p5c + guides(fill=guide_legend(title.position="top", nrow=3, byrow=TRUE))
+        p5d = p5c + ggplot2::scale_colour_discrete(name = legendtitle)
+        p6 = p5d + ggplot2::guides(fill=ggplot2::guide_legend(title.position="top", nrow=3, byrow=TRUE))
       }
       else
       {

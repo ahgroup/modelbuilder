@@ -73,6 +73,9 @@ check_model <- function(mbmodel) {
     #branched flows, e.g. -bSI leaving a compartment and fbSI arriving in one and (1-f)bSI in another
     #are not allowed. Those flows need during the model building stage be written as 2 independent flows
     #-bfSI/bfSI and -(1-f)bSI/(1-f)bSI
+    #STILL NEED TO WRITE THE FOLLOWING CHECK
+    #make sure each parameter name is only used in disticnt flows, either once
+    #or twice in a inflow/outflow pair
 
     #if no problems occured, return mberror which should be NULL
     return(mberror)

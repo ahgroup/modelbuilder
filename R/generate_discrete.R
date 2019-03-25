@@ -6,9 +6,9 @@
 #' @description The model needs to adhere to the structure specified by the modelbuilder package
 #' models built using the modelbuilder package automatically have the right structure
 #' a user can also build a model list structure themselves following the specifications
-#' if the user provides an Rdata file name, this file needs to contain an object called 'model'
+#' if the user provides a file name, this file needs to contain an object called 'model'
 #' and contain a valid modelbuilder model structure
-#' @param mbmodel modelbuilder model structure, either as list object or Rdata file name
+#' @param mbmodel modelbuilder model structure, either as list object or file name
 #' @param location a filename and path to save the simulation code to. Default is current directory
 #' @return The function does not return anything
 #' Instead, it writes an R file into the specified directory
@@ -19,7 +19,7 @@
 
 generate_discrete <- function(mbmodel, location = NULL)
 {
-    #if the model is passed in as an Rdata file name, load it
+    #if the model is passed in as a file name, load it
     #otherwise, it is assumed that 'model' is a list structure of the right type
     if(is.character(mbmodel)) {load(mbmodel)}
 
