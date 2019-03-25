@@ -28,15 +28,30 @@ analyze_model <- function(modelsettings, mbmodel) {
     #extract modeslettings inputs needed for simulator function
     currentmodel = modelsettings$currentmodel
     modinput = unlist(modelsettings, recursive = TRUE)
-    x = names(formals(currentmodel)$vars); x = x[x!=""] #get rid of empty element
-    x2 = match(x, names(modinput))
-    varargs = modinput[x2]
-    x = names(formals(currentmodel)$pars); x = x[x!=""] #get rid of empty element
-    x2 = match(x, names(modinput))
-    parargs = modinput[x2]
-    x = names(formals(currentmodel)$times); x = x[x!=""] #get rid of empty element
-    x2 = match(x, names(modinput))
-    timeargs = modinput[x2]
+    #set default values for inputs based on mbmodel
+    #if provided in modelsettings, these defaults are overwritten
+    #start with setting variables to either default or provided
+    varargs = unlist(purrr::map(mbmodel$var, "varval" ))
+    names(varargs) = unlist(purrr::map(mbmodel$var, "varname" ))
+    #now check if modinput provides values, update those
+    x = match(names(varargs), names(modinput))
+    x = x[!is.na(x)] #remove NA entries where no match is found
+    x2 = match(names(modinput[x]),names(varargs)) #indices for variables in varargs that need replacement by provided input
+    varargs <- replace(varargs,x2,modinput[x])
+    #do same for parameters
+    parargs = unlist(purrr::map(mbmodel$par, "parval" ))
+    names(parargs) = unlist(purrr::map(mbmodel$par, "parname" ))
+    x = match(names(parargs), names(modinput))
+    x = x[!is.na(x)] #remove NA entries where no match is found
+    x2 = match(names(modinput[x]),names(parargs)) #indices for variables in varargs that need replacement by provided input
+    parargs <- replace(parargs,x2,modinput[x])
+    #do again for time inputs
+    timeargs = unlist(purrr::map(mbmodel$time, "timeval" ))
+    names(timeargs) = unlist(purrr::map(mbmodel$time, "timename" ))
+    x = match(names(timeargs), names(modinput))
+    x = x[!is.na(x)] #remove NA entries where no match is found
+    x2 = match(names(modinput[x]),names(timeargs)) #indices for variables in varargs that need replacement by provided input
+    timeargs <- replace(timeargs,x2,modinput[x])
     currentargs = list(vars = setNames(as.numeric(varargs), names(varargs)), pars = setNames(as.numeric(parargs), names(parargs)), time = setNames(as.numeric(timeargs), names(timeargs)))
     #at random seed input for stochastic models
     if (grepl('_stochastic_',modelsettings$modeltype)) {currentargs$rngseed = modelsettings$rngseed}
@@ -109,7 +124,8 @@ analyze_model <- function(modelsettings, mbmodel) {
   }
   #run all simulations for each modelsetting, store in list simresult
   #since the simulation is returned as list, extract data frame only
-  simresult <- purrr::map(xx,runsimulation) %>% unlist(recursive = FALSE, use.names = FALSE)
+  simresult <- purrr::map(xx,runsimulation)
+  simresult <- unlist(simresult, recursive = FALSE, use.names = FALSE)
   if (class(simresult)!="list")
   {
     result <- 'Model run failed. Maybe unreasonable parameter values?'
@@ -150,14 +166,14 @@ analyze_model <- function(modelsettings, mbmodel) {
     xx = dplyr::group_by(datall,IDvar,varnames)
     maxvals = dplyr::summarise(xx, yvals = max(yvals))
     maxvals = dplyr::mutate(maxvals, varnames = paste0(varnames,'max'))
-    maxvals = dplyr::select(ungroup(maxvals), -IDvar)
+    maxvals = dplyr::select(dplyr::ungroup(maxvals), -IDvar)
     maxvals$xvals = parvals
     finalvals = dplyr::summarise(xx, yvals = dplyr::last(yvals))
     finalvals = dplyr::mutate(finalvals, varnames = paste0(varnames,'final'))
     finalvals = dplyr::select(dplyr::ungroup(finalvals), -IDvar)
     finalvals$xvals = parvals
     scandata = rbind(maxvals,finalvals)
-    result[[2]]$dat = scandata
+    result[[2]]$dat = data.frame(scandata) #don't want this to be a tibble
     result[[2]]$plottype = "Scatterplot"
     result[[2]]$xlab = modelsettings$samplepar
     result[[2]]$ylab = "Outcomes"

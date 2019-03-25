@@ -21,13 +21,13 @@ mbmodel = NULL
 
 #list of all example models that are provided and can be loaded
 allexamplemodels = c('none' = 'none',
-                     'SIR' = 'SIR_model.Rdata',
-                     'SEIRS' = 'SEIRS_model.Rdata',
-                     'Vector transmission' = 'Vector_transmission_model.Rdata',
-                    'Environmental transmission' = 'Environmental_Transmission_model.Rdata',
-                    'Cholera ID' = 'Cholera_model.Rdata',
-                     'Basic Virus Infection' = 'Basic_Virus_model.Rdata',
-                     'Bacteria Infection' = 'Basic_Bacteria_model.Rdata')
+                     'SIR' = 'SIR_model.rds',
+                     'SEIRS' = 'SEIRS_model.rds',
+                     'Vector transmission' = 'Vector_transmission_model.rds',
+                    'Environmental transmission' = 'Environmental_Transmission_model.rds',
+                    'Cholera ID' = 'Cholera_model.rds',
+                     'Basic Virus Infection' = 'Basic_Virus_model.rds',
+                     'Bacteria Infection' = 'Basic_Bacteria_model.rds')
 
 
 #this function is the server part of the app
@@ -149,14 +149,14 @@ server <- function(input, output, session) {
       }
   })
 
-  # writes model to Rdata file
+  # writes model to file
   output$savemodel <- downloadHandler(
     filename = function() {
-      paste0(gsub(" ","_",mbmodel$title),".Rdata")
+      paste0(gsub(" ","_",mbmodel$title),".rds")
     },
     content = function(file) {
       stopifnot(!is.null(mbmodel))
-      save(mbmodel, file = file)
+      saveRDS(mbmodel, file = file)
     },
     contentType = "text/plain"
   )
@@ -292,8 +292,7 @@ server <- function(input, output, session) {
   #######################################################
   #load a model
   observeEvent(input$loadcustommodel, {
-        #mbmodeltmp <- load_model(input$loadcustommodel$datapath) #load model from file
-        load(input$loadcustommodel$datapath)
+        mbmodel <- readRDS(input$loadcustommodel$datapath)
         mbmodelerrors <- check_model(mbmodel) #check if model is a proper mbmodel
         if (!is.null(mbmodelerrors)) #if errors occur, do not load model
         {
@@ -318,8 +317,7 @@ server <- function(input, output, session) {
     if (input$examplemodel != 'none')
     {
       examplefile = paste0(system.file("modelexamples", package = packagename),'/',input$examplemodel)
-      load(examplefile) #load model from file
-      mbmodel <<- mbmodel
+      mbmodel <<- readRDS(examplefile) #load model from file
       shinyjs::enable(id = "exportode")
       shinyjs::enable("exportstochastic")
       shinyjs::enable("exportdiscrete")
@@ -442,7 +440,7 @@ ui <- fluidPage(
                       fluidRow(
                         p('Load or clear a Model', class='mainsectionheader'),
                         column(4,
-                               fileInput("loadcustommodel", label = "", accept = ".Rdata", buttonLabel = "Load custom model", placeholder = "No model selected")
+                               fileInput("loadcustommodel", label = "", accept = ".rds", buttonLabel = "Load custom model", placeholder = "No model selected")
                          ),
                         column(4,
                                selectInput("examplemodel", "Example Models", allexamplemodels , selected = 'none')

@@ -2,7 +2,7 @@ context("test-generate_text.R")
 
 #load SEIRS model for testing
 modelpath = system.file("modelexamples", package = "modelbuilder")
-load(paste0(modelpath,'/SEIRS_model.Rdata'))
+mbmodel <- readRDS(paste0(modelpath,'/SEIRS_model.rds'))
 
 #set settings for model to run
 modelsettings = list(S = 1000, E = 0, I = 1, R = 0, bE = 1e-4, bI = 1e-3, gE = 1, gI = 1, w = 1, m = 100, n = 0.1, tstart  = 0, tfinal = 100, dt = 0.1)

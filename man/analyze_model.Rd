@@ -7,7 +7,7 @@
 analyze_model(modelsettings, mbmodel)
 }
 \arguments{
-\item{modelsettings}{vector of model settings:
+\item{modelsettings}{a list of model settings:
 \itemize{
 \item modeltype : A string indicating the type of model. Accepted values are "ode", "stochastic", and "discrete".
 \item rngseed : A random number seed for the simulation.
@@ -21,7 +21,7 @@ analyze_model(modelsettings, mbmodel)
 \item{mbmodel}{A modelbuilder model object.}
 }
 \value{
-A list named "result" with the simulated dataframe and associated metadata.
+A list named "result" with each simulation and associated metadata as a sub-list.
 }
 \description{
 This function takes a modelbuilder model and model settings.

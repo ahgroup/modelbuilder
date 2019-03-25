@@ -15,7 +15,7 @@ var = vector("list",2)
 var[[1]]$varname = "B"
 var[[1]]$vartext = "Bacteria"
 var[[1]]$varval = 10
-var[[1]]$flows = c('+g*B*(1-B/Bmax)','-dB*B','-k*B*I')
+var[[1]]$flows = c('+g*B*(1-B/maxB)','-dB*B','-k*B*I')
 var[[1]]$flownames = c('bacteria growth','bacteria death','immune response killing')
 
 var[[2]]$varname = "I"
@@ -33,7 +33,7 @@ par[[1]]$parname = c('g')
 par[[1]]$partext = 'maximum rate of bacteria growth'
 par[[1]]$parval = 1
 
-par[[2]]$parname = c('Bmax')
+par[[2]]$parname = c('maxB')
 par[[2]]$partext = 'bacteria carrying capacity'
 par[[2]]$parval = 1e6
 
@@ -72,5 +72,5 @@ time[[3]]$timeval = 0.01
 mbmodel$time = time
 
 modelname = gsub(" ","_",mbmodel$title)
-rdatafile = paste0(modelname,'.Rdata')
-save(mbmodel,file = rdatafile)
+rdatafile = paste0(modelname,'.rds')
+saveRDS(mbmodel,file = rdatafile)

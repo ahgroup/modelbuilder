@@ -6,7 +6,7 @@ test_that("use SIR model to test analyze_model function",
 
   #load SIR model for testing
   modelpath = system.file("modelexamples", package = "modelbuilder")
-  load(paste0(modelpath,'/SIR_model.Rdata'))
+  mbmodel <- readRDS(paste0(modelpath,'/SIR_model.rds'))
 
   #set settings for model to run
   modelsettings = list( S = 1000, I = 1, R = 0, b = 2e-3, g = 1, tstart  = 0, tfinal = 100, dt = 0.1)

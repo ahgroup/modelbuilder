@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_model.R
 \name{load_model}
 \alias{load_model}
-\title{A function that loads a model saved as Rdata file}
+\title{A function that loads a model saved as file}
 \usage{
 load_model(currentmodel)
 }
@@ -13,7 +13,7 @@ load_model(currentmodel)
 A modelbuilder model object
 }
 \description{
-This function takes the name of an Rdata file that contains a modelbuilder model
+This function takes the name of a file that contains a modelbuilder model
 and loads the model object
 }
 \details{
