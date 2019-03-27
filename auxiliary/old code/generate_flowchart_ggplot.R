@@ -18,7 +18,7 @@ generate_flowchart_ggplot <- function(model) {
     #if the model is passed in as a string, it is assumed to be the
     #location/name of an Rdata file containing an model and we'll load it
     #otherwise, it is assumed that 'model' is already a list structure of the right type
-    if(is.character(model)) {load(model)}
+    if (is.character(model)) {load(model)}
 
     nvars = length(model$var)  #number of variables/compartments in model
 
@@ -61,6 +61,10 @@ generate_flowchart_ggplot <- function(model) {
 
     #add flow arrows to compartments
     arrs=1.4; #arrowsize
+    # connectvar_vector <- vector()
+    # linkvar_vector <- vector()
+    start_value <- vector()
+    end_value <- vector()
     for (i in 1:nvars)
     {
         varflowsfull = flowmat[i,] #all flows with sign for current variable
@@ -76,8 +80,6 @@ generate_flowchart_ggplot <- function(model) {
 
             #find which variables this flow shows up in
             connectvars = unname(which(flowmatred == currentflow, arr.ind = TRUE)[,1])
-
-            # browser()
 
             ###########################################################################################
             #make different connections for different flows
@@ -117,20 +119,26 @@ generate_flowchart_ggplot <- function(model) {
                 linkvar = connectvars[which(connectvars != i)] #find number of variable to link to
                 if (abs(linkvar-i)==1) #if the variables are neighbors, make straight arrow, otherwise curved
                 {
-                    plot4 = plot4 + geom_segment(aes(x = d$xmax[i], y = d$ycenter[i], xend = d$xmin[linkvar], yend = d$ycenter[linkvar] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"), linejoin='mitre')
-                    browser()
+                    start_value <- c(start_value, i)
+                    end_value <- c(end_value, linkvar)
                 }
                 else
                 {
                     #curvedarrow(from=elpos[linkvar,],to=elpos[i,],curve=0.4)
                 }
             }
-
             #Note: flows connecting more than 2 variables, i.e. a splitting flow, is currently not allowed
             #could possibly be implemented using treearrow
         } #end loop over flows for each variable
     } #end loop over all variables
     #place all compartments sequentially
+
+    # create dataframe for adding segments
+    segment_dataframe <- data.frame(
+        start_value = start_value,
+        end_value = end_value
+    )
+    plot4 <- plot4 + geom_segment(data = segment_dataframe, aes(x = d$xmax[start_value], y = d$ycenter[start_value], xend = d$xmin[end_value], yend = d$ycenter[end_value] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"), linejoin='mitre')
 
     return(plot4)
 }
