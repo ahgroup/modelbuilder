@@ -134,6 +134,7 @@ generate_flowchart_ggplot <- function(model) {
     #place all compartments sequentially
 
     # create dataframe for adding segments
+    # inspired by user Taylor White's answer on this thread: https://stackoverflow.com/questions/24617414/enriching-a-ggplot2-plot-with-multiple-geom-segment-in-a-loop
     segment_dataframe <- data.frame(
         start_value = start_value,
         end_value = end_value
