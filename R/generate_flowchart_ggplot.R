@@ -1,7 +1,4 @@
-#' Create a diagram for a model
-#'
-#' This function takes as input a modelbuilder model
-#' and creates a diagram using ggplot
+#' @title This function takes as input a modelbuilder model and creates a diagram using ggplot
 #'
 #' @description The model needs to adhere to the structure specified by the modelbuilder package
 #' models built using the modelbuilder package automatically have the right structure
@@ -63,8 +60,10 @@ generate_flowchart_ggplot <- function(model) {
     arrs=1.4; #arrowsize
     # connectvar_vector <- vector()
     # linkvar_vector <- vector()
-    start_value <- vector()
-    end_value <- vector()
+    x_start <- vector()
+    x_end <- vector()
+    y_start <- vector()
+    y_end <- vector()
     for (i in 1:nvars)
     {
         varflowsfull = flowmat[i,] #all flows with sign for current variable
@@ -98,13 +97,21 @@ generate_flowchart_ggplot <- function(model) {
             #make a flow that goes from current compartment to nowhere
             if (length(connectvars) == 1 && currentsign == "+") #an inflow, coming from top
             {
-                plot4 = plot4 + ggplot2::geom_segment(aes(x = d$xcenter[i], y = d$ymax[i]+0.1, xend = d$xcenter[i], yend = d$ymax[i] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
-                browser()
+                x_start <- c(x_start, d$xcenter[i])
+                y_start <- c(y_start, d$ymax[i] + 0.1)
+                x_end <- c(x_end, d$xcenter[i])
+                y_end <- c(y_end, d$ymax[i])
+                # plot4 = plot4 + ggplot2::geom_segment(aes(x = d$xcenter[i], y = d$ymax[i]+0.1, xend = d$xcenter[i], yend = d$ymax[i] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
+                # browser()
             }
             if (length(connectvars) == 1 && currentsign == "-") #an outflow
             {
-                plot4 = plot4 + ggplot2::geom_segment(aes(x = d$xcenter[i], y = d$ymin[i], xend = d$xcenter[i], yend = d$ymin[i]-0.1), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
-                browser()
+                x_start <- c(x_start, d$xcenter[i])
+                y_start <- c(y_start, d$ymin[i])
+                x_end <- c(x_end, d$xcenter[i])
+                y_end <- c(y_end, d$ymin[i] - 0.1)
+                # plot4 = plot4 + ggplot2::geom_segment(aes(x = d$xcenter[i], y = d$ymin[i], xend = d$xcenter[i], yend = d$ymin[i]-0.1), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
+                # browser()
             }
 
             ###########################################################################################
@@ -119,8 +126,10 @@ generate_flowchart_ggplot <- function(model) {
                 linkvar = connectvars[which(connectvars != i)] #find number of variable to link to
                 if (abs(linkvar-i)==1) #if the variables are neighbors, make straight arrow, otherwise curved
                 {
-                    start_value <- c(start_value, i)
-                    end_value <- c(end_value, linkvar)
+                    x_start <- c(x_start, d$xmax[i])
+                    y_start <- c(y_start, d$ycenter[i])
+                    x_end <- c(x_end, d$xmin[linkvar])
+                    y_end <- c(y_end, d$ycenter[linkvar])
                 }
                 else
                 {
@@ -136,10 +145,12 @@ generate_flowchart_ggplot <- function(model) {
     # create dataframe for adding segments
     # inspired by user Taylor White's answer on this thread: https://stackoverflow.com/questions/24617414/enriching-a-ggplot2-plot-with-multiple-geom-segment-in-a-loop
     segment_dataframe <- data.frame(
-        start_value = start_value,
-        end_value = end_value
+        x_start = x_start,
+        x_end = x_end,
+        y_start = y_start,
+        y_end = y_end
     )
-    plot4 <- plot4 + geom_segment(data = segment_dataframe, aes(x = d$xmax[start_value], y = d$ycenter[start_value], xend = d$xmin[end_value], yend = d$ycenter[end_value] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"), linejoin='mitre')
+    plot4 <- plot4 + geom_segment(data = segment_dataframe, aes(x = x_start, y = y_start, xend = x_end, yend = y_end), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"), linejoin='mitre')
 
     return(plot4)
 }
