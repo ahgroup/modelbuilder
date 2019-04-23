@@ -64,18 +64,45 @@ generate_flowchart_ggplot <- function(model) {
     x_end <- vector()
     y_start <- vector()
     y_end <- vector()
+
+    x_start_curve <- vector()
+    x_end_curve <- vector()
+    y_start_curve <- vector()
+    y_end_curve <- vector()
     for (i in 1:nvars)
     {
         varflowsfull = flowmat[i,] #all flows with sign for current variable
         varflows = flowmatred[i,] #all flows for current variable
         varflowsigns = signmat[i,] #signs of flows for current variable
         varflows = varflows[!is.na(varflows)] #remove NA entries
+        current_varname <- unname(varnames[i])
 
         for (j in 1:length(varflows))
         {
+            # For growth terms, where a compartment is connected with itself,
+            # the flow for the variable must include the name of the compartment,
+            # e.g., if the variable is R, and the flow term has a positive sign
+            # and contains the variable R, then that term is a growth term.
+            # Thus, in order to determine whether a term is a growth term,
+            # we see if it 1) has a positive sign and 2) contains its variable name.
+
             currentflowfull = varflowsfull[j] #loop through all flows for variable
             currentflow = varflows[j] #loop through all flows for variable
             currentsign = varflowsigns[j] #loop through all flows for variable
+            is_growth <- ifelse((
+                grepl(current_varname, currentflow) && currentsign == "+"
+            ), TRUE, FALSE)
+
+            # growth term
+            if (is_growth) {
+                quarter <- (d$xmax[1] - d$xmin[i]) / 4
+                q25 <- quarter
+                q75 <- quarter*3
+                x_start_curve <- c(x_start_curve, q25)
+                x_end_curve <- c(x_end_curve, q75)
+                y_start_curve <- c(y_start_curve, d$ymin[i])
+                y_end_curve <- c(y_end_curve, d$ymin[i])
+            }
 
             #find which variables this flow shows up in
             connectvars = unname(which(flowmatred == currentflow, arr.ind = TRUE)[,1])
@@ -95,7 +122,7 @@ generate_flowchart_ggplot <- function(model) {
             #if flow shows up as single term
             #i.e. a variable has an inflow or outflow not leading to another variable
             #make a flow that goes from current compartment to nowhere
-            if (length(connectvars) == 1 && currentsign == "+") #an inflow, coming from top
+            if (length(connectvars) == 1 && currentsign == "+" && !is_growth) #an inflow, coming from top
             {
                 x_start <- c(x_start, d$xcenter[i])
                 y_start <- c(y_start, d$ymax[i] + 0.1)
@@ -104,7 +131,7 @@ generate_flowchart_ggplot <- function(model) {
                 # plot4 = plot4 + ggplot2::geom_segment(aes(x = d$xcenter[i], y = d$ymax[i]+0.1, xend = d$xcenter[i], yend = d$ymax[i] ), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "first", type = "closed"))
                 # browser()
             }
-            if (length(connectvars) == 1 && currentsign == "-") #an outflow
+            if (length(connectvars) == 1 && currentsign == "-" && !is_growth) #an outflow
             {
                 x_start <- c(x_start, d$xcenter[i])
                 y_start <- c(y_start, d$ymin[i])
@@ -121,7 +148,7 @@ generate_flowchart_ggplot <- function(model) {
 
             #since every inflow is connected to an outflow, we only need to assign arrows
             #for outflows and connect them to the inflow variable
-            if (length(connectvars) == 2 && currentsign == "-") #an outflow
+            if (length(connectvars) == 2 && currentsign == "-" && !is_growth) #an outflow
             {
                 linkvar = connectvars[which(connectvars != i)] #find number of variable to link to
                 if (abs(linkvar-i)==1) #if the variables are neighbors, make straight arrow, otherwise curved
@@ -150,7 +177,27 @@ generate_flowchart_ggplot <- function(model) {
         y_start = y_start,
         y_end = y_end
     )
-    plot4 <- plot4 + geom_segment(data = segment_dataframe, aes(x = x_start, y = y_start, xend = x_end, yend = y_end), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"), linejoin='mitre')
+    curve_dataframe <- data.frame(
+            x_start = x_start_curve,
+            x_end = x_end_curve,
+            y_start = y_start_curve,
+            y_end = y_end_curve
+    )
+    # browser()
+    # curve_line <- ifelse(
+    #     nrow(curve_dataframe) > 0,
+    #     geom_curve(data = curve_dataframe, aes(x = x_start, y = y_start, xend = x_end, yend = y_end)),
+    #     geom_blank(data = curve_dataframe)
+    # )
+    # plot4 <- plot4 + geom_segment(data = segment_dataframe, aes(x = x_start, y = y_start, xend = x_end, yend = y_end), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"), linejoin='mitre') +
+    #     curve_line
+
+    if (nrow(curve_dataframe) > 0) {
+        plot4 <- plot4 + geom_segment(data = segment_dataframe, aes(x = x_start, y = y_start, xend = x_end, yend = y_end), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"), linejoin='mitre') +
+            geom_curve(data = curve_dataframe, aes(x = x_start, y = y_start, xend = x_end, yend = y_end), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"), linejoin='mitre')
+    } else {
+        plot4 <- plot4 + geom_segment(data = segment_dataframe, aes(x = x_start, y = y_start, xend = x_end, yend = y_end), arrow = arrow(angle = 25, length=unit(0.1,"inches"), ends = "last", type = "closed"), linejoin='mitre')
+    }
 
     return(plot4)
 }
