@@ -38,6 +38,6 @@ The package is on GitHub and you can use the usual GitHub process to contribute 
 
 The package is built in a way that makes it (hopefully) easy for others to contribute simulation models for others to use. A formal structure for model sharing is forthcoming.
 
-## Contributors
-This R package is developed and maintained by [Andreas Handel](http://handelgroup.uga.edu/). The following individuals have made contributions to this package: Spencer Hall, Ishaan Dave.
 
+## Acknowledgements 
+This R package is developed and maintained by [Andreas Handel](http://handelgroup.uga.edu/). A full list of contributors [can be found here](https://ahgroup.github.io/DSAIRM/authors.html). The development of this package was partially supported by NIH grant U19AI117891 and a grant from the University of Georgia's Center for Teaching and Learning. 
