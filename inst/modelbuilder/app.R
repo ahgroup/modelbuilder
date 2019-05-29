@@ -60,11 +60,14 @@ server <- function(input, output, session) {
       }
       #generate_buildUI generates the output elements that make up the build UI for the model
       generate_buildUI(mbmodel, output)
+      output$flowdiagram  <- shiny::renderPlot({ generate_flowchart_ggplot(mbmodel) })
       output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
+
     }
     else
     {
       generate_buildUI(NULL, output)
+      output$flowdiagram  = NULL
       output$equations = NULL
     }
   }) #end observe for build UI setup
@@ -131,6 +134,7 @@ server <- function(input, output, session) {
       {
         mbmodel <<- mbmodeltmp
         output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
+        output$flowdiagram  <- shiny::renderPlot({ generate_flowchart_ggplot(mbmodel) })
         shinyjs::enable(id = "exportode")
         shinyjs::enable("exportstochastic")
         shinyjs::enable("exportdiscrete")

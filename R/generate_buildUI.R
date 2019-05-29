@@ -15,16 +15,22 @@ generate_buildUI <- function(mbmodel, output)
         fluidPage(
             p('General model information', class='mainsectionheader'),
             fluidRow(
-                column(6,
-                       textInput("modeltitle", "Model Name", value = mbmodel$title),
-                       textInput("modeldescription", "One sentence model description", value = mbmodel$description),
-                       textInput("modelauthor", "Author", value = mbmodel$author)
-
-                    ),
-                column(6,
-                   textAreaInput("modeldetails", "Detailed model description", value = mbmodel$details, rows = 6, width = '100%')
-                    )
-                ),
+                column(4,
+                       textInput("modeltitle", "Model Name", value = mbmodel$title)
+                       ),
+                column(4,
+                       textInput("modeldescription", "One sentence model description", value = mbmodel$description)
+                        ),
+                column(4,
+                              textInput("modelauthor", "Author", value = mbmodel$author)
+                        )
+                    ), #end fluidrow
+            fluidRow(
+                column(12,
+                       textAreaInput("modeldetails", "Detailed model description", value = mbmodel$details, rows = 2)
+                        ),
+                        align = "center"
+                    ), #end fluidrow
             p('Model time information', class='mainsectionheader'),
             fluidRow(
                 column(4,
@@ -36,12 +42,12 @@ generate_buildUI <- function(mbmodel, output)
                 column(4,
                        numericInput("dt", "Time step", value = ifelse(is.null(mbmodel$title),0.1, mbmodel$time[[3]]$timeval) )
                 )
-            ),
+            ), #end fluidrow
 
 
-            tags$p("All variables need to start with an uppercase letter, all parameters need to start with a lowercase letter. Only letters and numbers are allowed. Flows can include variables, parameters and the following mathematical symbols: +-*/^()"),
-                       #downloadButton("savediagram", "Save Diagram", class="savebutton")
             actionButton("makemodel", "Make model", class="submitbutton"),
+            tags$p("All variables need to start with an uppercase letter, all parameters need to start with a lowercase letter. Only letters and numbers are allowed. Flows can include variables, parameters and the following mathematical symbols: +-*/^()"),
+           #downloadButton("savediagram", "Save Diagram", class="savebutton")
             tags$br(),
             fluidRow(
                 column(4,
@@ -68,7 +74,7 @@ generate_buildUI <- function(mbmodel, output)
                 ),
                 align = "center"
             ),
-            fluidRow( class = 'myrow', #splits screen into 2 for input/output
+            fluidRow(class = 'myrow', #splits screen into 2 for variables and parameters
                       column(6,
                              p('Model variable information', class='mainsectionheader'),
                              ## wrap element in a div with id
@@ -100,7 +106,10 @@ generate_buildUI <- function(mbmodel, output)
                                      id = paste0('var',n,'flow',nn,'slot')  ) #close flow div
                                  }), #end apply loop over flows for each  variable
                                  id = paste0("var",n,"slot") ) #close var div
-                             }), #end apply loop over all variables
+                             }) #end apply loop over all variables
+                      ), #end variable column
+                     #start parameter column
+                      column(6,
                              p('Model parameter information', class='mainsectionheader'),
                              lapply(1:max(1,length(mbmodel$par)), function(n) {
                              tags$div(
@@ -117,19 +126,21 @@ generate_buildUI <- function(mbmodel, output)
                                  ),
                                  id = paste0("par",n,"slot"))
                              })
-                      ) , #end input column
-                      #all the outcomes here
-                      column(
-                          6,
-
-                          #################################
-                          #h2('Model Diagram'),
-                          #plotOutput(outputId = "diagram", height = "500px"),
+                      ) #end parameter column
+                    ), #end fluidrow for variables/parameters
+                     #################################
+                     #all the outcomes here
+                     fluidRow(
+                      column(6,
+                          h2('Model Diagram'),
+                          plotOutput(outputId = "flowdiagram", height = "500px")
+                        ),
+                      column(6,
                           # Placeholder for results of type text
                           h2('Model Equations'),
                           uiOutput(outputId = "equations")
-                      ) #end column for outcomes
-            ) #end split input/output section
+                        )
+                      ) #end fluidrow for outcomes
         ) #end fluid page for build tab
     }) # End renderUI for build tab
 } #ends generate_buildUI function
