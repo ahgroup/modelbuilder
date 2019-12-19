@@ -4,11 +4,17 @@
 * Continue implementing unit tests using the testthat package
 
 ## Content Improvement
-* Integrate with Systems Biology Markup Language (SBML)
+* Integrate with Systems Biology Markup Language (SBML), do import/export to SBML 
 * update model check/parse function to allow more flexible models (e.g. sin/cos/etc.)
+* Add model checks to make sure user doesn't do something detrimental
 * fix/finish function that creates diagrams
+* Add a repository for user contributed models to package/github site
+* Test everything, fix bugs
+* Work on figure generating code
+
 
 ## Advertisement
+* Add a repository for user contributed models to package/github site
 * Write paper to introduce package
 * Find all UGA classes/instructors who could use package.
 * Make instructional videos for package
