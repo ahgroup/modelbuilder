@@ -8,7 +8,7 @@
 * update model check/parse function to allow more flexible models (e.g. sin/cos/etc.)
 * Add model checks to make sure user doesn't do something detrimental
 * fix/finish function that creates diagrams
-* Add a repository for user contributed models to package/github site
+* Add a repository for user contributed models to package/github site. Should allow easy upload of a model (rds) file, then automated checking of model and if model is ok, automatic addition to 'database' of models. might want to do that through a shiny app? 
 * Test everything, fix bugs
 * Work on figure generating code
 
