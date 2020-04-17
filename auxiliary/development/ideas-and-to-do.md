@@ -22,6 +22,7 @@
 * Create more docs (tutorials/vignettes)
 
 ## General thoughts and comments
+* Look into EpiModel::comp_plot() for making flow diagrams 
 * look into R consortium package certification
 * Get best practices badge: https://bestpractices.coreinfrastructure.org/en
 * Maybe submit for Ropensci review: https://github.com/ropensci/onboarding
