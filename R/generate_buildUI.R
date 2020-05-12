@@ -133,6 +133,7 @@ generate_buildUI <- function(mbmodel, output)
                      fluidRow(
                       column(6,
                           h2('Model Diagram'),
+                          h3('Not yet working right'),
                           plotOutput(outputId = "flowdiagram", height = "500px")
                         ),
                       column(6,

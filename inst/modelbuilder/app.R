@@ -24,8 +24,8 @@ allexamplemodels = c('none' = 'none',
                      'SIR' = 'SIR_model.rds',
                      'SEIRS' = 'SEIRS_model.rds',
                      'Vector transmission' = 'Vector_transmission_model.rds',
-                    'Environmental transmission' = 'Environmental_Transmission_model.rds',
-                    'Cholera ID' = 'Cholera_model.rds',
+                     'Environmental transmission' = 'Environmental_Transmission_model.rds',
+                     'Cholera ID' = 'Cholera_model.rds',
                      'Basic Virus Infection' = 'Basic_Virus_model.rds',
                      'Bacteria Infection' = 'Basic_Bacteria_model.rds')
 
@@ -444,7 +444,7 @@ ui <- fluidPage(
                       fluidRow(
                         p('Load or clear a Model', class='mainsectionheader'),
                         column(4,
-                               fileInput("loadcustommodel", label = "", accept = ".rds", buttonLabel = "Load custom model", placeholder = "No model selected")
+                               fileInput("loadcustommodel", label = "", accept = ".rds", buttonLabel = "Load model", placeholder = "No model file selected")
                          ),
                         column(4,
                                selectInput("examplemodel", "Example Models", allexamplemodels , selected = 'none')
