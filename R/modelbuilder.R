@@ -30,7 +30,7 @@ modelbuilder <- function() {
 }
 
 #needed to prevent NOTE messages on CRAN checks
-utils::globalVariables(c("xvals", "yvals", "varnames","IDvar","style","time"))
+utils::globalVariables(c("xvals", "yvals", "varnames","IDvar","style","time","xcenter","ycenter"))
 
 
 .onAttach <- function(libname, pkgname) {

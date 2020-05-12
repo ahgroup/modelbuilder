@@ -62,7 +62,8 @@ modelsettings$partoscan = "g"
 
 simresult <- analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)
 
+
 test_that("generate_ggplot returns 2 plots when setting scanparam to 1 for ODE model",
           {
-              expect_is( modelbuilder::generate_ggplot(simresult), "gtable" )
+              testthat::expect_s3_class( modelbuilder::generate_ggplot(simresult), "gtable" )
           })

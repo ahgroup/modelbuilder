@@ -2,16 +2,16 @@
 % Please edit documentation in R/generate_ggplot.R
 \name{generate_ggplot}
 \alias{generate_ggplot}
-\title{A helper function that takes result from the simulators and produces plots}
+\title{A helper function that takes simulation results and produces ggplot plots}
 \usage{
 generate_ggplot(res)
 }
 \arguments{
 \item{res}{A list structure containing all simulation results that are to be plotted.
-The length of the list indicates the number of separate plots to make.
-Each list entry corresponds to one plot and
+The length of the main list indicates the number of separate plots to make.
+Each list entry is itself a list, and corresponds to one plot and
 needs to contain the following information/elements: \cr
-1. A data frame called "dat" or "ts". If the data frame is "ts" it is assumed to be
+1. A data frame list element called "dat" or "ts". If the data frame is "ts" it is assumed to be
 a time series and by default a line plot will be produced and labeled Time/Numbers.
 For plotting, the data needs to be in a format with one column called xvals, one column yvals,
 one column called varnames that contains names for different variables.
@@ -29,6 +29,7 @@ optional: makelegend - TRUE/FALSE, add legend to plot. Assume true if not provid
 optional: legendtitle - Legend title, if NULL/not supplied, default is used \cr
 optional: legendlocation - if "left" is specified, top left. Otherwise top. \cr
 optional: linesize - Width of line, numeric, i.e. 1.5, 2, etc. set to 1.5 if not supplied. \cr
+optional: pallette - overwrite plot colors by providing a vector of color names or hex numbers to be used for the plot. \cr
 optional: title - A title for each plot. \cr
 optional: for multiple plots, specify res[[1]]$ncols to define number of columns \cr}
 }
@@ -40,10 +41,9 @@ This function generates plots to be displayed in the Shiny UI.
 This is a helper function. This function processes results returned from the simulation, supplied as a list.
 }
 \details{
-This function is called by the Shiny server to produce plots returned to the Shiny UI.
-Create plots run the simulation with default parameters just call the function:
-result <- simulate_basicbacteria()
-plot <- generate_ggplot(result)
+This function can be called to produce plots, i.e. those displayed for each app.
+The input needed by this function is produced by either calling the run_model() function (as done when going through the UI)
+or manually transforming the output from a simulate_ function into the correct list structure explained below.
 }
 \author{
 Andreas Handel

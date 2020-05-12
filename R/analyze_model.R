@@ -25,7 +25,7 @@ analyze_model <- function(modelsettings, mbmodel) {
   #short function to call/run model
   runsimulation <- function(modelsettings)
   {
-    #extract modeslettings inputs needed for simulator function
+    #extract modelsettings inputs needed for simulator function
     currentmodel = modelsettings$currentmodel
     modinput = unlist(modelsettings, recursive = TRUE)
     #set default values for inputs based on mbmodel
@@ -161,17 +161,28 @@ analyze_model <- function(modelsettings, mbmodel) {
   if (plotscale == 'y' | plotscale == 'both') { result[[1]]$yscale = 'log10'}
 
 
+  #if scan over parameter is requested, do further processing
+  #currently only works for non-stochastic models
   if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 1) #scan over a parameter
   {
-    xx = dplyr::group_by(datall,IDvar,varnames)
-    maxvals = dplyr::summarise(xx, yvals = max(yvals))
-    maxvals = dplyr::mutate(maxvals, varnames = paste0(varnames,'max'))
-    maxvals = dplyr::select(dplyr::ungroup(maxvals), -IDvar)
-    maxvals$xvals = parvals
-    finalvals = dplyr::summarise(xx, yvals = dplyr::last(yvals))
-    finalvals = dplyr::mutate(finalvals, varnames = paste0(varnames,'final'))
-    finalvals = dplyr::select(dplyr::ungroup(finalvals), -IDvar)
-    finalvals$xvals = parvals
+
+    #datall contains time-series results for each parameter value
+    #compute maximum and final value for each variable and return those
+    maxvals <- datall %>%  dplyr::group_by(IDvar,varnames) %>%
+                           dplyr::summarise(yvals = max(yvals)) %>%
+                           dplyr::mutate(varnames = paste0(varnames,'max')) %>%
+                           dplyr::ungroup() %>%
+                           dplyr::select( -IDvar) %>%
+                           dplyr::mutate(xvals = rep(parvals,length(unique(varnames)))) #x-value is value of scanned parameter, for each variable
+
+    finalvals <- datall %>% dplyr::group_by(IDvar,varnames) %>%
+                            dplyr::summarise(yvals = dplyr::last(yvals)) %>%
+                            dplyr::mutate( varnames = paste0(varnames,'final')) %>%
+                            dplyr::ungroup() %>%
+                            dplyr::select( -IDvar) %>%
+                            dplyr::mutate(xvals = rep(parvals,length(unique(varnames)))) #x-value is value of scanned parameter, for each variable
+
+
     scandata = rbind(maxvals,finalvals)
     result[[2]]$dat = data.frame(scandata) #don't want this to be a tibble
     result[[2]]$plottype = "Scatterplot"
