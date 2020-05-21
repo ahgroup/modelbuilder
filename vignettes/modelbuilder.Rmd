@@ -1,6 +1,6 @@
 ---
 title: "modelbuilder Package Tutorial"
-author: "<a href=http://handelgroup.uga.edu>Andreas Handel</a>"
+author: "<a href=https://www.andreashandel.com>Andreas Handel</a>"
 date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
@@ -29,11 +29,12 @@ The audience for this app are individuals interested in dynamical models who are
 
 
 ## Installing the package 
-The package is currently only on Github. Install from there using devtools with these commands.
+
+The package has not yet been submitted to CRAN, therefore it currently needs to be installed from Github. To do so, you need the `remotes` package. If you don't have it, install it first. The following commands will get you up and running:
 
 ```{r, eval=FALSE, echo=TRUE}
-install.pacakges('devtools') #if not installed
-devtools::install_github('ahgroup/modelbuilder')
+install.packages('remotes')
+remotes::install_github('ahgroup/modelbuilder')
 ```
 
 Package installation is a one-time process, unless R itself is being upgraded/reinstalled. Note that the package depends on other packages, which will also be installed as needed.

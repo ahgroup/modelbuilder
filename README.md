@@ -4,7 +4,11 @@
 
 
 # modelbuilder
-A software package for graphical building and analysis of compartmental simulation models
+A software package for graphical building and analysis of compartmental simulation models.
+
+## Note
+AS OF RIGHT NOW, THE PACKAGE HAS BASIC FUNCTIONALITY, BUT HAS NOT BEEN PROPERLY TESTED AND DEBUGGED YET!
+This is a very early version of the package, only some features are already implemented.
 
 
 ## Description
@@ -15,22 +19,19 @@ All model building and analysis can be done without writing code. The user can e
 ## Installation
 I assume you have `R` installed. I also highly recommend `RStudio`, though it's not required.
 
-1. NOT YET ON CRAN: Install the CRAN release in the usual way with `install.packages('DSAIDE')`.
-2. The latest development version (potentially buggy) can be installed from github, using the devtools package. If you don't have it, install the devtools package. The following commands will get you up and running:
+The package has not yet been submitted to CRAN, therefore it currently needs to be installed from Github. To do so, you need the `remotes` package. If you don't have it, install it first. The following commands will get you up and running:
 
 ```r
-install.packages('devtools')
-devtools::install_github('ahgroup/modelbuilder')
+install.packages('remotes')
+remotes::install_github('ahgroup/modelbuilder')
 ```
+
 ## Basic Use
 After install (which you need to do only once), load the package by runing `library('modelbuilder')`. You should receive a short greeting. Now you can open the main menu by running `modelbuilder()`. From the main menu, you can load a model, export code for a model, build a new or modify an existing model, and analyze model dynamics ofr a loaded model.
 
-See the "Get Started" section on the [Github Pages Site](https://ahgroup.github.io/modelbuilder/) for a basic and currently sparse introduction.
+See the [Get Started section](https://ahgroup.github.io/modelbuilder/articles/modelbuilder.html) for a basic and currently sparse introduction.
 
 
-## Note
-AS OF RIGHT NOW, THE PACKAGE HAS BASIC FUNCTIONALITY, BUT HAS NOT BEEN PROPERLY TESTED AND DEBUGGED YET!
-This is a very early version of the package, only some features are already implemented.
 
 
 ## Contributing to the package
@@ -40,4 +41,4 @@ The package is built in a way that makes it (hopefully) easy for others to contr
 
 
 ## Acknowledgements 
-This R package is developed and maintained by [Andreas Handel](http://handelgroup.uga.edu/). A full list of contributors [can be found here](https://ahgroup.github.io/DSAIRM/authors.html). The development of this package was partially supported by NIH grant U19AI117891 and a grant from the University of Georgia's Center for Teaching and Learning. 
+This R package is developed and maintained by [Andreas Handel](https://www.andreashandel.com/). A full list of contributors [can be found here](https://ahgroup.github.io/DSAIRM/authors.html). The development of this package was partially supported by NIH grant U19AI117891 and a grant from the University of Georgia's Center for Teaching and Learning. 
