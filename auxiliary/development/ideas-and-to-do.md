@@ -44,6 +44,12 @@
 * NetLogo
 * NovaModeller
 
+## Good Resources for Shiny coding
+* https://mastering-shiny.org/
+* https://engineering-shiny.org/
+* https://divadnojnarg.github.io/outstanding-shiny-ui/
+
+
 ## Related packages
 * POMP
 * RxODE, nlmixr
