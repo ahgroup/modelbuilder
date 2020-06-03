@@ -28,6 +28,7 @@
 * Maybe submit for Ropensci review: https://github.com/ropensci/onboarding
 * Hashtags on twitter when promoting app: #rstats, #dynamicalsystems * Contribute code to Epirecipes? http://epirecip.es/
 * develop a 'modelverse' set of packages that allow development/analysis and fitting of compartmental models without coding
+* Create a website/repository of modelbuilder models that others can contribute to and download from (Like NetLogo models)
 
 ## Similar packages
 * ModelMaker – not been updated since 2000
