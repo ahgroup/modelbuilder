@@ -18,11 +18,11 @@ this R file contains a deSolve implementation of the model
 the name of the file is simulate_model$title_ode.R
 }
 \description{
-The model needs to adhere to the structure specified by the modelbuilder package
-models built using the modelbuilder package automatically have the right structure
-a user can also build a model list structure themselves following the specifications
-if the user provides a file name, this file needs to contain an object called 'model'
-and contain a valid modelbuilder model structure
+The model needs to adhere to the structure specified by the modelbuilder package.
+Models built using the modelbuilder package automatically have the right structure.
+A user can also build a model list structure themselves following the modelbuilder specifications.
+If the user provides a file name, this file needs to be an Rds file
+and contain a valid modelbuilder model structure.
 }
 \details{
 This function takes as input a modelbuilder model and writes code

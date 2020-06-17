@@ -9,9 +9,7 @@
 #' \item rngseed : A random number seed for the simulation.
 #' \item nreps : Number of times to run the simulation.
 #' \item plotscale : Log or linear scale for the x-axis, y-axis, or both.
-#' \item vars : named vector of initial conditions for variables
-#' \item pars : named vector of initial conditions for parameters
-#' \item times : named vector of values for tstart, tfinal, dt
+#' \item any input to model whose default should be overwritten
 #' }
 #' @param mbmodel A modelbuilder model object.
 #' @return A list named "result" with each simulation and associated metadata as a sub-list.
@@ -25,38 +23,37 @@ analyze_model <- function(modelsettings, mbmodel) {
   #short function to call/run model
   runsimulation <- function(modelsettings)
   {
-    #extract modelsettings inputs needed for simulator function
+
+    #extract modeslettings inputs needed for simulator function
     currentmodel = modelsettings$currentmodel
-    modinput = unlist(modelsettings, recursive = TRUE)
-    #set default values for inputs based on mbmodel
-    #if provided in modelsettings, these defaults are overwritten
-    #start with setting variables to either default or provided
-    varargs = unlist(purrr::map(mbmodel$var, "varval" ))
-    names(varargs) = unlist(purrr::map(mbmodel$var, "varname" ))
-    #now check if modinput provides values, update those
-    x = match(names(varargs), names(modinput))
-    x = x[!is.na(x)] #remove NA entries where no match is found
-    x2 = match(names(modinput[x]),names(varargs)) #indices for variables in varargs that need replacement by provided input
-    varargs <- replace(varargs,x2,modinput[x])
-    #do same for parameters
-    parargs = unlist(purrr::map(mbmodel$par, "parval" ))
-    names(parargs) = unlist(purrr::map(mbmodel$par, "parname" ))
-    x = match(names(parargs), names(modinput))
-    x = x[!is.na(x)] #remove NA entries where no match is found
-    x2 = match(names(modinput[x]),names(parargs)) #indices for variables in varargs that need replacement by provided input
-    parargs <- replace(parargs,x2,modinput[x])
-    #do again for time inputs
-    timeargs = unlist(purrr::map(mbmodel$time, "timeval" ))
-    names(timeargs) = unlist(purrr::map(mbmodel$time, "timename" ))
-    x = match(names(timeargs), names(modinput))
-    x = x[!is.na(x)] #remove NA entries where no match is found
-    x2 = match(names(modinput[x]),names(timeargs)) #indices for variables in varargs that need replacement by provided input
-    timeargs <- replace(timeargs,x2,modinput[x])
-    currentargs = list(vars = setNames(as.numeric(varargs), names(varargs)), pars = setNames(as.numeric(parargs), names(parargs)), time = setNames(as.numeric(timeargs), names(timeargs)))
+    #match values provided from UI with those expected by function
+    modinput = unlist(modelsettings)
+    #modinput = unlist(modelsettings, recursive = TRUE)
+
+    ip = unlist(formals(currentmodel)) #get all input arguments for function
+
+    currentargs = modinput[match(names(ip), names(modinput))]
+    #get rid of NA that might happen because inputs are not supplied for certain function inputs.
+    #in that case we use the function defaults
+    currentargs <- currentargs[!is.na(currentargs)]
+    #make a list, makes conversion to numeric easier
+    arglist = as.list(currentargs)
+    #convert arguments for function call to numeric if possible
+    #preserve those that can't be converted
+    numind = suppressWarnings(!is.na(as.numeric(arglist))) #find numeric values
+    arglist[numind] = as.numeric(currentargs[numind])
+
     #at random seed input for stochastic models
-    if (grepl('_stochastic_',modelsettings$modeltype)) {currentargs$rngseed = modelsettings$rngseed}
+    if (grepl('_stochastic_',modelsettings$modeltype)) {arglist$rngseed = arglist$rngseed}
     #run simulation, try command catches error from running code.
-    simresult <- try( do.call(currentmodel, args = currentargs ) )
+
+    #add function name as first element to list
+    fctlist = append(parse(text = currentmodel), arglist)
+
+    fctcall <- as.call(fctlist)
+
+    simresult = try(eval(fctcall))
+
     return(simresult)
   }
 
@@ -89,7 +86,7 @@ analyze_model <- function(modelsettings, mbmodel) {
   source(sim_file)
 
   ##################################
-  #dynamical model execution
+  #model execution
   ##################################
   if (grepl('_stochastic_',modelsettings$modeltype))
   {

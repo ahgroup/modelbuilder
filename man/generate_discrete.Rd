@@ -2,27 +2,27 @@
 % Please edit documentation in R/generate_discrete.R
 \name{generate_discrete}
 \alias{generate_discrete}
-\title{Create an discrete time simulation model}
+\title{Create a discrete time simulation model}
 \usage{
 generate_discrete(mbmodel, location = NULL)
 }
 \arguments{
 \item{mbmodel}{modelbuilder model structure, either as list object or file name}
 
-\item{location}{a filename and path to save the simulation code to. Default is current directory}
+\item{location}{a filename and path to save the simulation code to. Default is current directory.}
 }
 \value{
 The function does not return anything
 Instead, it writes an R file into the specified directory
-this R file contains a discrete time/for-loop implementation of the model
-the name of the file is simulate_model$title_discrete.R
+this R file contains a deSolve implementation of the model
+the name of the file is simulate_model$title_ode.R
 }
 \description{
-The model needs to adhere to the structure specified by the modelbuilder package
-models built using the modelbuilder package automatically have the right structure
-a user can also build a model list structure themselves following the specifications
-if the user provides a file name, this file needs to contain an object called 'model'
-and contain a valid modelbuilder model structure
+The model needs to adhere to the structure specified by the modelbuilder package.
+Models built using the modelbuilder package automatically have the right structure.
+A user can also build a model list structure themselves following the modelbuilder specifications.
+If the user provides a file name, this file needs to be an Rds file
+and contain a valid modelbuilder model structure.
 }
 \details{
 This function takes as input a modelbuilder model and writes code

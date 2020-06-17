@@ -1,9 +1,9 @@
 Package: modelbuilder
 Type: Package
-Title: Building Compartmental Mechanistic Models Without Coding
-Description: Building and analysis of compartmental mechanistic models without the need to write code. 
-Version: 0.2.0
-Date: 2019-05-29
+Title: Building Compartmental Simulation Models Without Coding
+Description: Building and analysis of compartmental simulation models without the need to write code. 
+Version: 0.2.5
+Date: 2019-06-17
 Authors@R: c(
     person("Andreas", "Handel", email = "ahandel@uga.edu", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4622-1146") ),
@@ -28,7 +28,7 @@ Imports:
     utils (>= 3.4),
     XML
 Depends:
-    R (>= 3.4),
+    R (>= 3.5),
     shiny (>= 1.0)
 Suggests: 
     covr,

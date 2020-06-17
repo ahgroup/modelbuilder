@@ -13,9 +13,7 @@ analyze_model(modelsettings, mbmodel)
 \item rngseed : A random number seed for the simulation.
 \item nreps : Number of times to run the simulation.
 \item plotscale : Log or linear scale for the x-axis, y-axis, or both.
-\item vars : named vector of initial conditions for variables
-\item pars : named vector of initial conditions for parameters
-\item times : named vector of values for tstart, tfinal, dt
+\item any input to model whose default should be overwritten
 }}
 
 \item{mbmodel}{A modelbuilder model object.}

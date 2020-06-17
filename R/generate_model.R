@@ -19,7 +19,7 @@ generate_model <- function(input, values) {
 
     dynmodel$title <- isolate(input$modeltitle)
     dynmodel$author <- isolate(input$modelauthor)
-    dynmodel$textription <- isolate(input$modeltextription)
+    dynmodel$description <- isolate(input$modeldescription)
     dynmodel$details = isolate(input$modeldetails)
     dynmodel$date = Sys.Date()
 

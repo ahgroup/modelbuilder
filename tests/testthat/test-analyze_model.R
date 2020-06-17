@@ -3,7 +3,6 @@ context("test-analyze_model.R")
 test_that("use SIR model to test analyze_model function",
 {
 
-
   #load SIR model for testing
   modelpath = system.file("modelexamples", package = "modelbuilder")
   mbmodel <- readRDS(paste0(modelpath,'/SIR_model.rds'))
