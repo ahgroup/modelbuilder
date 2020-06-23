@@ -67,6 +67,10 @@ generate_function_documentation <- function(mbmodel, modeltype)
         #sdesc=paste0(sdesc,"#' ", mbmodel$time[[n]]$timename," : ", mbmodel$time[[n]]$timetext," : numeric", "\n")
     }
     #sdesc=paste0(sdesc,"#' } \n")
+    if (modeltype == "stochastic")
+    {
+        sdesc=paste0(sdesc,"#' @param rngseed : set random number seed for reproducibility : numeric", "\n")
+    }
 
     sdesc=paste0(sdesc,"#' @return The function returns the output as a list. \n")
     sdesc=paste0(sdesc,"#' The time-series from the simulation is returned as a dataframe saved as list element \\code{ts}. \n")

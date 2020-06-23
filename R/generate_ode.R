@@ -81,7 +81,7 @@ generate_ode <- function(mbmodel, location = NULL)
     smain = paste0(smain,"  parvec_mb = c(", parvec, ") \n")
     smain = paste0(smain,"  timevec_mb = seq(tstart, tfinal,by = dt) \n")
     smain = paste0(smain,"  #Running the model \n")
-    smain = paste0(smain,'  simout = deSolve::ode(y = varvec_mb, parms = parvec_mb, times = timevec_mb,  func = ',gsub(" ","_",mbmodel$title),'_ode_fct) \n')
+    smain = paste0(smain,'  simout = deSolve::ode(y = varvec_mb, parms = parvec_mb, times = timevec_mb,  func = ',gsub(" ","_",mbmodel$title),'_ode_fct, rtol = 1e-12, atol = 1e-12) \n')
     smain = paste0(smain,"  #Setting up empty list and returning result as data frame called ts \n")
     smain = paste0(smain,'  result <- list() \n');
     smain = paste0(smain,'  result$ts <- as.data.frame(simout) \n')

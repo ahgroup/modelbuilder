@@ -43,7 +43,7 @@ analyze_model <- function(modelsettings, mbmodel) {
     numind = suppressWarnings(!is.na(as.numeric(arglist))) #find numeric values
     arglist[numind] = as.numeric(currentargs[numind])
 
-    #at random seed input for stochastic models
+    #add random seed input for stochastic models
     if (grepl('_stochastic_',modelsettings$modeltype)) {arglist$rngseed = arglist$rngseed}
     #run simulation, try command catches error from running code.
 

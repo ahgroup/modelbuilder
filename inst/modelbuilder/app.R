@@ -20,14 +20,9 @@ mbmodel = NULL
 
 
 #list of all example models that are provided and can be loaded
-allexamplemodels = c('none' = 'none',
-                     'SIR' = 'SIR_model.rds',
-                     'SEIRS' = 'SEIRS_model.rds',
-                     'Vector transmission' = 'Vector_transmission_model.rds',
-                     'Environmental transmission' = 'Environmental_Transmission_model.rds',
-                     'Cholera ID' = 'Cholera_model.rds',
-                     'Basic Virus Infection' = 'Basic_Virus_model.rds',
-                     'Bacteria Infection' = 'Basic_Bacteria_model.rds')
+examplemodeldir = system.file("modelexamples", package = packagename) #find path to apps
+
+allexamplemodels = c("none",list.files(examplemodeldir))
 
 
 #this function is the server part of the app
@@ -190,7 +185,8 @@ server <- function(input, output, session) {
     else
     {
       #extract function and other inputs and turn them into a taglist
-      modelinputs <- generate_shinyinput(mbmodel = mbmodel, otherinputs = NULL, packagename = packagename)
+      modelinputs <- generate_shinyinput(use_mbmodel = TRUE, mbmodel = mbmodel, use_doc = FALSE, model_file = NULL,
+                                         model_function = NULL, otherinputs = NULL, packagename = packagename)
       output$modelinputs <- renderUI({modelinputs})
     }
     #set output to empty
@@ -228,7 +224,8 @@ server <- function(input, output, session) {
   #Code to reset the model settings
   ###############
   observeEvent(input$reset, {
-    modelinputs <- generate_shinyinput(mbmodel = mbmodel, otherinputs = NULL, packagename = packagename)
+    modelinputs <- generate_shinyinput(use_mbmodel = TRUE, mbmodel = mbmodel, use_doc = FALSE, model_file = NULL,
+                                       model_function = NULL, otherinputs = NULL, packagename = packagename)
     output$modelinputs <- renderUI({modelinputs})
     output$plotly <- NULL
     output$ggplot <- NULL

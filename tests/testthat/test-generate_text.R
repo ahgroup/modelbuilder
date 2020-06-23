@@ -1,11 +1,18 @@
 context("test-generate_text.R")
 
-#load SEIRS model for testing
+
+#load a model for testing
+
+#list of all example models that are provided and can be loaded
 modelpath = system.file("modelexamples", package = "modelbuilder")
-mbmodel <- readRDS(paste0(modelpath,'/SEIRS_model.rds'))
+allexamplemodels = list.files(modelpath, full.names = TRUE)
+
+#find some SIRS model and load it
+modeltoload = allexamplemodels[min(grep('SIRSd',allexamplemodels))]
+mbmodel <- readRDS(modeltoload)
 
 #set settings for model to run
-modelsettings = list(S = 1000, E = 0, I = 1, R = 0, bE = 1e-4, bI = 1e-3, gE = 1, gI = 1, w = 1, m = 100, n = 0.1, tstart  = 0, tfinal = 100, dt = 0.1)
+modelsettings = list(S = 1000, I = 1, b = 1e-4, g = 1, w = 1, m = 100, n = 0.1, tstart  = 0, tfinal = 100, dt = 0.1)
 
 modelsettings$nreps = 1
 modelsettings$rngseed = 123

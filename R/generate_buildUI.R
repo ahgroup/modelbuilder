@@ -34,13 +34,13 @@ generate_buildUI <- function(mbmodel, output)
             p('Model time information', class='mainsectionheader'),
             fluidRow(
                 column(4,
-                       numericInput("tstart", "Start time", value = ifelse(is.null(mbmodel$title),0, mbmodel$time[[1]]$timeval) )
+                       numericInput("tstart_build", "Start time", value = ifelse(is.null(mbmodel$title),0, mbmodel$time[[1]]$timeval) )
                 ),
                 column(4,
-                       numericInput("tfinal", "Final time", value = ifelse(is.null(mbmodel$title),100, mbmodel$time[[2]]$timeval) )
+                       numericInput("tfinal_build", "Final time", value = ifelse(is.null(mbmodel$title),100, mbmodel$time[[2]]$timeval) )
                 ),
                 column(4,
-                       numericInput("dt", "Time step", value = ifelse(is.null(mbmodel$title),0.1, mbmodel$time[[3]]$timeval) )
+                       numericInput("dt_build", "Time step", value = ifelse(is.null(mbmodel$title),0.1, mbmodel$time[[3]]$timeval) )
                 )
             ), #end fluidrow
 

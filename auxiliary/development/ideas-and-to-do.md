@@ -12,6 +12,10 @@
 * Test everything, fix bugs
 * Work on figure generating code
 
+## Build features to implement
+* Allowing for starting values that depend on model parameters is a feature that still needs to be implemented.
+* Allowing for time-dependent parameters.
+* Allowing for parameters that change on/off at discrete times.
 
 ## Advertisement
 * Add a repository for user contributed models to package/github site
