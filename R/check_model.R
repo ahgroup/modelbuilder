@@ -62,12 +62,22 @@ check_model <- function(mbmodel) {
     if ( sum(!(as.numeric(varvals) >= 0)) ) {mberror = "All variable starting values need to be numbers >=0"; return(mberror) }
     #make sure that all flows only consist of specified variables, parameters and math symbols ( +,-,*,^,/,() ).
     #Other math notation such as e.g. sin() or cos() is not yet supported.
-    varflows = vars[grep("flows",names(vars))]
-    pattern = "[-+\\++\\*+\\(+\\)+\\^+/+]"
-    flowsymbols = unique(unlist(strsplit(varflows,pattern)))
-    math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ","")
-    allsymbols = c(math_symbols,varnames,parnames)
-    if (sum(!(flowsymbols %in% allsymbols)) >0) {mberror = "Your flows contain non-defined variables/parameters or non-allowed symbols"; return(mberror)}
+
+    #loop over each variable/compartment, check all flows
+    for (n in 1:length(varnames))
+    {
+        varflows = unlist(mbmodel$var[[n]][grep("flows",names(mbmodel$var[[n]]))])
+        pattern = "[-+\\++\\*+\\(+\\)+\\^+/+]"
+        flowsymbols = unique(unlist(strsplit(varflows,pattern)))
+        math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ","")
+        allsymbols = c(math_symbols,varnames,parnames,0:9)
+        if (sum(!(flowsymbols %in% allsymbols)) >0)
+        {
+            wrongflows = flowsymbols[which(!(flowsymbols %in% allsymbols))]
+            mberror = paste0("Your flows for variable ",varnow, " contain these non-allowed symbols",wrongflows); return(mberror)
+        }
+    }
+
     #STILL NEED TO WRITE THE FOLLOWING CHECK
     #check that each flow shows up at most twice
     #branched flows, e.g. -bSI leaving a compartment and fbSI arriving in one and (1-f)bSI in another
