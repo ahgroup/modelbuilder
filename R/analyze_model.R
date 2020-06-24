@@ -1,7 +1,9 @@
-#' @title A function that analyzes a modelbuilder model object.
+#' @title Run simulations for a modelbuilder model object.
 #'
 #' @description This function takes a modelbuilder model and model settings.
 #' It runs the simulation determined by the model settings and returns simulation results.
+#' Normally run when triggered by the user through the UI.
+#' Can also be called directly.
 #'
 #' @param modelsettings a list of model settings:
 #' \itemize{
@@ -9,9 +11,10 @@
 #' \item rngseed : A random number seed for the simulation.
 #' \item nreps : Number of times to run the simulation.
 #' \item plotscale : Log or linear scale for the x-axis, y-axis, or both.
+#' \item scanparam : 1 if we want to scan over a parameter, 0 otherwise. Not available for stochastic models.
 #' \item any input to model whose default should be overwritten
 #' }
-#' @param mbmodel A modelbuilder model object.
+#' @param mbmodel A list which is a valid modelbuilder model object.
 #' @return A list named "result" with each simulation and associated metadata as a sub-list.
 #' @details This function runs a modelbuilder model for specific settings.
 #' @importFrom stats setNames
@@ -20,8 +23,12 @@
 analyze_model <- function(modelsettings, mbmodel) {
 
 
+  #################################################
   #short function to call/run model
-  runsimulation <- function(modelsettings)
+  #the modelsettings_updated input contains some more values than those passed into analyze_model
+  #those are generated inside analyze_model
+  #specifically, modelsettings$currentmodel contains name of model function
+  runsimulation <- function(modelsettings_updated)
   {
 
     #extract modeslettings inputs needed for simulator function
@@ -44,7 +51,7 @@ analyze_model <- function(modelsettings, mbmodel) {
     arglist[numind] = as.numeric(currentargs[numind])
 
     #add random seed input for stochastic models
-    if (grepl('_stochastic_',modelsettings$modeltype)) {arglist$rngseed = arglist$rngseed}
+    if (grepl('stochastic',modelsettings$modeltype)) {arglist$rngseed = arglist$rngseed}
     #run simulation, try command catches error from running code.
 
     #add function name as first element to list
@@ -52,11 +59,15 @@ analyze_model <- function(modelsettings, mbmodel) {
 
     fctcall <- as.call(fctlist)
 
+
     simresult = try(eval(fctcall))
 
     return(simresult)
-  }
+  } #end function to run simulation
 
+
+  #################################################
+  # main code block
 
   #make a temp directory to save file
   tempdir = tempdir()
@@ -64,31 +75,39 @@ analyze_model <- function(modelsettings, mbmodel) {
   #################################################
   #check what type of model
   #if not present, create code for simulator
-  if (grepl('_ode_',modelsettings$modeltype)) #need to always start with ode_ in model specification
+
+  sim_filename = paste0("simulate_",gsub(" ","_",mbmodel$title),"_",modelsettings$modeltype,".R")
+
+  sim_file = file.path(tempdir,sim_filename)
+
+  if (!exists(sim_file))
   {
-    modelsettings$currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode")
-    sim_file = file.path(tempdir, paste0(modelsettings$currentmodel,".R"))
-    if (!exists(sim_file)) {modelbuilder::generate_ode(mbmodel = mbmodel, location = sim_file)}
+    if (modelsettings$modeltype == "ode")
+    {
+      modelbuilder::generate_ode(mbmodel = mbmodel, location = tempdir, filename = sim_filename)
+    }
+    if (modelsettings$modeltype == "discrete")
+    {
+      modelbuilder::generate_discrete(mbmodel = mbmodel, location = tempdir, filename = sim_filename)
+    }
+    if (modelsettings$modeltype == "stochastic")
+    {
+      modelbuilder::generate_stochastic(mbmodel = mbmodel, location = tempdir, filename = sim_filename)
+    }
   }
-  if (grepl('_discrete_',modelsettings$modeltype))
-  {
-    modelsettings$currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete")
-    sim_file = file.path(tempdir, paste0(modelsettings$currentmodel,".R"))
-    if (!exists(sim_file)) {modelbuilder::generate_discrete(mbmodel = mbmodel, location = sim_file)}
-  }
-  if (grepl('_stochastic_',modelsettings$modeltype))
-  {
-    modelsettings$currentmodel =  paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic")
-    sim_file = file.path(tempdir, paste0(modelsettings$currentmodel,".R"))
-    if (!exists(sim_file)) {modelbuilder::generate_stochastic(mbmodel = mbmodel, location = sim_file)}
-  }
+
+  #provide name of model function
+  modelsettings$currentmodel = paste0("simulate_",gsub(" ","_",mbmodel$title),"_",modelsettings$modeltype)
+
   #source file
   source(sim_file)
+
 
   ##################################
   #model execution
   ##################################
-  if (grepl('_stochastic_',modelsettings$modeltype))
+  if (modelsettings$modeltype == "stochastic")
+  #if (grepl('_stochastic_',modelsettings$modeltype))
   {
     #1 plot for time-series only
     listlength =  1
@@ -98,7 +117,8 @@ analyze_model <- function(modelsettings, mbmodel) {
     #give the rngseed entry in each list a consecutive value
     xx = purrr::map2(allmodset, rngvec, ~replace(.x, "rngseed", .y))
   }
-  if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 1) #scan over a parameter
+  if (modelsettings$modeltype != "stochastic" && modelsettings$scanparam == 1)
+  #if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 1) #scan over a parameter
   {
     #save all results to a list for processing plots and text
     #list corresponds to number of plots
@@ -113,7 +133,8 @@ analyze_model <- function(modelsettings, mbmodel) {
     xx = purrr::map2(allmodset, parvals, ~replace(.x, modelsettings$partoscan, .y))
 
   }
-  if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 0) #no parameter scan
+  if (modelsettings$modeltype != "stochastic" && modelsettings$scanparam == 0)
+  #if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 0) #no parameter scan
   {
     #1 plot for time-series only
     listlength =  1
@@ -160,7 +181,8 @@ analyze_model <- function(modelsettings, mbmodel) {
 
   #if scan over parameter is requested, do further processing
   #currently only works for non-stochastic models
-  if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 1) #scan over a parameter
+  if (modelsettings$modeltype != "stochastic" && modelsettings$scanparam == 1)
+  #if (!grepl('_stochastic_',modelsettings$modeltype) && modelsettings$scanparam == 1) #scan over a parameter
   {
 
     #datall contains time-series results for each parameter value

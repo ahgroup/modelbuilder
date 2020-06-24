@@ -18,7 +18,7 @@ modelsettings$nreps = 1
 modelsettings$rngseed = 123
 modelsettings$plotscale = 'lin'
 
-modelsettings$modeltype = "_ode_"
+modelsettings$modeltype = "ode"
 modelsettings$scanparam = 0
 
 simresult <- analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)
@@ -37,7 +37,7 @@ test_that("generate_plotly returns a plot when choosing scatterplot or boxplot",
           })
 
 
-modelsettings$modeltype = "_stochastic_"
+modelsettings$modeltype = "stochastic"
 modelsettings$scanparam = 0
 
 simresult <- analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)
@@ -47,7 +47,7 @@ test_that("generate_plotly returns a plot for a stochastic model without specify
               expect_is( modelbuilder::generate_plotly(simresult), "plotly" )
           })
 
-modelsettings$modeltype = "_discrete_"
+modelsettings$modeltype = "discrete"
 modelsettings$scanparam = 0
 
 simresult <- analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)

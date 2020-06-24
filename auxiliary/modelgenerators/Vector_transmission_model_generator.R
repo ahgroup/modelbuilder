@@ -1,4 +1,3 @@
-#this is a proposed list structure for models
 #a vector transmission model is implemented
 #this structure should be created by the shiny app, as needed saved as Rdata file
 #and read by various functions and turned into desolve/adaptivetau/discrete time/RxODE code
@@ -37,13 +36,13 @@ var[[3]]$flownames = c('recovery of infected hosts','waning immunity')
 var[[4]]$varname = "Sv"
 var[[4]]$vartext = "Susceptible Vectors"
 var[[4]]$varval = 1000
-var[[4]]$flows = c('+b','-b2*Sv*Ih','+n*Sv')
+var[[4]]$flows = c('+n','-b2*Sv*Ih','-m*Sv')
 var[[4]]$flownames = c('vector births','infection of susceptible vectors','death of susceptible vectors')
 
 var[[5]]$varname = "Iv"
 var[[5]]$vartext = "Infected Vectors"
 var[[5]]$varval = 1
-var[[5]]$flows = c('+b2*Sv*Ih','-n*Iv')
+var[[5]]$flows = c('+b2*Sv*Ih','-m*Iv')
 var[[5]]$flownames = c('infection of susceptible vectors', 'death of infected vectors')
 
 mbmodel$var = var
@@ -67,11 +66,11 @@ par[[4]]$parname = c('w')
 par[[4]]$partext = 'wanning immunity rate'
 par[[4]]$parval = 0.1
 
-par[[5]]$parname = c('b')
+par[[5]]$parname = c('n')
 par[[5]]$partext = 'vector birth rate'
 par[[5]]$parval = 100
 
-par[[6]]$parname = c('n')
+par[[6]]$parname = c('m')
 par[[6]]$partext = 'vector death rate'
 par[[6]]$parval = 0.1
 
@@ -93,7 +92,24 @@ time[[3]]$timeval = 0.1
 
 mbmodel$time = time
 
+#run the model through the check_model function to make sure it's a valid modelbuilder model
+#note that this only checks that the model follows the required modelbuilder structure
+#it's not a check that the model makes biological/scientific sense
+mbmodelerrors <- modelbuilder::check_model(mbmodel)
+if (!is.null(mbmodelerrors))
+{
+    stop(mbmodelerrors)
+}
+
 modelname = gsub(" ","_",mbmodel$title)
-rdatafile = paste0(modelname,'.rds')
+
+#this code writes the model list object into an rds file into the specified directory
+rdatafile = paste0(here::here('inst/modelexamples'),'/',modelname,'.rds')
 saveRDS(mbmodel,file = rdatafile)
+
+#this code writes the model function code
+destpath = paste0(here::here('auxiliary/modelfiles'),'/')
+generate_discrete(mbmodel,location = destpath, filename = NULL)
+generate_ode(mbmodel,location = destpath, filename = NULL)
+generate_stochastic(mbmodel,location = destpath, filename = NULL)
 

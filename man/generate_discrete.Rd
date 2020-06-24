@@ -4,18 +4,20 @@
 \alias{generate_discrete}
 \title{Create a discrete time simulation model}
 \usage{
-generate_discrete(mbmodel, location = NULL)
+generate_discrete(mbmodel, location = NULL, filename = NULL)
 }
 \arguments{
 \item{mbmodel}{modelbuilder model structure, either as list object or file name}
 
-\item{location}{a filename and path to save the simulation code to. Default is current directory.}
+\item{location}{a path to save the simulation code to. If NULL, defaults to current directory.}
+
+\item{filename}{a filename to save the simulation code to. If NULL, a default is generated (recommended).}
 }
 \value{
 The function does not return anything
 Instead, it writes an R file into the specified directory
-this R file contains a deSolve implementation of the model
-the name of the file is simulate_model$title_ode.R
+the default name of the file is simulate_model$title_ode.R
+if the user specifies a file name, it will be that name
 }
 \description{
 The model needs to adhere to the structure specified by the modelbuilder package.
@@ -26,7 +28,7 @@ and contain a valid modelbuilder model structure.
 }
 \details{
 This function takes as input a modelbuilder model and writes code
-for a discrete time deterministc simulator function
+for a discrete time deterministic simulator function
 }
 \author{
 Andreas Handel

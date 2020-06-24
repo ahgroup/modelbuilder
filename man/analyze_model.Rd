@@ -2,7 +2,7 @@
 % Please edit documentation in R/analyze_model.R
 \name{analyze_model}
 \alias{analyze_model}
-\title{A function that analyzes a modelbuilder model object.}
+\title{Run simulations for a modelbuilder model object.}
 \usage{
 analyze_model(modelsettings, mbmodel)
 }
@@ -13,10 +13,11 @@ analyze_model(modelsettings, mbmodel)
 \item rngseed : A random number seed for the simulation.
 \item nreps : Number of times to run the simulation.
 \item plotscale : Log or linear scale for the x-axis, y-axis, or both.
+\item scanparam : 1 if we want to scan over a parameter, 0 otherwise. Not available for stochastic models.
 \item any input to model whose default should be overwritten
 }}
 
-\item{mbmodel}{A modelbuilder model object.}
+\item{mbmodel}{A list which is a valid modelbuilder model object.}
 }
 \value{
 A list named "result" with each simulation and associated metadata as a sub-list.
@@ -24,6 +25,8 @@ A list named "result" with each simulation and associated metadata as a sub-list
 \description{
 This function takes a modelbuilder model and model settings.
 It runs the simulation determined by the model settings and returns simulation results.
+Normally run when triggered by the user through the UI.
+Can also be called directly.
 }
 \details{
 This function runs a modelbuilder model for specific settings.

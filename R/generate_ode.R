@@ -9,41 +9,49 @@
 #' If the user provides a file name, this file needs to be an Rds file
 #' and contain a valid modelbuilder model structure.
 #' @param mbmodel modelbuilder model structure, either as list object or file name
-#' @param location a filename and path to save the simulation code to. Default is current directory.
+#' @param location a path to save the simulation code to. If NULL, defaults to current directory.
+#' @param filename a filename to save the simulation code to. If NULL, a default is generated (recommended).
 #' @return The function does not return anything
 #' Instead, it writes an R file into the specified directory
-#' this R file contains a deSolve implementation of the model
-#' the name of the file is simulate_model$title_ode.R
+#' the default name of the file is simulate_model$title_ode.R
+#' if the user specifies a file name, it will be that name
 #' @author Andreas Handel
 #' @export
 
-generate_ode <- function(mbmodel, location = NULL)
+generate_ode <- function(mbmodel, location = NULL, filename = NULL)
 {
     #if the model is passed in as a file name, load it
     #otherwise, it is assumed that 'mbmodel' is a list structure of the right type
     if (is.character(mbmodel)) {mbmodel = readRDS(mbmodel)}
 
-    #if location is supplied, that's where the code will be saved to
-    if (is.null(location))
-    {
-        savepath = paste0("./simulate_",gsub(" ","_",mbmodel$title),"_ode.R")
-    }
-    else
-    {
-        #the name of the function produced by this script is simulate_ + "model title" + "_ode.R"
-        savepath <- location #default is current directory for saving the R function
-    }
-
     modeltitle = gsub(" ","_",mbmodel$title) #title for model, replacing space with low dash to be used in function and file names
 
+    modeltype = "ode"
+
+    #if no filename is provided, create one
+    #otherwise use the supplied one
+    #the default is simulate_ + "model title" + "_" + modeltype + .R
+    if (is.null(filename))
+    {
+        filename =  paste0("simulate_",modeltitle,"_",modeltype,".R")
+    }
+
+    #if location is supplied, that's where the code will be saved to
+    #if location is NULL, it will be the current directory
+    file_path_and_name <- filename
+    if (!is.null(location))
+    {
+        file_path_and_name <- file.path(location,filename)
+    }
+
     #generates all the documentation/header information
-    sdesc = generate_function_documentation(mbmodel,modeltype = "ode")
+    sdesc = generate_function_documentation(mbmodel,modeltype)
 
     #generates text for main function call line and for argument vectors
-    textlist_mb <- generate_function_inputs(mbmodel,modeltype = "ode")
-    stitle = textlist_mb$stitle
-    varvec = textlist_mb$varvec
-    parvec = textlist_mb$parvec
+    textlist <- generate_function_inputs(mbmodel,modeltype)
+    stitle = textlist$stitle
+    varvec = textlist$varvec
+    parvec = textlist$parvec
 
     ##############################################################################
     #the next block of commands produces the ODE function required by deSolve
@@ -90,7 +98,7 @@ generate_ode <- function(mbmodel, location = NULL)
     #finish block that creates main function part
     ##############################################################################
     #write all text blocks to file
-    sink(savepath)
+    sink(file_path_and_name)
     cat(sdesc)
     cat(stitle)
     cat(sode)

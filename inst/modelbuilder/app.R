@@ -357,7 +357,7 @@ server <- function(input, output, session) {
       paste0("simulate_",gsub(" ","_",mbmodel$title),"_ode.R")
     },
     content = function(file) {
-      generate_ode(mbmodel = mbmodel, location = file)
+      generate_ode(mbmodel = mbmodel, location = NULL, filename = file)
     },
     contentType = "text/plain"
   )
@@ -367,7 +367,7 @@ server <- function(input, output, session) {
       paste0("simulate_",gsub(" ","_",mbmodel$title),"_stochastic.R")
     },
     content = function(file) {
-      generate_stochastic(mbmodel = mbmodel, location = file)
+      generate_stochastic(mbmodel = mbmodel, location = NULL, filename = file)
     },
     contentType = "text/plain"
   )
@@ -377,7 +377,7 @@ server <- function(input, output, session) {
       paste0("simulate_",gsub(" ","_",mbmodel$title),"_discrete.R")
     },
     content = function(file) {
-      generate_discrete(mbmodel = mbmodel, location = file)
+      generate_discrete(mbmodel = mbmodel, location = NULL, filename = file)
     },
     contentType = "text/plain"
   )

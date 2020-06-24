@@ -16,15 +16,16 @@ test_that("use SIR model to test analyze_model function",
   modelsettings$scanparam = 0
 
   #test ODE code
-  modelsettings$modeltype = "_ode_"
+  modelsettings$modeltype = "ode"
   simresult = modelbuilder::analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)
+  #simresult = analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)
   #final number of susceptible need to be specified number for this model/setting
   susceptibles = dplyr::filter(simresult[[1]]$dat, varnames == 'S')
   sfinal = round(tail(susceptibles$yvals,1))
   testthat::expect_equal(sfinal,203)
 
   #test discrete time code
-  modelsettings$modeltype = "_discrete_"
+  modelsettings$modeltype = "discrete"
   simresult = modelbuilder::analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)
   #final number of susceptible need to be specified number  for this model/setting
   susceptibles = dplyr::filter(simresult[[1]]$dat, varnames == 'S')
@@ -32,12 +33,11 @@ test_that("use SIR model to test analyze_model function",
   testthat::expect_equal(sfinal,197)
 
   #test stochastic code
-  modelsettings$modeltype = "_stochastic_"
+  modelsettings$modeltype = "stochastic"
   simresult = modelbuilder::analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)
   #final number of susceptible need to be specified number for this model/setting/rngseed
   susceptibles = dplyr::filter(simresult[[1]]$dat, varnames == 'S')
   sfinal = round(tail(susceptibles$yvals,1))
   testthat::expect_equal(sfinal,148)
-
 
 })

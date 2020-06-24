@@ -17,7 +17,7 @@ modelsettings = list(S = 1000, I = 1, b = 1e-4, g = 1, w = 1, m = 100, n = 0.1, 
 modelsettings$nreps = 1
 modelsettings$rngseed = 123
 modelsettings$plotscale = 'lin'
-modelsettings$modeltype = "_ode_"
+modelsettings$modeltype = "ode"
 modelsettings$scanparam = 0
 
 simresult <- analyze_model(modelsettings = modelsettings, mbmodel = mbmodel)

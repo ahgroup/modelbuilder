@@ -4,18 +4,20 @@
 \alias{generate_ode}
 \title{Create an ODE simulation model}
 \usage{
-generate_ode(mbmodel, location = NULL)
+generate_ode(mbmodel, location = NULL, filename = NULL)
 }
 \arguments{
 \item{mbmodel}{modelbuilder model structure, either as list object or file name}
 
-\item{location}{a filename and path to save the simulation code to. Default is current directory.}
+\item{location}{a path to save the simulation code to. If NULL, defaults to current directory.}
+
+\item{filename}{a filename to save the simulation code to. If NULL, a default is generated (recommended).}
 }
 \value{
 The function does not return anything
 Instead, it writes an R file into the specified directory
-this R file contains a deSolve implementation of the model
-the name of the file is simulate_model$title_ode.R
+the default name of the file is simulate_model$title_ode.R
+if the user specifies a file name, it will be that name
 }
 \description{
 The model needs to adhere to the structure specified by the modelbuilder package.
