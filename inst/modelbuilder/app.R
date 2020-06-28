@@ -293,7 +293,20 @@ server <- function(input, output, session) {
   #######################################################
   #load a model
   observeEvent(input$loadcustommodel, {
-        mbmodel <- readRDS(input$loadcustommodel$datapath)
+
+        fx = tools::file_ext(input$loadcustommodel$datapath)
+        #if it's an R file, assume it contains a mbmodel and source it
+        if (fx == "R" || fx == "r") #that's currently not working
+        {
+          source(input$loadcustommodel$datapath)
+        }
+        #if it's an Rds file, read it
+        if (fx == "Rds" || fx == "rds" || fx == "RDS")
+        {
+          mbmodel <- readRDS(input$loadcustommodel$datapath)
+        }
+
+
         mbmodelerrors <- check_model(mbmodel) #check if model is a proper mbmodel
         if (!is.null(mbmodelerrors)) #if errors occur, do not load model
         {
@@ -307,8 +320,9 @@ server <- function(input, output, session) {
         {
           mbmodel <<- mbmodel
           shinyjs::enable(id = "exportode")
-          shinyjs::enable("exportstochastic")
-          shinyjs::enable("exportdiscrete")
+          shinyjs::enable(id = "exportfile")
+          shinyjs::enable(id = "exportstochastic")
+          shinyjs::enable(id = "exportdiscrete")
           updateSelectInput(session, "examplemodel", selected = 'none')
         }
   })
@@ -320,8 +334,9 @@ server <- function(input, output, session) {
       examplefile = paste0(system.file("modelexamples", package = packagename),'/',input$examplemodel)
       mbmodel <<- readRDS(examplefile) #load model from file
       shinyjs::enable(id = "exportode")
-      shinyjs::enable("exportstochastic")
-      shinyjs::enable("exportdiscrete")
+      shinyjs::enable(id = "exportfile")
+      shinyjs::enable(id = "exportstochastic")
+      shinyjs::enable(id = "exportdiscrete")
     }
   }) #end observeevent
 
@@ -333,8 +348,9 @@ server <- function(input, output, session) {
   observeEvent(input$clearmodel, {
     shinyjs::reset(id  = "loadcustommodel")
     shinyjs::disable(id = "exportode")
-    shinyjs::disable("exportstochastic")
-    shinyjs::disable("exportdiscrete")
+    shinyjs::disable(id = "exportfile")
+    shinyjs::disable(id = "exportstochastic")
+    shinyjs::disable(id = "exportdiscrete")
     updateSelectInput(session, "examplemodel", selected = 'none')
     mbmodel <<- NULL
   })
@@ -348,8 +364,9 @@ server <- function(input, output, session) {
   if (is.null(mbmodel))
   {
     shinyjs::disable(id = "exportode")
-    shinyjs::disable("exportstochastic")
-    shinyjs::disable("exportdiscrete")
+    shinyjs::disable(id = "exportfile")
+    shinyjs::disable(id = "exportstochastic")
+    shinyjs::disable(id = "exportdiscrete")
   }
 
   output$exportode <- downloadHandler(
@@ -381,6 +398,18 @@ server <- function(input, output, session) {
     },
     contentType = "text/plain"
   )
+
+  output$exportfile <- downloadHandler(
+    filename = function() {
+      paste0(gsub(" ","_",mbmodel$title),"_file.R")
+    },
+    content = function(file) {
+      generate_model_file(mbmodel = mbmodel, location = NULL, filename = file)
+    },
+    contentType = "text/plain"
+  )
+
+
 
   #######################################################
   #end code blocks that contain the import/export functionality
@@ -441,7 +470,7 @@ ui <- fluidPage(
                       fluidRow(
                         p('Load or clear a Model', class='mainsectionheader'),
                         column(4,
-                               fileInput("loadcustommodel", label = "", accept = ".rds", buttonLabel = "Load model", placeholder = "No model file selected")
+                               fileInput("loadcustommodel", label = "", buttonLabel = "Load model", placeholder = "No model file selected")
                          ),
                         column(4,
                                selectInput("examplemodel", "Example Models", allexamplemodels , selected = 'none')
@@ -455,13 +484,16 @@ ui <- fluidPage(
                       p('Get the R code for the currently loaded model', class='mainsectionheader'),
 
                       fluidRow(
-                        column(4,
+                        column(3,
+                               downloadButton("exportfile", "Export model generating code", class='downloadbt')
+                        ),
+                        column(3,
                                downloadButton("exportode", "Export ODE code", class='downloadbt')
                         ),
-                        column(4,
+                        column(3,
                                downloadButton("exportstochastic", "Export stochastic code", class='downloadbt')
                         ),
-                        column(4,
+                        column(3,
                                downloadButton("exportdiscrete", "Export discrete-time code", class='downloadbt')
                         ),
                         #hide for now

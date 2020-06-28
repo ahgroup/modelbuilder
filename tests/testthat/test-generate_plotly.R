@@ -8,7 +8,7 @@ modelpath = system.file("modelexamples", package = "modelbuilder")
 allexamplemodels = list.files(modelpath, full.names = TRUE)
 
 #find some SIRS model and load it
-modeltoload = allexamplemodels[min(grep('SIRS',allexamplemodels))]
+modeltoload = allexamplemodels[min(grep('SEIRS',allexamplemodels))]
 mbmodel <- readRDS(modeltoload)
 
 #set settings for model to run
