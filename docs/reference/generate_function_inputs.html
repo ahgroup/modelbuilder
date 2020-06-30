@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Page not found (404) • modelbuilder</title>
+<title>Create function input/arguments part for a simulation model — generate_function_inputs • modelbuilder</title>
 
 
 <!-- jquery -->
@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
 <!-- bootstrap-toc -->
-<link rel="stylesheet" href="https://ahgroup.github.io/DSAIDE/index.html/bootstrap-toc.css">
-<script src="https://ahgroup.github.io/DSAIDE/index.html/bootstrap-toc.js"></script>
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
@@ -33,15 +33,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
-<link href="https://ahgroup.github.io/DSAIDE/index.html/pkgdown.css" rel="stylesheet">
-<script src="https://ahgroup.github.io/DSAIDE/index.html/pkgdown.js"></script>
+<link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script>
 
 
 
-  <link href="https://ahgroup.github.io/DSAIDE/index.html/extra.css" rel="stylesheet">
+  <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Page not found (404)" />
+<meta property="og:title" content="Create function input/arguments part for a simulation model — generate_function_inputs" />
+<meta property="og:description" content="The model needs to adhere to the structure specified by the modelbuilder package.
+Models built using the modelbuilder package automatically have the right structure.
+A user can also build a model list structure themselves following the modelbuilder specifications.
+If the user provides a file name, this file needs to be an Rds file
+and contain a valid modelbuilder model structure." />
 
 
 
@@ -60,7 +65,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-title-body">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -72,7 +77,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="https://ahgroup.github.io/DSAIDE/index.html/index.html">modelbuilder</a>
+        <a class="navbar-link" href="../index.html">modelbuilder</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
       </span>
     </div>
@@ -80,19 +85,19 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="articles/DSAIDE.html">Get started</a>
+  <a href="../articles/DSAIDE.html">Get started</a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="news/index.html">Changelog</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -130,23 +135,51 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Page not found (404)</h1>
+    <h1>Create function input/arguments part for a simulation model</h1>
+    <small class="dont-index">Source: <a href='https://github.com/ahgroup/modelbuilder/blob/master/R/generate_function_inputs.R'><code>R/generate_function_inputs.R</code></a></small>
+    <div class="hidden name"><code>generate_function_inputs.Rd</code></div>
     </div>
 
-Content not found. Please use links in the navbar.
+    <div class="ref-description">
+    <p>The model needs to adhere to the structure specified by the modelbuilder package.
+Models built using the modelbuilder package automatically have the right structure.
+A user can also build a model list structure themselves following the modelbuilder specifications.
+If the user provides a file name, this file needs to be an Rds file
+and contain a valid modelbuilder model structure.</p>
+    </div>
+
+    <pre class="usage"><span class='fu'>generate_function_inputs</span>(<span class='no'>mbmodel</span>, <span class='no'>modeltype</span>)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>mbmodel</th>
+      <td><p>modelbuilder model structure</p></td>
+    </tr>
+    <tr>
+      <th>modeltype</th>
+      <td><p>Indicates type of model code that is generated. One of ode/stochastic/discrete</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>text that to be placed on top of function code generated by the calling function</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This function takes as input a modelbuilder model and writes code
+that produces text needed to create the main function call and the var/par/time vectors</p>
 
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
   </div>
-
 </div>
-
 
 
       <footer>

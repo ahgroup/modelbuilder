@@ -31,10 +31,19 @@
     <loc>https://ahgroup.github.io/DSAIDE/index.html/reference/generate_flowchart_ggplot.html</loc>
   </url>
   <url>
+    <loc>https://ahgroup.github.io/DSAIDE/index.html/reference/generate_function_documentation.html</loc>
+  </url>
+  <url>
+    <loc>https://ahgroup.github.io/DSAIDE/index.html/reference/generate_function_inputs.html</loc>
+  </url>
+  <url>
     <loc>https://ahgroup.github.io/DSAIDE/index.html/reference/generate_ggplot.html</loc>
   </url>
   <url>
     <loc>https://ahgroup.github.io/DSAIDE/index.html/reference/generate_model.html</loc>
+  </url>
+  <url>
+    <loc>https://ahgroup.github.io/DSAIDE/index.html/reference/generate_model_file.html</loc>
   </url>
   <url>
     <loc>https://ahgroup.github.io/DSAIDE/index.html/reference/generate_ode.html</loc>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>A function that analyzes a modelbuilder model object. — analyze_model • modelbuilder</title>
+<title>Run simulations for a modelbuilder model object. — analyze_model • modelbuilder</title>
 
 
 <!-- jquery -->
@@ -41,9 +41,11 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="A function that analyzes a modelbuilder model object. — analyze_model" />
+<meta property="og:title" content="Run simulations for a modelbuilder model object. — analyze_model" />
 <meta property="og:description" content="This function takes a modelbuilder model and model settings.
-It runs the simulation determined by the model settings and returns simulation results." />
+It runs the simulation determined by the model settings and returns simulation results.
+Normally run when triggered by the user through the UI.
+Can also be called directly." />
 
 
 
@@ -75,7 +77,7 @@ It runs the simulation determined by the model settings and returns simulation r
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">modelbuilder</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
       </span>
     </div>
 
@@ -134,14 +136,16 @@ It runs the simulation determined by the model settings and returns simulation r
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>A function that analyzes a modelbuilder model object.</h1>
+    <h1>Run simulations for a modelbuilder model object.</h1>
     <small class="dont-index">Source: <a href='https://github.com/ahgroup/modelbuilder/blob/master/R/analyze_model.R'><code>R/analyze_model.R</code></a></small>
     <div class="hidden name"><code>analyze_model.Rd</code></div>
     </div>
 
     <div class="ref-description">
     <p>This function takes a modelbuilder model and model settings.
-It runs the simulation determined by the model settings and returns simulation results.</p>
+It runs the simulation determined by the model settings and returns simulation results.
+Normally run when triggered by the user through the UI.
+Can also be called directly.</p>
     </div>
 
     <pre class="usage"><span class='fu'>analyze_model</span>(<span class='no'>modelsettings</span>, <span class='no'>mbmodel</span>)</pre>
@@ -156,14 +160,13 @@ It runs the simulation determined by the model settings and returns simulation r
 <li><p>rngseed : A random number seed for the simulation.</p></li>
 <li><p>nreps : Number of times to run the simulation.</p></li>
 <li><p>plotscale : Log or linear scale for the x-axis, y-axis, or both.</p></li>
-<li><p>vars : named vector of initial conditions for variables</p></li>
-<li><p>pars : named vector of initial conditions for parameters</p></li>
-<li><p>times : named vector of values for tstart, tfinal, dt</p></li>
+<li><p>scanparam : 1 if we want to scan over a parameter, 0 otherwise. Not available for stochastic models.</p></li>
+<li><p>any input to model whose default should be overwritten</p></li>
 </ul></td>
     </tr>
     <tr>
       <th>mbmodel</th>
-      <td><p>A modelbuilder model object.</p></td>
+      <td><p>A list which is a valid modelbuilder model object.</p></td>
     </tr>
     </table>
 

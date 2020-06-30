@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Page not found (404) • modelbuilder</title>
+<title>Create code that encodes a modelbuilder model — generate_model_file • modelbuilder</title>
 
 
 <!-- jquery -->
@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
 <!-- bootstrap-toc -->
-<link rel="stylesheet" href="https://ahgroup.github.io/DSAIDE/index.html/bootstrap-toc.css">
-<script src="https://ahgroup.github.io/DSAIDE/index.html/bootstrap-toc.js"></script>
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
@@ -33,15 +33,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
-<link href="https://ahgroup.github.io/DSAIDE/index.html/pkgdown.css" rel="stylesheet">
-<script src="https://ahgroup.github.io/DSAIDE/index.html/pkgdown.js"></script>
+<link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script>
 
 
 
-  <link href="https://ahgroup.github.io/DSAIDE/index.html/extra.css" rel="stylesheet">
+  <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Page not found (404)" />
+<meta property="og:title" content="Create code that encodes a modelbuilder model — generate_model_file" />
+<meta property="og:description" content="The model needs to adhere to the structure specified by the modelbuilder package.
+Models built using the modelbuilder package automatically have the right structure.
+A user can also build a model list structure themselves following the modelbuilder specifications.
+The file name must contain a valid modelbuilder Rds file." />
 
 
 
@@ -60,7 +64,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-title-body">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -72,7 +76,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="https://ahgroup.github.io/DSAIDE/index.html/index.html">modelbuilder</a>
+        <a class="navbar-link" href="../index.html">modelbuilder</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
       </span>
     </div>
@@ -80,19 +84,19 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="articles/DSAIDE.html">Get started</a>
+  <a href="../articles/DSAIDE.html">Get started</a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="news/index.html">Changelog</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -130,23 +134,57 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Page not found (404)</h1>
+    <h1>Create code that encodes a modelbuilder model</h1>
+    <small class="dont-index">Source: <a href='https://github.com/ahgroup/modelbuilder/blob/master/R/generate_model_file.R'><code>R/generate_model_file.R</code></a></small>
+    <div class="hidden name"><code>generate_model_file.Rd</code></div>
     </div>
 
-Content not found. Please use links in the navbar.
+    <div class="ref-description">
+    <p>The model needs to adhere to the structure specified by the modelbuilder package.
+Models built using the modelbuilder package automatically have the right structure.
+A user can also build a model list structure themselves following the modelbuilder specifications.
+The file name must contain a valid modelbuilder Rds file.</p>
+    </div>
+
+    <pre class="usage"><span class='fu'>generate_model_file</span>(<span class='no'>mbmodel</span>, <span class='kw'>location</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>filename</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>mbmodel</th>
+      <td><p>modelbuilder model structure, either as list object or file name (with complete path)</p></td>
+    </tr>
+    <tr>
+      <th>location</th>
+      <td><p>a path to save the code to. If NULL, defaults to current directory.</p></td>
+    </tr>
+    <tr>
+      <th>filename</th>
+      <td><p>a filename to save the code to. If NULL, a default is generated (recommended).</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>The function does not return anything
+Instead, it writes an R file into the specified directory
+the default name of the file is model$title_file.R
+if the user specifies a file name, it will be that name</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This function takes as input an Rds file that has a modelbuilder model stored as list
+it translates the list into generative code for easy, non-GUI edits to a model</p>
 
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
   </div>
-
 </div>
-
 
 
       <footer>

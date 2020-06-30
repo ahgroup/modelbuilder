@@ -1,5 +1,5 @@
 ---
-title: "modelbuilder Package Tutorial"
+title: "modelbuilder Tutorial"
 author: "<a href=https://www.andreashandel.com>Andreas Handel</a>"
 date: "`r Sys.Date()`"
 output:
@@ -7,7 +7,7 @@ output:
     fig_caption: yes
     css: vignettestyle.css
 vignette: >
-  %\VignetteIndexEntry{DSAIDE}
+  %\VignetteIndexEntry{modelbuilder Tutorial}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: vignetterefs.bib

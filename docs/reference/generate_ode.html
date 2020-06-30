@@ -42,11 +42,11 @@
   
 
 <meta property="og:title" content="Create an ODE simulation model — generate_ode" />
-<meta property="og:description" content="The model needs to adhere to the structure specified by the modelbuilder package
-models built using the modelbuilder package automatically have the right structure
-a user can also build a model list structure themselves following the specifications
-if the user provides a file name, this file needs to contain an object called 'model'
-and contain a valid modelbuilder model structure" />
+<meta property="og:description" content="The model needs to adhere to the structure specified by the modelbuilder package.
+Models built using the modelbuilder package automatically have the right structure.
+A user can also build a model list structure themselves following the modelbuilder specifications.
+If the user provides a file name, this file needs to be an Rds file
+and contain a valid modelbuilder model structure." />
 
 
 
@@ -78,7 +78,7 @@ and contain a valid modelbuilder model structure" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">modelbuilder</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
       </span>
     </div>
 
@@ -143,14 +143,14 @@ and contain a valid modelbuilder model structure" />
     </div>
 
     <div class="ref-description">
-    <p>The model needs to adhere to the structure specified by the modelbuilder package
-models built using the modelbuilder package automatically have the right structure
-a user can also build a model list structure themselves following the specifications
-if the user provides a file name, this file needs to contain an object called 'model'
-and contain a valid modelbuilder model structure</p>
+    <p>The model needs to adhere to the structure specified by the modelbuilder package.
+Models built using the modelbuilder package automatically have the right structure.
+A user can also build a model list structure themselves following the modelbuilder specifications.
+If the user provides a file name, this file needs to be an Rds file
+and contain a valid modelbuilder model structure.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>generate_ode</span>(<span class='no'>mbmodel</span>, <span class='kw'>location</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>generate_ode</span>(<span class='no'>mbmodel</span>, <span class='kw'>location</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>filename</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -161,7 +161,11 @@ and contain a valid modelbuilder model structure</p>
     </tr>
     <tr>
       <th>location</th>
-      <td><p>a filename and path to save the simulation code to. Default is current directory.</p></td>
+      <td><p>a path to save the simulation code to. If NULL, defaults to current directory.</p></td>
+    </tr>
+    <tr>
+      <th>filename</th>
+      <td><p>a filename to save the simulation code to. If NULL, a default is generated (recommended).</p></td>
     </tr>
     </table>
 
@@ -169,8 +173,8 @@ and contain a valid modelbuilder model structure</p>
 
     <p>The function does not return anything
 Instead, it writes an R file into the specified directory
-this R file contains a deSolve implementation of the model
-the name of the file is simulate_model$title_ode.R</p>
+the default name of the file is simulate_model$title_ode.R
+if the user specifies a file name, it will be that name</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>This function takes as input a modelbuilder model and writes code
