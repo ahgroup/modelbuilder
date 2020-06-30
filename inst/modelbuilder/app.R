@@ -459,13 +459,14 @@ server <- function(input, output, session) {
 
 #This is the UI for the Main Menu of modelbuilder
 ui <- fluidPage(
-  shinyjs::useShinyjs(),
-  includeCSS("packagestyle.css"),
-  tags$div(id = "shinyheadertitle", "modelbuilder - Graphical building and analysis of simulation models"),
-  tags$div(id = "infotext", paste0('This is ', packagename,  'version ',utils::packageVersion(packagename),' last updated ', utils::packageDescription(packagename)$Date,'.')),
-  tags$div(id = "infotext", "Written and maintained by", a("Andreas Handel", href="http://handelgroup.uga.edu", target="_blank"), "with many contributions from", a("others.",  href="https://github.com/ahgroup/modelbuilder#contributors", target="_blank")),
-  p('Have fun building and analyzing models!', class='maintext'),
-  navbarPage(title = "modelbuilder", id = 'alltabs', selected = "main",
+    shinyjs::useShinyjs(),  # Set up shinyjs
+    tags$head(includeHTML(("google-analytics.html"))), #this is only needed for Google analytics when deployed as app to the UGA server. Should not affect R package use.
+    includeCSS("packagestyle.css"),
+    tags$div(id = "shinyheadertitle", "modelbuilder - Graphical building and analysis of simulation models"),
+    tags$div(id = "infotext", paste0('This is ', packagename,  'version ',utils::packageVersion(packagename),' last updated ', utils::packageDescription(packagename)$Date,'.')),
+    tags$div(id = "infotext", "Written and maintained by", a("Andreas Handel", href="http://handelgroup.uga.edu", target="_blank"), "with many contributions from", a("others.",  href="https://github.com/ahgroup/modelbuilder#contributors", target="_blank")),
+    p('Have fun building and analyzing models!', class='maintext'),
+    navbarPage(title = "modelbuilder", id = 'alltabs', selected = "main",
              tabPanel(title = "Main", value = "main",
                       fluidRow(
                         p('Load or clear a Model', class='mainsectionheader'),
