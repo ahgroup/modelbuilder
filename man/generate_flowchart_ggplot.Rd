@@ -4,10 +4,10 @@
 \alias{generate_flowchart_ggplot}
 \title{This function takes as input a modelbuilder model and creates a diagram using ggplot}
 \usage{
-generate_flowchart_ggplot(model)
+generate_flowchart_ggplot(mbmodel)
 }
 \arguments{
-\item{model}{model structure, either as list object or Rdata file name}
+\item{mbmodel}{model structure, either as list object or Rds file name}
 }
 \value{
 The function returns the diagram stored in a variable
@@ -16,7 +16,7 @@ The function returns the diagram stored in a variable
 The model needs to adhere to the structure specified by the modelbuilder package
 models built using the modelbuilder package automatically have the right structure
 a user can also build a model list structure themselves following the specifications
-if the user provides an Rdata file name, this file needs to contain an object called 'model'
+if the user provides an Rds file name, this file needs to contain an object called 'mbmodel'
 and contain a valid modelbuilder model structure
 }
 \author{

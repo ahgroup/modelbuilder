@@ -3,25 +3,25 @@
 #' @description The model needs to adhere to the structure specified by the modelbuilder package
 #' models built using the modelbuilder package automatically have the right structure
 #' a user can also build a model list structure themselves following the specifications
-#' if the user provides an Rdata file name, this file needs to contain an object called 'model'
+#' if the user provides an Rds file name, this file needs to contain an object called 'mbmodel'
 #' and contain a valid modelbuilder model structure
-#' @param model model structure, either as list object or Rdata file name
+#' @param mbmodel model structure, either as list object or Rds file name
 #' @return The function returns the diagram stored in a variable
 #' @author Andreas Handel
 #' @export
 
-generate_flowchart_ggplot <- function(model) {
+generate_flowchart_ggplot <- function(mbmodel) {
 
     #if the model is passed in as a string, it is assumed to be the
-    #location/name of an Rdata file containing an model and we'll load it
+    #location/name of an Rds file containing an model and we'll load it
     #otherwise, it is assumed that 'model' is already a list structure of the right type
-    if (is.character(model)) {load(model)}
+    if (is.character(mbmodel)) {load(mbmodel)}
 
-    nvars = length(model$var)  #number of variables/compartments in model
+    nvars = length(mbmodel$var)  #number of variables/compartments in model
 
-    varnames = unlist(sapply(model$var, '[', 1)) #extract variable names as vector
-    vartext = unlist(sapply(model$var, '[', 2)) #extract variable text as vector
-    allflows = sapply(model$var, '[', 4) #extract flows
+    varnames = unlist(sapply(mbmodel$var, '[', 1)) #extract variable names as vector
+    vartext = unlist(sapply(mbmodel$var, '[', 2)) #extract variable text as vector
+    allflows = sapply(mbmodel$var, '[', 4) #extract flows
     #turns flow list into matrix, adding NA, found it online, not sure how exactly it works
     flowmat = t(sapply(allflows, `length<-`, max(lengths(allflows))))
     flowmatred = sub("\\+|-","",flowmat)   #strip leading +/- from flows
