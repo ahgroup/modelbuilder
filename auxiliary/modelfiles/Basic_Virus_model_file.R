@@ -1,5 +1,5 @@
 ############################## 
-#R script to generate a modelbuilder model with code, save and export it. 
+#R script to generate a modelbuilder model object with code. 
 ############################## 
  
  mbmodel = list() #create empty list 
@@ -17,7 +17,7 @@
  var[[1]]$vartext = 'Uninfected cells'
  var[[1]]$varval = 1e+05
  var[[1]]$flows = c('+n', '-dU*U', '-b*V*U')
- var[[1]]$flownames = c('cell birth', 'cell death', 'infection of cells')
+ var[[1]]$flownames = c('uninfected cell birth', 'uninfected cell death', 'infection of cells')
  
  var[[2]]$varname = 'I'
  var[[2]]$vartext = 'Infected cells'

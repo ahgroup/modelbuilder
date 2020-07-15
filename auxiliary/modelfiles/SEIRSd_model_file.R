@@ -1,5 +1,5 @@
 ############################## 
-#R script to generate a modelbuilder model with code, save and export it. 
+#R script to generate a modelbuilder model object with code. 
 ############################## 
  
  mbmodel = list() #create empty list 

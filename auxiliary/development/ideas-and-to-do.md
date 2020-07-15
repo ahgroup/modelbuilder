@@ -1,5 +1,20 @@
 # To-do and ideas for modelbuilder package
 
+# Feedback to look into
+
+Because the program requires all of the boxes to be filled working it is not possible to save in the middle of your work. If I needed to step away from the computer while in the middle of implementing them R would stop running when my computer went to sleep and I would have to start over. I could copy and paste from the page that I had started into the newly launched page but that was very time consuming and frustrating. This happened at least twice. Perhaps the program allows you to save with a warning that errors have been found but still allows you to keep your progress. 
+
+I also received this error a couple of times when I was going to "Make the model". This means I had to close and reopen R. This might be a problem on my end with R though. 
+Listening on http://127.0.0.1:7169
+Warning: Error in if: missing value where TRUE/FALSE needed
+ 74: check_model
+ 73: observeEventHandler [/Library/Frameworks/R.framework/Versions/3.6/Resources/library/modelbuilder/modelbuilder/app.R#127]
+  2: shiny::runApp
+  1: modelbuilder
+
+
+
+
 ## Code Improvements
 * Continue implementing unit tests using the testthat package
 

@@ -41,4 +41,4 @@ The package is built in a way that makes it (hopefully) easy for others to contr
 
 
 ## Acknowledgements 
-This R package is developed and maintained by [Andreas Handel](https://www.andreashandel.com/). A full list of contributors [can be found here](https://ahgroup.github.io/DSAIRM/authors.html). The development of this package was partially supported by NIH grant U19AI117891 and a grant from the University of Georgia's Center for Teaching and Learning. 
+This R package is developed and maintained by [Andreas Handel](https://www.andreashandel.com/). A full list of contributors [can be found here](https://ahgroup.github.io/modelbuilder/authors.html). The development of this package was partially supported by NIH grant U19AI117891 and a grant from the University of Georgia's Center for Teaching and Learning. 
