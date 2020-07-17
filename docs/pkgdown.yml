@@ -3,7 +3,7 @@ pkgdown: 1.5.1
 pkgdown_sha: ~
 articles:
   modelbuilder: modelbuilder.html
-last_built: 2020-06-30T01:15Z
+last_built: 2020-07-17T18:19Z
 urls:
   reference: https://ahgroup.github.io/DSAIDE/index.html/reference
   article: https://ahgroup.github.io/DSAIDE/index.html/articles

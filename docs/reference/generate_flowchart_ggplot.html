@@ -45,7 +45,7 @@
 <meta property="og:description" content="The model needs to adhere to the structure specified by the modelbuilder package
 models built using the modelbuilder package automatically have the right structure
 a user can also build a model list structure themselves following the specifications
-if the user provides an Rdata file name, this file needs to contain an object called 'model'
+if the user provides an Rds file name, this file needs to contain an object called 'mbmodel'
 and contain a valid modelbuilder model structure" />
 
 
@@ -78,7 +78,7 @@ and contain a valid modelbuilder model structure" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">modelbuilder</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.6</span>
       </span>
     </div>
 
@@ -146,18 +146,18 @@ and contain a valid modelbuilder model structure" />
     <p>The model needs to adhere to the structure specified by the modelbuilder package
 models built using the modelbuilder package automatically have the right structure
 a user can also build a model list structure themselves following the specifications
-if the user provides an Rdata file name, this file needs to contain an object called 'model'
+if the user provides an Rds file name, this file needs to contain an object called 'mbmodel'
 and contain a valid modelbuilder model structure</p>
     </div>
 
-    <pre class="usage"><span class='fu'>generate_flowchart_ggplot</span>(<span class='no'>model</span>)</pre>
+    <pre class="usage"><span class='fu'>generate_flowchart_ggplot</span>(<span class='no'>mbmodel</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>model</th>
-      <td><p>model structure, either as list object or Rdata file name</p></td>
+      <th>mbmodel</th>
+      <td><p>model structure, either as list object or Rds file name</p></td>
     </tr>
     </table>
 
