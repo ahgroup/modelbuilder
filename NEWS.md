@@ -1,3 +1,7 @@
+# modelbuilder  0.2.6
+
+* New features, bug-fixes 
+
 # modelbuilder  0.2.0
 
 * New features, bug-fixes 
