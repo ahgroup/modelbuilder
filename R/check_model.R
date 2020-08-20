@@ -69,7 +69,8 @@ check_model <- function(mbmodel) {
         varflows = unlist(mbmodel$var[[n]][grep("flows",names(mbmodel$var[[n]]))])
         pattern = "[-+\\++\\*+\\(+\\)+\\^+/+]"
         flowsymbols = unique(unlist(strsplit(varflows,pattern)))
-        math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ","")
+        math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ","",
+                          "sin", "exp")
         allsymbols = c(math_symbols,varnames,parnames,0:9)
         if (sum(!(flowsymbols %in% allsymbols)) >0)
         {
