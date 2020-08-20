@@ -64,14 +64,20 @@ check_model <- function(mbmodel) {
     #Other math notation such as e.g. sin() or cos() is not yet supported.
 
     #loop over each variable/compartment, check all flows
+    add_time = FALSE  #flag for adding time to parameters
     for (n in 1:length(varnames))
     {
         varflows = unlist(mbmodel$var[[n]][grep("flows",names(mbmodel$var[[n]]))])
         pattern = "[-+\\++\\*+\\(+\\)+\\^+/+]"
         flowsymbols = unique(unlist(strsplit(varflows,pattern)))
+        if ("t" %in% flowsymbols)  #add t to parnames if present in flows
+        {
+            parnames = c(parnames, c("parname" = "t"))
+            add_time = TRUE
+        }
         math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ","",
                           "sin", "exp", "log")
-        allsymbols = c(math_symbols,varnames,parnames,"t",0:9)
+        allsymbols = c(math_symbols,varnames,parnames,0:9)
         if (sum(!(flowsymbols %in% allsymbols)) >0)
         {
             wrongflows = flowsymbols[which(!(flowsymbols %in% allsymbols))]
@@ -87,6 +93,16 @@ check_model <- function(mbmodel) {
     #STILL NEED TO WRITE THE FOLLOWING CHECK
     #make sure each parameter name is only used in disticnt flows, either once
     #or twice in a inflow/outflow pair
+
+    #update the parameters list to include t if in the flows
+    if (add_time)  #add t to parnames if present in any flows
+    {
+        n_params = length(mbmodel$par)
+        time_param_num = n_params + 1
+        mbmodel$par[[time_param_num]] = list("parname" = "t",
+                                             "partext" = "time parameter",
+                                             "parval" = 0)
+    }
 
     #if no problems occured, return mberror which should be NULL
     return(mberror)
