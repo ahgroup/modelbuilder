@@ -94,17 +94,5 @@ check_model <- function(mbmodel) {
     #make sure each parameter name is only used in disticnt flows, either once
     #or twice in a inflow/outflow pair
 
-    #update the parameters list to include t if in the flows
-    if (add_time)  #add t to parnames if present in any flows
-    {
-        n_params = length(mbmodel$par)
-        time_param_num = n_params + 1
-        mbmodel$par[[time_param_num]] = list("parname" = "t",
-                                             "partext" = "time parameter",
-                                             "parval" = 0)
-    }
-
-    #if no problems occured, return mberror which should be NULL
-    return(list("errors" = mberror,
-                "mbmodel" = mbmodel))
+    return(mberror)
 }

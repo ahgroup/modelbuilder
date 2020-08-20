@@ -44,6 +44,18 @@ generate_ode <- function(mbmodel, location = NULL, filename = NULL)
         file_path_and_name <- file.path(location,filename)
     }
 
+    #remove t from par, if present
+    tmp_pars <- mbmodel$par
+    tmp_par_names <- unlist(lapply(tmp_pars, "[[", 1))
+    if ("t" %in% tmp_par_names)
+    {
+        id_to_remove <- which(tmp_par_names == "t")
+        tmp_pars[[id_to_remove]] <- NULL
+        mbmodel$par <- tmp_pars
+    }
+    rm(tmp_pars, tmp_par_names)
+
+
     #generates all the documentation/header information
     sdesc = generate_function_documentation(mbmodel,modeltype)
 
