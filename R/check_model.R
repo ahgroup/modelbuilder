@@ -105,7 +105,8 @@ check_model <- function(mbmodel) {
     }
 
     #if no problems occured, return mberror which should be NULL
-    return(mberror)
+    return(list("errors" = mberror
+                "mbmodel" = mbmodel))
 
 
 }

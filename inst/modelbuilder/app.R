@@ -124,9 +124,12 @@ server <- function(input, output, session) {
       #create model, save in temporary structure
       mbmodeltmp <- generate_model(input, values)
       #check if the model is a correct mbmodel structure with all required content provided
-      mbmodelerrors = check_model(mbmodeltmp)
+      mbchecksout <- check_model(mbmodeltmp)
+      mbmodelerrors = mbchecksout[["errors"]]
       if (is.null(mbmodelerrors)) #if no error message, create the model
       {
+        #update the tmp model stucture, only changes if 't' now in pars
+        mbmodeltmp <- mbchecksout[["mbmodel"]]
         mbmodel <<- mbmodeltmp
         output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
         output$flowdiagram  <- shiny::renderPlot({ generate_flowchart_ggplot(mbmodel) })
