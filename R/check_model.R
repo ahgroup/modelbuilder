@@ -64,7 +64,6 @@ check_model <- function(mbmodel) {
     #Other math notation such as e.g. sin() or cos() is not yet supported.
 
     #loop over each variable/compartment, check all flows
-    add_time = FALSE  #flag for adding time to parameters
     for (n in 1:length(varnames))
     {
         varflows = unlist(mbmodel$var[[n]][grep("flows",names(mbmodel$var[[n]]))])
@@ -73,7 +72,6 @@ check_model <- function(mbmodel) {
         if ("t" %in% flowsymbols)  #add t to parnames if present in flows
         {
             parnames = c(parnames, c("parname" = "t"))
-            add_time = TRUE
         }
         math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ","",
                           "sin", "exp", "log")
