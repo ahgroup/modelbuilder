@@ -69,7 +69,12 @@ check_model <- function(mbmodel) {
         varflows = unlist(mbmodel$var[[n]][grep("flows",names(mbmodel$var[[n]]))])
         pattern = "[-+\\++\\*+\\(+\\)+\\^+/+]"
         flowsymbols = unique(unlist(strsplit(varflows,pattern)))
-        math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ","")
+        if ("t" %in% flowsymbols)  #add t to parnames if present in flows
+        {
+            parnames = c(parnames, c("parname" = "t"))
+        }
+        math_symbols <- c("+", "-", "*", "^", "/", "(", ")", " ","",
+                          "sin", "exp", "log")
         allsymbols = c(math_symbols,varnames,parnames,0:9)
         if (sum(!(flowsymbols %in% allsymbols)) >0)
         {
@@ -87,8 +92,5 @@ check_model <- function(mbmodel) {
     #make sure each parameter name is only used in disticnt flows, either once
     #or twice in a inflow/outflow pair
 
-    #if no problems occured, return mberror which should be NULL
     return(mberror)
-
-
 }
