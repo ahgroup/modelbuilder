@@ -18,8 +18,9 @@
 #'     a default is generated (recommended).
 #' @return The function does not return anything
 #'     Instead, it writes a CSV file into the specified directory;
-#'     the default name of the file is paramtable_model$title.CSV;
-#'     if the user specifies a file name, it will be that name
+#'     the default nams of the files are parameter_table_model$title.csv and
+#'     parameter_table_model$title.csv; if the user specifies a file name,
+#'     it will be that name
 #' @author Andrew Tredennick and Andreas Handel
 #' @export
 
@@ -33,18 +34,22 @@ generate_tables <- function(mbmodel, location = NULL, filename = NULL)
 
     #if no filename is provided, create one
     #otherwise use the supplied one
-    #the default is simulate_ + "model title" + "_" + modeltype + .R
+    #the default is variable_table_ + "model title" + ".csv"
+    #               parameter_table_ + "model title" + ".csv"
     if (is.null(filename))
     {
-        filename =  paste0("simulate_",modeltitle,".csv")
+        varfilename =  paste0("variable_table_",modeltitle,".csv")
+        parfilename =  paste0("parameter_table_",modeltitle,".csv")
     }
 
     #if location is supplied, that's where the code will be saved to
     #if location is NULL, it will be the current directory
-    file_path_and_name <- filename
+    var_file_path_and_name <- varfilename
+    par_file_path_and_name <- varfilename
     if (!is.null(location))
     {
-        file_path_and_name <- file.path(location,filename)
+        var_file_path_and_name <- file.path(location,varfilename)
+        par_file_path_and_name <- file.path(location,parfilename)
     }
 
     #remove t from par, if present
@@ -69,13 +74,23 @@ generate_tables <- function(mbmodel, location = NULL, filename = NULL)
     par_value <- sapply(mbmodel$par, "[[", 3)
 
     #combine all into a dataframe
-    df <- data.frame(Abbreviation = c(var_abbr, par_abbr),
-                     Name = c(var_name, par_name),
-                     Initial_Value = c(var_value, par_value))
+    dfvar <- data.frame(Abbreviation = c(var_abbr),
+                        Name = c(var_name),
+                        Initial_Value = c(var_value),
+                        Source = "",
+                        Comment = "")
+    dfpar <- data.frame(Abbreviation = c(par_abbr),
+                        Name = c(par_name),
+                        Initial_Value = c(par_value),
+                        Source = "",
+                        Comment = "")
 
-    #save the dataframe as a csv in the specified location
-    write.csv(x = df, file = file_path_and_name, row.names = FALSE)
+    #save the dataframes as a CSVs in the specified location
+    write.csv(x = dfvar, file = var_file_path_and_name, row.names = FALSE)
+    write.csv(x = dfpar, file = par_file_path_and_name, row.names = FALSE)
 
     #report location to the user
-    paste0("Table of parameters saved here: ", file_path_and_name)
+    cat(paste0("Table of parameters saved here: ", par_file_path_and_name),
+        paste0("Table of variables saved here: ", var_file_path_and_name),
+        sep = "\n")
 }
