@@ -1,4 +1,4 @@
-url: https://ahgroup.github.io/DSAIDE/index.html
+url: https://ahgroup.github.io/modelbuilder/index.html
 
 authors:
   Andreas Handel:
@@ -32,9 +32,9 @@ navbar:
       menu:
       - text: DSAIRM
       - href: https://ahgroup.github.io/DSAIRM/index.html
-      - text: modelbuilder
-      - href: https://ahgroup.github.io/modelbuilder/index.html
+      - text: DSAIDE
+      - href: https://ahgroup.github.io/DSAIDE/index.html
     github:
       icon: fa-github fa-lg
-      href: https://github.com/ahgroup/DSAIDE
+      href: https://github.com/ahgroup/modelbuilder
 

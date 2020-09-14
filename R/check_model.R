@@ -15,7 +15,8 @@ check_model <- function(mbmodel) {
     #needs to have every field to be non-empty, especially model$title
     if (mbmodel$title == "") {mberror = "Please provide a model title"; return(mberror) }
     #check that no non-standard characters are used in title. only letters and numbers and spaces are allowed.
-    pattern = "^[A-Za-z0-9 ]+$"
+    #underscore is also allowed
+    pattern = "^[A-Za-z0-9_ ]+$"
     if (!grepl(pattern,mbmodel$title)) {mberror = "Please only use letters, numbers and spaces in title"; return(mberror) }
     #check that title starts with a letter. Needed since title will be name of R function and those need to start with letter.
     pattern = "^[A-Za-z]"
@@ -41,8 +42,9 @@ check_model <- function(mbmodel) {
     #check that all parameters have completely filled fields
     if ( sum(pars == "") > 0) {mberror = "Please fill all parameter fields"; return(mberror) }
     #Parameter names have to start with a lower-case letter and can only contain letters and numbers
+    #underscore is also allowed
     parnames = pars[names(pars) == "parname"]
-    pattern = "^[a-z]+[A-Za-z0-9]*$"
+    pattern = "^[a-z]+[A-Za-z0-9_]*$"
     if (sum(!grepl(pattern,parnames))>0) {mberror = "Please start with a lower case letter and use only use letters and numbers for parameters"; return(mberror) }
     #parameter values need to be numeric and >0
     parvals = pars[names(pars) == "parval"]
@@ -54,8 +56,9 @@ check_model <- function(mbmodel) {
     #check that all variables have completely filled fields
     if ( sum(vars == "") > 0) {mberror = "Please fill all variable fields"; return(mberror) }
     # Variable names have to start with an upper-case letter and can only contain letters and numbers
+    #underscore is also allowed
     varnames = vars[names(vars) == "varname"]
-    pattern = "^[A-Z]+[A-Za-z0-9]*$"
+    pattern = "^[A-Z]+[A-Za-z0-9_]*$"
     if (sum(!grepl(pattern,varnames))>0) {mberror = "Please start with a upper case letter and use only use letters and numbers for variables"; return(mberror) }
     # variable starting conditions need to be numeric and >0
     varvals = vars[names(vars) == "varval"]

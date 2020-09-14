@@ -48,24 +48,24 @@
  #Information for all parameters
  par = vector('list',6)
  par[[1]]$parname = 'b1'
- par[[1]]$partext = 'infection rate of hosts'
- par[[1]]$parval = 0.002
+ par[[1]]$partext = 'rate at which susceptible hosts are infected by vectors'
+ par[[1]]$parval = 0.003
  
  par[[2]]$parname = 'b2'
- par[[2]]$partext = 'infection rate of vectors'
- par[[2]]$parval = 0.002
+ par[[2]]$partext = 'rate at which susceptible vectors are infected by hosts'
+ par[[2]]$parval = 0.003
  
  par[[3]]$parname = 'g'
  par[[3]]$partext = 'recovery rate of hosts'
- par[[3]]$parval = 1
+ par[[3]]$parval = 2
  
  par[[4]]$parname = 'w'
  par[[4]]$partext = 'wanning immunity rate'
- par[[4]]$parval = 0.1
+ par[[4]]$parval = 0
  
  par[[5]]$parname = 'n'
  par[[5]]$partext = 'vector birth rate'
- par[[5]]$parval = 100
+ par[[5]]$parval = 200
  
  par[[6]]$parname = 'm'
  par[[6]]$partext = 'vector death rate'

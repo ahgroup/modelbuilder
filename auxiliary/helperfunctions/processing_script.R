@@ -9,20 +9,12 @@ modelfilepath = here::here('auxiliary/modelfiles')
 #If one edits/updates a model through the UI and saves as Rds, one should run the code that turns Rds into R script and the exports as functions (as needed)
 #if one edits/updates a model by editing the file.R code, one should run the code below that turns it into an Rds file, then export as functions (as needed)
 
-############################################################
-#load RDS files, create file.R files that encode model
-#"inverse" of next code snippet
-files = list.files(path = modelfilepath, pattern = "\\.Rds$", full.names = TRUE)
-for (n in 1: length(files))
-{
-    modelbuilder::generate_model_file(files[n], location = modelfilepath )
-}
-
 
 ############################################################
 #load file.R text model files, save them as Rds files
 #"inverse" of above code
 files = list.files(path = modelfilepath, pattern = "file.R$", full.names = TRUE)
+#files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Environmental_Transmission_model_file.R"
 for (n in 1: length(files))
 {
     source(files[n])
@@ -38,9 +30,21 @@ for (n in 1: length(files))
 }
 
 
+
+############################################################
+#load RDS files, create file.R files that encode model
+#"inverse" of next code snippet
+files = list.files(path = modelfilepath, pattern = "\\.Rds$", full.names = TRUE)
+for (n in 1: length(files))
+{
+    modelbuilder::generate_model_file(files[n], location = modelfilepath )
+}
+
+
 ############################################################
 #load RDS files, export as code
 files = list.files(path = modelfilepath, pattern = "\\.Rds$", full.names = TRUE)
+#files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Environmental_Transmission_model.Rds"
 for (n in 1: length(files))
 {
     mbmodel = readRDS(files[n])
@@ -48,6 +52,5 @@ for (n in 1: length(files))
     modelbuilder::generate_ode(mbmodel,location = modelfilepath, filename = NULL)
     modelbuilder::generate_stochastic(mbmodel,location = modelfilepath, filename = NULL)
 }
-
 
 
