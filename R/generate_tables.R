@@ -21,6 +21,7 @@
 #'     the default nams of the files are parameter_table_model$title.csv and
 #'     parameter_table_model$title.csv; if the user specifies a file name,
 #'     it will be that name
+#' @importFrom utils write.csv
 #' @author Andrew Tredennick and Andreas Handel
 #' @export
 
