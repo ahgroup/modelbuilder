@@ -133,8 +133,9 @@ generate_stratified_model <- function(mbmodel,
           #extract just the math symbols, in order, from the flows by
           #removing all characters associated with the variables and parameters
           varparpattern <- paste0("[", paste(flowsymbols, collapse = ""), "]")
-          flowmath <- stringr::str_remove_all(varflows[l], pattern = varparpattern)
-
+          flowmath <- gsub(pattern = varparpattern,
+                           replacement = "",
+                           x = varflows[l])
           #break apart the math symbol string into a character vector
           #such that individual elements can be pasted back in order
           flowmath <- unlist(strsplit(flowmath, ""))
