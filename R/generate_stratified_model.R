@@ -30,6 +30,23 @@
 generate_stratified_model <- function(mbmodel,
                                       strata_list)
 {
+  #for testing
+  mbmodel <- readRDS("inst/modelexamples/SEIRSd_model.rds")
+  # mbmodel <- readRDS("auxiliary/modelfiles/Coronavirus_vaccine_model.Rds")
+  strata_list <- list(
+    # list(
+    #   stratumname = "age",
+    #   names = c("children", "adults", "elderly"),
+    #   labels = c("c", "a", "e"),
+    #   comment = "This defines the age structure."
+    # ),
+    list(
+      stratumname = "risk",
+      names = c("high risk", "low risk"),
+      labels = c("h", "l"),
+      comment = "This defines the risk structure."
+    )
+  )
 
   #if the model is passed in as a file name, load it
   #otherwise, it is assumed that 'mbmodel' is a list structure
@@ -37,7 +54,6 @@ generate_stratified_model <- function(mbmodel,
   if (is.character(mbmodel)) {
     mbmodel = readRDS(mbmodel)
   }
-
 
   #loop over specified strata, then loop over variables and parameters
   nstrata <- length(strata_list)
@@ -242,6 +258,115 @@ generate_stratified_model <- function(mbmodel,
 
   }  #end of strata loop
 
+  #now go through and update the flows that need full
+  #interactions among state variables
+  #find the flows with state variable interactions
+  inters <- find_interaction_flows(mbmodel)
+
+  #make fully expanded labels to append
+  labs <- list()
+  for(i in 1:length(strata_list)) {
+    labs[[i]] <- strata_list[[i]]$labels
+  }
+  labs <- expand.grid(labs)
+  sub_labels <- apply(labs, 1, paste, collapse="_")
+  rm(labs)
+
+  #get state variable name from each var
+  varnames <- unlist(
+    lapply(
+      strsplit(
+        unlist(lapply(newmb$var, "[[", 1)),
+        split = "_"),
+      "[[", 1)
+    )
+
+  origvarnames <- unlist(lapply(mbmodel$var, "[[", 1))
+
+  #get the new variables to fully expand with interactions
+  vars_to_expand <- which(varnames %in% inters$varname)
+
+  #loop over just the variables to expand
+  for(i in vars_to_expand) {
+    tmpvar <- newmb$var[[i]]
+    flows_to_expand <- inters[inters$varname == varnames[i], "flow"]
+    origid <- which(origvarnames == varnames[i])
+
+    for(j in flows_to_expand) {
+      origflow <- mbmodel$var[[origid]]$flows[j]
+      oldflowsym <- unlist(strsplit(tmpvar$varname, "_"))
+      oldflowsubs <- oldflowsym[which(oldflowsym != varnames[i])]
+      focal_sub <- paste(oldflowsubs, collapse = "_")
+
+      flowsymbols <- unlist(strsplit(origflow, mathpattern))
+      to_rm <- which(flowsymbols == "")
+      if(length(to_rm) != 0) {
+        flowsymbols <- flowsymbols[-to_rm]
+      }
+
+      #extract just the math symbols, in order, from the flows by
+      #removing all characters associated with the variables and parameters
+      varparpattern <- paste0("[", paste(flowsymbols, collapse = ""), "]")
+      flowmath <- gsub(pattern = varparpattern,
+                       replacement = "",
+                       x = origflow)
+      #break apart the math symbol string into a character vector
+      #such that individual elements can be pasted back in order
+      flowmath <- unlist(strsplit(flowmath, ""))
+
+      #need to combine parenthese with the math symbol
+      #before (opening) or after (closing) such that order
+      #of operations is correct.
+      #NOTE: THIS IS NOT GENERALIZABLE YET
+      opens <- which(flowmath == "(")  #check for parenthese
+      #if parenthese exist, conduct the following
+      if(length(opens) != 0) {
+        #combine the math symbol before "(" with the "("
+        open_combine <- c(opens-1, opens)
+        openers <- paste(flowmath[open_combine], collapse = "")
+        #replace the pre-parentheses math symbol with the combined char
+        flowmath[open_combine[1]] <- openers
+        #delete the lone "(" character
+        flowmath <- flowmath[-open_combine[2]]
+
+        closes <- which(flowmath == ")")
+        #combine the math symbol after ")" with the ")"
+        close_combine <- c(closes, closes+1)
+        closers <- paste(flowmath[close_combine], collapse = "")
+        #replace the closing parentheses with the combined char
+        flowmath[close_combine[1]] <- closers
+        #delete the lone math symbol character
+        flowmath <- flowmath[-close_combine[2]]
+      }
+
+      tmpexp <- expand.grid(flowsymbols, sub_labels)
+      tmpexp[tmpexp$Var1 == varnames[i], "Var2"] <- focal_sub
+      if(flowmath[1] == "+") {
+        paramID <- flowsymbols[which(!flowsymbols %in% LETTERS)]
+        tmpexp[tmpexp$Var1 %in% paramID, "Var2"] <- focal_sub
+      }
+
+
+      newflows <- apply(tmpexp, 1, paste, collapse = "_")
+
+      #reassemble the flows using the math and the newflow parameters
+      #and variables with appended labels for the group
+      #start flowmath first followed by all but the first element of
+      #the flow parameters and variables. this ensures correct ordering.
+      #note that this assumes that all flows start with a math symbol.
+      newvarflows <- paste(paste(flowmath, newflows), collapse = "")
+
+      #replace all the white space to get a flow in the correct
+      #formate for modelbuilder
+      newvarflows <- gsub(" ", "", newvarflows, fixed = TRUE)
+
+      #update
+      newmb$var[[i]]$flows[j] <- newvarflows
+    }
+  }
+
+
+
   #add in times back to the new modelbuilder object
   #time does not change due to stratification, so this can come from
   #the original modelbuilder object sent to the function
@@ -259,3 +384,21 @@ generate_stratified_model <- function(mbmodel,
   return(newmb)
 
 }  #end of function definition
+
+
+generate_ode(newmb)
+source("simulate_SEIRSd_model_stratified_ode.R")
+sim = as.data.frame(simulate_SEIRSd_model_stratified_ode())
+plot(sim$ts.time, sim$ts.S_h, type = "l", ylim = c(0,1000), xlim = c(0,30))
+lines(sim$ts.time, sim$ts.E_h, col = "red")
+lines(sim$ts.time, sim$ts.I_h, col = "blue")
+lines(sim$ts.time, sim$ts.R_h, col = "green")
+
+mb <- "inst/modelexamples/SEIRSd_model.rds"
+generate_ode(mb)
+source("simulate_SEIRSd_model_ode.R")
+sim = as.data.frame(simulate_SEIRSd_model_ode())
+plot(sim$ts.time, sim$ts.S, type = "l", ylim = c(0,1000), xlim = c(0,30))
+lines(sim$ts.time, sim$ts.E, col = "red")
+lines(sim$ts.time, sim$ts.I, col = "blue")
+lines(sim$ts.time, sim$ts.R, col = "green")
