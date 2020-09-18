@@ -32,6 +32,7 @@ generate_stratified_model <- function(mbmodel,
 {
   #for testing
   mbmodel <- readRDS("inst/modelexamples/SEIRSd_model.rds")
+  mbmodel$par[[2]]$parval = 0.002
   # mbmodel <- readRDS("auxiliary/modelfiles/Coronavirus_vaccine_model.Rds")
   strata_list <- list(
     # list(
@@ -386,19 +387,26 @@ generate_stratified_model <- function(mbmodel,
 }  #end of function definition
 
 
-generate_ode(newmb)
-source("simulate_SEIRSd_model_stratified_ode.R")
-sim = as.data.frame(simulate_SEIRSd_model_stratified_ode())
-plot(sim$ts.time, sim$ts.S_h, type = "l", ylim = c(0,1000), xlim = c(0,30))
-lines(sim$ts.time, sim$ts.E_h, col = "red")
-lines(sim$ts.time, sim$ts.I_h, col = "blue")
-lines(sim$ts.time, sim$ts.R_h, col = "green")
-
-mb <- "inst/modelexamples/SEIRSd_model.rds"
-generate_ode(mb)
+par(mfrow = c(1,2))
+generate_ode(mbmodel)
 source("simulate_SEIRSd_model_ode.R")
 sim = as.data.frame(simulate_SEIRSd_model_ode())
-plot(sim$ts.time, sim$ts.S, type = "l", ylim = c(0,1000), xlim = c(0,30))
+plot(sim$ts.time, sim$ts.S, type = "l", xlab = "time", ylab = "Compartment size",
+     ylim = c(0,1000), xlim = c(0,30), main = "Base")
 lines(sim$ts.time, sim$ts.E, col = "red")
 lines(sim$ts.time, sim$ts.I, col = "blue")
 lines(sim$ts.time, sim$ts.R, col = "green")
+legend(10, 1000, legend = c("S", "E", "I", "R"),
+       col = c("black", "red", "blue", "green"), lty = 1, box.lty = 0)
+
+generate_ode(newmb)
+source("simulate_SEIRSd_model_stratified_ode.R")
+sim = as.data.frame(simulate_SEIRSd_model_stratified_ode())
+plot(sim$ts.time, sim$ts.S_h, type = "l", xlab = "time", ylab = "Compartment size",
+     ylim = c(0,1000), xlim = c(0,30), main = "Stratified")
+lines(sim$ts.time, sim$ts.E_h, col = "red")
+lines(sim$ts.time, sim$ts.I_h, col = "blue")
+lines(sim$ts.time, sim$ts.R_h, col = "green")
+legend(10, 1000, legend = c("S_h", "E_h", "I_h", "R_h"),
+       col = c("black", "red", "blue", "green"), lty = 1, box.lty = 0)
+
