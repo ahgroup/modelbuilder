@@ -22,6 +22,9 @@ find_interaction_flows <- function(mbmodel)
 {
   interactions <- list()  #empty storage
 
+  #get a vector of state variables
+  state_vars <- unlist(lapply(mbmodel$var, "[[", 1))
+
   for(i in 1:length(mbmodel$var)) {
     tmpvar <- mbmodel$var[[i]]
 
@@ -38,7 +41,7 @@ find_interaction_flows <- function(mbmodel)
       }
 
       #find how many state variables in the flow
-      states <- which(flowsymbols %in% LETTERS)
+      states <- which(flowsymbols %in% state_vars)
       flag <- FALSE  #default to no interactions
       if(length(states) > 1) {
         #set flag to TRUE if there are more than one state variable

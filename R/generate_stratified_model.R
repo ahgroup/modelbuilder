@@ -31,9 +31,10 @@ generate_stratified_model <- function(mbmodel,
                                       strata_list)
 {
   #for testing
+  mbmodel <- readRDS("inst/modelexamples/Vector_transmission_model.Rds")
   mbmodel <- readRDS("inst/modelexamples/SEIRSd_model.rds")
-  mbmodel$par[[2]]$parval = 0.002
-  # mbmodel <- readRDS("auxiliary/modelfiles/Coronavirus_vaccine_model.Rds")
+  # mbmodel$par[[2]]$parval = 0.002
+  mbmodel <- readRDS("auxiliary/modelfiles/Coronavirus_vaccine_model.Rds")
   strata_list <- list(
     # list(
     #   stratumname = "age",
@@ -176,22 +177,22 @@ generate_stratified_model <- function(mbmodel,
           opens <- which(flowmath == "(")  #check for parenthese
           #if parenthese exist, conduct the following
           if(length(opens) != 0) {
-            #combine the math symbol before "(" with the "("
-            open_combine <- c(opens-1, opens)
-            openers <- paste(flowmath[open_combine], collapse = "")
-            #replace the pre-parentheses math symbol with the combined char
-            flowmath[open_combine[1]] <- openers
-            #delete the lone "(" character
-            flowmath <- flowmath[-open_combine[2]]
+
+            openers <- character(length = length(opens))
+            for(o in 1:length(opens)) {
+              opener <- paste(flowmath[opens[o]-1], flowmath[opens[o]], collapse = "")
+              flowmath[opens[o]-1] <- opener
+            }
+            flowmath <- flowmath[-opens]
 
             closes <- which(flowmath == ")")
-            #combine the math symbol after ")" with the ")"
-            close_combine <- c(closes, closes+1)
-            closers <- paste(flowmath[close_combine], collapse = "")
-            #replace the closing parentheses with the combined char
-            flowmath[close_combine[1]] <- closers
-            #delete the lone math symbol character
-            flowmath <- flowmath[-close_combine[2]]
+            if(diff(closes) == 1) {
+              closer <- paste(flowmath[closes[1]],
+                              paste(flowmath[closes[1]+(1:2)], collapse = ""),
+                              collapse = "")
+              flowmath[closes[1]] <- closer
+              flowmath <- flowmath[-(closes[1]+(1:2))]
+            }
           }
 
           #reassemble the flows using the math and the newflow parameters
@@ -322,31 +323,30 @@ generate_stratified_model <- function(mbmodel,
       opens <- which(flowmath == "(")  #check for parenthese
       #if parenthese exist, conduct the following
       if(length(opens) != 0) {
-        #combine the math symbol before "(" with the "("
-        open_combine <- c(opens-1, opens)
-        openers <- paste(flowmath[open_combine], collapse = "")
-        #replace the pre-parentheses math symbol with the combined char
-        flowmath[open_combine[1]] <- openers
-        #delete the lone "(" character
-        flowmath <- flowmath[-open_combine[2]]
+
+        openers <- character(length = length(opens))
+        for(o in 1:length(opens)) {
+          opener <- paste(flowmath[opens[o]-1], flowmath[opens[o]], collapse = "")
+          flowmath[opens[o]-1] <- opener
+        }
+        flowmath <- flowmath[-opens]
 
         closes <- which(flowmath == ")")
-        #combine the math symbol after ")" with the ")"
-        close_combine <- c(closes, closes+1)
-        closers <- paste(flowmath[close_combine], collapse = "")
-        #replace the closing parentheses with the combined char
-        flowmath[close_combine[1]] <- closers
-        #delete the lone math symbol character
-        flowmath <- flowmath[-close_combine[2]]
+        if(diff(closes) == 1) {
+          closer <- paste(flowmath[closes[1]],
+                          paste(flowmath[closes[1]+(1:2)], collapse = ""),
+                          collapse = "")
+          flowmath[closes[1]] <- closer
+          flowmath <- flowmath[-(closes[1]+(1:2))]
+        }
       }
 
       tmpexp <- expand.grid(flowsymbols, sub_labels)
       tmpexp[tmpexp$Var1 == varnames[i], "Var2"] <- focal_sub
       if(flowmath[1] == "+") {
-        paramID <- flowsymbols[which(!flowsymbols %in% LETTERS)]
+        paramID <- flowsymbols[which(!flowsymbols %in% varnames)]
         tmpexp[tmpexp$Var1 %in% paramID, "Var2"] <- focal_sub
       }
-
 
       newflows <- apply(tmpexp, 1, paste, collapse = "_")
 
@@ -386,27 +386,27 @@ generate_stratified_model <- function(mbmodel,
 
 }  #end of function definition
 
-
-par(mfrow = c(1,2))
-generate_ode(mbmodel)
-source("simulate_SEIRSd_model_ode.R")
-sim = as.data.frame(simulate_SEIRSd_model_ode())
-plot(sim$ts.time, sim$ts.S, type = "l", xlab = "time", ylab = "Compartment size",
-     ylim = c(0,1000), xlim = c(0,30), main = "Base")
-lines(sim$ts.time, sim$ts.E, col = "red")
-lines(sim$ts.time, sim$ts.I, col = "blue")
-lines(sim$ts.time, sim$ts.R, col = "green")
-legend(10, 1000, legend = c("S", "E", "I", "R"),
-       col = c("black", "red", "blue", "green"), lty = 1, box.lty = 0)
-
-generate_ode(newmb)
-source("simulate_SEIRSd_model_stratified_ode.R")
-sim = as.data.frame(simulate_SEIRSd_model_stratified_ode())
-plot(sim$ts.time, sim$ts.S_h, type = "l", xlab = "time", ylab = "Compartment size",
-     ylim = c(0,1000), xlim = c(0,30), main = "Stratified")
-lines(sim$ts.time, sim$ts.E_h, col = "red")
-lines(sim$ts.time, sim$ts.I_h, col = "blue")
-lines(sim$ts.time, sim$ts.R_h, col = "green")
-legend(10, 1000, legend = c("S_h", "E_h", "I_h", "R_h"),
-       col = c("black", "red", "blue", "green"), lty = 1, box.lty = 0)
-
+#
+# par(mfrow = c(1,2))
+# generate_ode(mbmodel)
+# source("simulate_SEIRSd_model_ode.R")
+# sim = as.data.frame(simulate_SEIRSd_model_ode())
+# plot(sim$ts.time, sim$ts.S, type = "l", xlab = "time", ylab = "Compartment size",
+#      ylim = c(0,1000), xlim = c(0,30), main = "Base")
+# lines(sim$ts.time, sim$ts.E, col = "red")
+# lines(sim$ts.time, sim$ts.I, col = "blue")
+# lines(sim$ts.time, sim$ts.R, col = "green")
+# legend(10, 1000, legend = c("S", "E", "I", "R"),
+#        col = c("black", "red", "blue", "green"), lty = 1, box.lty = 0)
+#
+# generate_ode(newmb)
+# source("simulate_SEIRSd_model_stratified_ode.R")
+# sim = as.data.frame(simulate_SEIRSd_model_stratified_ode())
+# plot(sim$ts.time, sim$ts.S_h, type = "l", xlab = "time", ylab = "Compartment size",
+#      ylim = c(0,1000), xlim = c(0,30), main = "Stratified")
+# lines(sim$ts.time, sim$ts.E_h, col = "red")
+# lines(sim$ts.time, sim$ts.I_h, col = "blue")
+# lines(sim$ts.time, sim$ts.R_h, col = "green")
+# legend(10, 1000, legend = c("S_h", "E_h", "I_h", "R_h"),
+#        col = c("black", "red", "blue", "green"), lty = 1, box.lty = 0)
+#

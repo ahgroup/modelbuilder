@@ -16,19 +16,29 @@
  var[[1]]$varname = 'S'
  var[[1]]$vartext = 'Susceptible'
  var[[1]]$varval = 1000
- var[[1]]$flows = c('-(S/n)*c*alpha*thetaP*P', '-(S/n)*c*alpha*thetaI*I', '-(S/n)*c*alpha*thetaA*A')
- var[[1]]$flownames = c('infection by presymptomatic', 'infection by ill', 'infection by asymptomatic')
+ var[[1]]$flows = c('-(S/(S+P+A+I+R+H+D))*c*alpha*thetaP*P',
+                    '-(S/(S+P+A+I+R+H+D))*c*alpha*thetaI*I',
+                    '-(S/(S+P+A+I+R+H+D))*c*alpha*thetaA*A')
+ var[[1]]$flownames = c('infection by presymptomatic',
+                        'infection by ill',
+                        'infection by asymptomatic')
 
  var[[2]]$varname = 'P'
  var[[2]]$vartext = 'Presymptomatic'
  var[[2]]$varval = 1
- var[[2]]$flows = c('+nu*(S/n)*c*alpha*thetaP*P', '+nu*(S/n)*c*alpha*thetaI*I', '+nu*(S/n)*c*alpha*thetaA*A', '-sigma*P')
+ var[[2]]$flows = c('+nu*(S/(S+P+A+I+R+H+D))*c*alpha*thetaP*P',
+                    '+nu*(S/(S+P+A+I+R+H+D))*c*alpha*thetaI*I',
+                    '+nu*(S/(S+P+A+I+R+H+D))*c*alpha*thetaA*A',
+                    '-sigma*P')
  var[[2]]$flownames = c('infection by presymptomatic', 'infection by ill', 'infection by asymptomatic', 'progression to symptoms')
 
  var[[3]]$varname = 'A'
  var[[3]]$vartext = 'Asymptomatic'
  var[[3]]$varval = 1
- var[[3]]$flows = c('+nuInverse*(S/n)*c*alpha*thetaP*P', '+nuInverse*(S/n)*c*alpha*thetaI*I', '+nuInverse*(S/n)*c*alpha*thetaA*A', '-gammaA*A')
+ var[[3]]$flows = c('+nuInverse*(S/(S+P+A+I+R+H+D))*c*alpha*thetaP*P',
+                    '+nuInverse*(S/(S+P+A+I+R+H+D))*c*alpha*thetaI*I',
+                    '+nuInverse*(S/(S+P+A+I+R+H+D))*c*alpha*thetaA*A',
+                    '-gammaA*A')
  var[[3]]$flownames = c('infection by presymptomatic', 'infection by ill', 'infection by asymptomatic', 'recovery')
 
  var[[4]]$varname = 'I'
@@ -140,3 +150,5 @@
  time[[3]]$timeval = 0.1
 
  mbmodel$time = time
+
+
