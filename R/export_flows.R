@@ -18,7 +18,7 @@
 
 export_flows <- function(mbmodel, location = NULL)
 {
-  filename = paste0("flows_",modeltitle,".txt")
+  filename = paste0("flows_", mbmodel$title,".txt")
 
   #if location is supplied, that's where the code will be saved to
   #if location is NULL, it will be the current directory

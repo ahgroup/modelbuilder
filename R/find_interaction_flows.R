@@ -60,7 +60,7 @@ find_interaction_flows <- function(mbmodel)
   }  #end var loop
 
   #just keep IDs for interactions
-  out_ret <- subset(interactions, inter == TRUE)
+  out_ret <- interactions[interactions$inter == TRUE, ]
   out_ret <- out_ret[ , c("varname", "var", "flow")]
 
   return(out_ret)

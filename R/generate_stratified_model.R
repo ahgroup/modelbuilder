@@ -26,30 +26,28 @@
 #' @return The function returns a modelbuilder model object (a list).
 #' @author Andrew Tredennick and Andreas Handel
 #' @export
+#' @examples
+#' \dontrun{
+#'mbmodel <- readRDS("auxiliary/modelfiles/Coronavirus_vaccine_model_v2.Rds")
+#'strata_list <- list(
+#'  list(
+#'    stratumname = "age",
+#'    names = c("children", "adults", "elderly"),
+#'    labels = c("c", "a", "e"),
+#'    comment = "This defines the age structure."
+#'  ),
+#'  list(
+#'    stratumname = "risk",
+#'    names = c("high risk", "low risk"),
+#'    labels = c("h", "l"),
+#'    comment = "This defines the risk structure."
+#'  )
+#')
+#' }
 
 generate_stratified_model <- function(mbmodel,
                                       strata_list)
 {
-  #for testing
-  mbmodel <- readRDS("inst/modelexamples/Vector_transmission_model.Rds")
-  mbmodel <- readRDS("inst/modelexamples/SEIRSd_model.rds")
-  # mbmodel$par[[2]]$parval = 0.002
-  mbmodel <- readRDS("auxiliary/modelfiles/Coronavirus_vaccine_model.Rds")
-  strata_list <- list(
-    # list(
-    #   stratumname = "age",
-    #   names = c("children", "adults", "elderly"),
-    #   labels = c("c", "a", "e"),
-    #   comment = "This defines the age structure."
-    # ),
-    list(
-      stratumname = "risk",
-      names = c("high risk", "low risk"),
-      labels = c("h", "l"),
-      comment = "This defines the risk structure."
-    )
-  )
-
   #if the model is passed in as a file name, load it
   #otherwise, it is assumed that 'mbmodel' is a list structure
   #of the right type
@@ -146,7 +144,15 @@ generate_stratified_model <- function(mbmodel,
           }
 
           #append group label to the flow symbols (variables and parameters)
-          newflows <- paste(flowsymbols, lab, sep = "_")
+          num_ids <- suppressWarnings(which(is.na(as.numeric(flowsymbols))))
+          newflows <- character(length = length(flowsymbols))
+          for(f in 1:length(flowsymbols)) {
+            if(f %in% num_ids) {
+              newflows[f] <-  paste(flowsymbols[f], lab, sep = "_")
+            } else {
+              newflows[f] <-  flowsymbols[f]
+            }
+          }
 
           #extract just the math symbols, in order, from the flows by
           #removing all characters associated with the variables and parameters
@@ -158,40 +164,45 @@ generate_stratified_model <- function(mbmodel,
           #such that individual elements can be pasted back in order
           flowmath <- unlist(strsplit(flowmath, ""))
 
-          #check if first flow should be blank. this occurs when the first
-          #character in a flow is a math symbol. this will almost always be
-          #the case, but we are going to run it through a check rather than
-          #just discarding the first character in case a user writes a flow
-          #that starts with parameter or variable
-          # firstflow <- newflows[1]  #first string in the flow vector
-          # firstchar <- substr(firstflow, 1, 1)  #first character in that flow
-          # if(firstchar == "_")
-          # {  #remove the underscore if that is the first character
-          #   newflows[1] <- ""
-          # }
-
-          #need to combine parenthese with the math symbol
+          #need to combine parentheses with the math symbol
           #before (opening) or after (closing) such that order
           #of operations is correct.
           #NOTE: THIS IS NOT GENERALIZABLE YET
-          opens <- which(flowmath == "(")  #check for parenthese
-          #if parenthese exist, conduct the following
-          if(length(opens) != 0) {
+          opens <- which(flowmath == "(")  #check for parentheses
 
+          #if parentheses exist, conduct the following
+          if(length(opens) != 0) {
             openers <- character(length = length(opens))
+
+            #loop over opening parentheses and couple with
+            #the preceding math symbol
             for(o in 1:length(opens)) {
               opener <- paste(flowmath[opens[o]-1], flowmath[opens[o]], collapse = "")
               flowmath[opens[o]-1] <- opener
             }
+            #now drop the preceding math symbol that is not "attached"
+            #to the parenthesis
             flowmath <- flowmath[-opens]
 
+            #follow similar logic for the closing parenthes, but
+            #attach the match symbols following the paranthesis
             closes <- which(flowmath == ")")
-            if(diff(closes) == 1) {
-              closer <- paste(flowmath[closes[1]],
-                              paste(flowmath[closes[1]+(1:2)], collapse = ""),
-                              collapse = "")
-              flowmath[closes[1]] <- closer
-              flowmath <- flowmath[-(closes[1]+(1:2))]
+            if(length(closes) > 1) {
+              #this chunk deals with "))" instances -- NOT ROBUST
+              if(diff(closes) == 1) {
+                closer <- paste(flowmath[closes[1]],
+                                paste(flowmath[closes[1]+(1:2)], collapse = ""),
+                                collapse = "")
+                flowmath[closes[1]] <- closer
+                flowmath <- flowmath[-(closes[1]+(1:2))]
+              }
+            } else {
+              #this chunk deals with isolated ")"
+              for(cl in 1:length(closes)) {
+                closer <- paste(flowmath[closes[cl]], flowmath[closes[cl]+1], collapse = "")
+                flowmath[closes[cl]] <- closer
+              }
+              flowmath <- flowmath[-(closes+1)]
             }
           }
 
@@ -283,25 +294,44 @@ generate_stratified_model <- function(mbmodel,
       "[[", 1)
     )
 
+  #extract original variable names vector
+  #this is used for matching indices across different mb objects
   origvarnames <- unlist(lapply(mbmodel$var, "[[", 1))
 
   #get the new variables to fully expand with interactions
+  #these are numeric indices of the mbmodel list structure
   vars_to_expand <- which(varnames %in% inters$varname)
 
   #loop over just the variables to expand
+  #variables without state variable interactions in the flows
+  #do not need to be expanded to account for interactions
   for(i in vars_to_expand) {
     tmpvar <- newmb$var[[i]]
+
+    #look up flows to expand from the inters dataframe
     flows_to_expand <- inters[inters$varname == varnames[i], "flow"]
+
+    #find original list index from the base model
     origid <- which(origvarnames == varnames[i])
 
+    #loop over the flows within the variable that need to be expanded
     for(j in flows_to_expand) {
+      #use the base model flow as the template
       origflow <- mbmodel$var[[origid]]$flows[j]
+
+      #extract symbology from the newmb with stratification
+      #but without interactions
       oldflowsym <- unlist(strsplit(tmpvar$varname, "_"))
+
+      #isolate the subscript associated with this focal variable
       oldflowsubs <- oldflowsym[which(oldflowsym != varnames[i])]
       focal_sub <- paste(oldflowsubs, collapse = "_")
 
+      #extract the var and par symbols from the base model flow
+      #these will be appended as defined below and used to isolate
+      #the math symbology associated with the flow
       flowsymbols <- unlist(strsplit(origflow, mathpattern))
-      to_rm <- which(flowsymbols == "")
+      to_rm <- which(flowsymbols == "")  #drop the empty strings
       if(length(to_rm) != 0) {
         flowsymbols <- flowsymbols[-to_rm]
       }
@@ -321,34 +351,85 @@ generate_stratified_model <- function(mbmodel,
       #of operations is correct.
       #NOTE: THIS IS NOT GENERALIZABLE YET
       opens <- which(flowmath == "(")  #check for parenthese
-      #if parenthese exist, conduct the following
-      if(length(opens) != 0) {
 
+      #if parentheses exist, conduct the following
+      if(length(opens) != 0) {
         openers <- character(length = length(opens))
+
+        #loop over opening parentheses and couple with
+        #the preceding math symbol
         for(o in 1:length(opens)) {
           opener <- paste(flowmath[opens[o]-1], flowmath[opens[o]], collapse = "")
           flowmath[opens[o]-1] <- opener
         }
+        #now drop the preceding math symbol that is not "attached"
+        #to the parenthesis
         flowmath <- flowmath[-opens]
 
+        #follow similar logic for the closing parenthes, but
+        #attach the match symbols following the paranthesis
         closes <- which(flowmath == ")")
-        if(diff(closes) == 1) {
-          closer <- paste(flowmath[closes[1]],
-                          paste(flowmath[closes[1]+(1:2)], collapse = ""),
-                          collapse = "")
-          flowmath[closes[1]] <- closer
-          flowmath <- flowmath[-(closes[1]+(1:2))]
+        if(length(closes) > 1) {
+          #this chunk deals with "))" instances -- NOT ROBUST
+          if(diff(closes) == 1) {
+            closer <- paste(flowmath[closes[1]],
+                            paste(flowmath[closes[1]+(1:2)], collapse = ""),
+                            collapse = "")
+            flowmath[closes[1]] <- closer
+            flowmath <- flowmath[-(closes[1]+(1:2))]
+          }
+        } else {
+          #this chunk deals with isolated ")"
+          for(cl in 1:length(closes)) {
+            closer <- paste(flowmath[closes[cl]], flowmath[closes[cl]+1], collapse = "")
+            flowmath[closes[cl]] <- closer
+          }
+          flowmath <- flowmath[-(closes+1)]
         }
       }
 
+      #make a data frame of all the var and par symbols paired
+      #with each possible expanded subscript label
       tmpexp <- expand.grid(flowsymbols, sub_labels)
-      tmpexp[tmpexp$Var1 == varnames[i], "Var2"] <- focal_sub
-      if(flowmath[1] == "+") {
-        paramID <- flowsymbols[which(!flowsymbols %in% varnames)]
-        tmpexp[tmpexp$Var1 %in% paramID, "Var2"] <- focal_sub
+      tmpexp$Var1 <- as.character(tmpexp$Var1)
+      tmpexp$Var2 <- as.character(tmpexp$Var2)
+
+      #if the flow is out of the compartment, then we just need to
+      #make sure that the focal variable recieves the focal subscript
+      #in all flows
+      if(unlist(strsplit(flowmath, ""))[1] == "-") {
+        tmpexp[tmpexp$Var1 == varnames[i], "Var2"] <- focal_sub
       }
 
-      newflows <- apply(tmpexp, 1, paste, collapse = "_")
+      #if the flow is into the compartment and includes and interaction,
+      #then we just need to make sure that "S" recieves the focal subscript
+      #because all donations come from "S"
+      #NOTE: THIS ONLY WORKS FOR SPECIFIC SIR STYLE MODELS
+      #      I THINK WE CAN GENERALIZE BY ADDING A "DONOR"
+      #      ELEMENT TO THE MBOBJECT
+      if(unlist(strsplit(flowmath, ""))[1] == "+") {
+        ids_to_update <- which(nchar(tmpexp$Var1) == 1 &
+                                 tmpexp$Var1 %in% "S")
+        tmpexp[ids_to_update, "Var2"] <- focal_sub
+      }
+
+      #find any instances of numbers in the flows, which should not be
+      #treated with subscripts of any kind; assume they are constants
+      num_ids <- suppressWarnings(which(!is.na(as.numeric(tmpexp$Var1))))
+      tmpexp[num_ids, "Var2"] <- ""
+
+      #loop over flow components and append subscripts accordingly
+      newflows <- character(length = nrow(tmpexp))
+      for(fid in 1:nrow(tmpexp)) {
+        tmpc <- tmpexp[fid,]
+        if(tmpc["Var2"] == "") {
+          #no appendage if numeric
+          newflows[fid] <- tmpc["Var1"]
+        } else {
+          #otherwise paste the two columns
+          newflows[fid] <- apply(tmpc, 1, paste, collapse = "_")
+        }
+      }
 
       #reassemble the flows using the math and the newflow parameters
       #and variables with appended labels for the group
@@ -365,8 +446,6 @@ generate_stratified_model <- function(mbmodel,
       newmb$var[[i]]$flows[j] <- newvarflows
     }
   }
-
-
 
   #add in times back to the new modelbuilder object
   #time does not change due to stratification, so this can come from
@@ -385,28 +464,3 @@ generate_stratified_model <- function(mbmodel,
   return(newmb)
 
 }  #end of function definition
-
-#
-# par(mfrow = c(1,2))
-# generate_ode(mbmodel)
-# source("simulate_SEIRSd_model_ode.R")
-# sim = as.data.frame(simulate_SEIRSd_model_ode())
-# plot(sim$ts.time, sim$ts.S, type = "l", xlab = "time", ylab = "Compartment size",
-#      ylim = c(0,1000), xlim = c(0,30), main = "Base")
-# lines(sim$ts.time, sim$ts.E, col = "red")
-# lines(sim$ts.time, sim$ts.I, col = "blue")
-# lines(sim$ts.time, sim$ts.R, col = "green")
-# legend(10, 1000, legend = c("S", "E", "I", "R"),
-#        col = c("black", "red", "blue", "green"), lty = 1, box.lty = 0)
-#
-# generate_ode(newmb)
-# source("simulate_SEIRSd_model_stratified_ode.R")
-# sim = as.data.frame(simulate_SEIRSd_model_stratified_ode())
-# plot(sim$ts.time, sim$ts.S_h, type = "l", xlab = "time", ylab = "Compartment size",
-#      ylim = c(0,1000), xlim = c(0,30), main = "Stratified")
-# lines(sim$ts.time, sim$ts.E_h, col = "red")
-# lines(sim$ts.time, sim$ts.I_h, col = "blue")
-# lines(sim$ts.time, sim$ts.R_h, col = "green")
-# legend(10, 1000, legend = c("S_h", "E_h", "I_h", "R_h"),
-#        col = c("black", "red", "blue", "green"), lty = 1, box.lty = 0)
-#
