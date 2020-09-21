@@ -38,6 +38,25 @@ This function takes as input a modelbuilder model and
 expands it according to specified stratifications (e.g.
 age groups).
 }
+\examples{
+\dontrun{
+mbmodel <- readRDS("auxiliary/modelfiles/Coronavirus_vaccine_model_v2.Rds")
+strata_list <- list(
+ list(
+   stratumname = "age",
+   names = c("children", "adults", "elderly"),
+   labels = c("c", "a", "e"),
+   comment = "This defines the age structure."
+ ),
+ list(
+   stratumname = "risk",
+   names = c("high risk", "low risk"),
+   labels = c("h", "l"),
+   comment = "This defines the risk structure."
+ )
+)
+}
+}
 \author{
 Andrew Tredennick and Andreas Handel
 }
