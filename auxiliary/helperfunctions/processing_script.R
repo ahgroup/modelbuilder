@@ -14,7 +14,7 @@ modelfilepath = here::here('auxiliary/modelfiles')
 #load file.R text model files, save them as Rds files
 #"inverse" of above code
 files = list.files(path = modelfilepath, pattern = "file.R$", full.names = TRUE)
-files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Coronavirus_vaccine_model_file.R"
+files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Coronavirus_vaccine_model_v2_file.R"
 for (n in 1: length(files))
 {
     source(files[n])
@@ -35,7 +35,7 @@ for (n in 1: length(files))
 #load RDS files, create file.R files that encode model
 #"inverse" of next code snippet
 #files = list.files(path = modelfilepath, pattern = "\\.Rds$", full.names = TRUE)
-files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Coronavirus_vaccine_model.Rds"
+files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Coronavirus_vaccine_model_v2.Rds"
 for (n in 1: length(files))
 {
     modelbuilder::generate_model_file(files[n], location = modelfilepath )
@@ -45,7 +45,7 @@ for (n in 1: length(files))
 ############################################################
 #load RDS files, export as code
 #files = list.files(path = modelfilepath, pattern = "\\.Rds$", full.names = TRUE)
-files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Coronavirus_vaccine_model.Rds"
+files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Coronavirus_vaccine_model_v2.Rds"
 for (n in 1: length(files))
 {
     mbmodel = readRDS(files[n])
