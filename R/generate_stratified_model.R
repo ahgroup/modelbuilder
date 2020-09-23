@@ -193,7 +193,11 @@ generate_stratified_model <- function(mbmodel,
         par_maps <- par_stratify_list[these_pars]
 
         #flag if there are more than 1 state variable
-        if(length(stateids) > 1) inter <- TRUE
+        if(length(stateids) > 1) {
+          inter <- TRUE
+        } else {
+          inter <- FALSE
+        }
 
         if(inter) {
           #create data frame matching names and subscripts
@@ -220,13 +224,16 @@ generate_stratified_model <- function(mbmodel,
           #      ELEMENT TO THE MBOBJECT
           if(unlist(strsplit(flowmath, ""))[1] == "+") {
             ids_to_update <- which(substr(expansion$original_name, 1, 1) == "S")
-            expansion[ids_to_update, "subscript"] <- lab
+            expansion[ids_to_update, "group"] <- lab
           }
         } else {
-          expansion <- expand.grid(flowsymbols[stateids],
+          expansion <- expand.grid(flowsymbols,
                                    lab,
                                    stringsAsFactors = FALSE)
-          names(expansion) <- c("original_name", "subscript")
+          names(expansion) <- c("original_name", "group")
+          expansion[!expansion$original_name %in% flowsymbols[stateids], "group"] <- ""
+          expansion$flow_num <- 1
+          expansion$type <- types
         }
 
         #loop over parameter names and apply mapping
