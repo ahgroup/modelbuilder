@@ -5,6 +5,8 @@ library(here)
 model_name <- "Coronavirus_vaccine_model_v2.Rds"
 mbmodel <- readRDS(here("auxiliary", "modelfiles", model_name))
 
+
+
 # create list mapping parameter stratifications to state variable
 par_stratify_list <- list(
   list(
