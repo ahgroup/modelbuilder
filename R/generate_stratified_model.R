@@ -12,7 +12,7 @@
 #'     be an RDS file and contain a valid modelbuilder model structure.
 #' @param mbmodel modelbuilder model structure, either as list object
 #'     or file name
-#' @param strata_list A list of lists defining the stratification structure
+#' @param stratum_list A list of lists defining the stratification structure
 #'     to be applied to the model. At a minimum, the list must contain one
 #'     sublist with the following structure: \code{stratumname} a character
 #'     string giving the name of the stratum (e.g., "age"); \code{names} a
@@ -23,6 +23,7 @@
 #'     c("c", "a")); \code{comment} a character string of any comments or
 #'     notes for the stratum. The \code{labels} are appended to model state
 #'     variables (e.g., S becomes S_c) and parameters (e.g., b becomes b_c).
+#' @param par_stratify_list A list that...
 #' @return The function returns a modelbuilder model object (a list).
 #' @author Andrew Tredennick and Andreas Handel
 #' @export
@@ -102,6 +103,7 @@ generate_stratified_model <- function(mbmodel,
   #loop over model variable-flows and apply stratum subgroups
   nvars <- length(mb$var)
   ct <- 1  #counter for state variables
+  par_updates <- list()  #empty storage for new parameters
   for(v in 1:nvars) {
     var <- mb$var[[v]]
     focal_var <- var$varname
@@ -116,7 +118,8 @@ generate_stratified_model <- function(mbmodel,
       #loop over flows and expand as per the par_stratify_list
       nflows <- length(var$flows)
       #create an empty character object for the appended flows
-      allnewflows <- character(length = nflows)
+      # allnewflows <- character(length = nflows)
+      allnewflows <- list()
       for(f in 1:nflows) {
         flow <- var$flows[f]
 
@@ -257,10 +260,6 @@ generate_stratified_model <- function(mbmodel,
           }
         }
 
-        new_flowsymbols <- apply(expansion[ , c("original_name","group")],
-                                 1,
-                                 paste,
-                                 collapse = "_")
         #loop over flow components and append subscripts accordingly
         new_flowsymbols <- character(length = nrow(expansion))
         for(fid in 1:nrow(expansion)) {
@@ -279,7 +278,14 @@ generate_stratified_model <- function(mbmodel,
         #start flowmath first followed by all but the first element of
         #the flow parameters and variables. this ensures correct ordering.
         #note that this assumes that all flows start with a math symbol.
-        newvarflows <- paste(paste(flowmath, unlist(new_flowsymbols)), collapse = "")
+        flowid <- expansion$flow_num
+        newvarflows <- character(length(unique(flowid)))
+        for(fid in 1:length(unique(flowid))) {
+          newvarflows[fid] <- paste(flowmath,
+                                    unlist(new_flowsymbols[which(flowid==fid)]),
+                                    collapse = "")
+        }
+        # newvarflows <- paste(paste(flowmath, unlist(new_flowsymbols)), collapse = "")
 
         #now add in the first flow parameter or variable, which may
         #be an empty string (likely in most use cases)
@@ -290,7 +296,37 @@ generate_stratified_model <- function(mbmodel,
         newvarflows <- gsub(" ", "", newvarflows, fixed = TRUE)
 
         #store the new flow in the empty object
-        allnewflows[f] <- newvarflows
+        allnewflows[[f]] <- newvarflows
+
+        #update parameters data frame
+        tmp_pars <- expansion
+        tmp_pars$new_par <- unlist(new_flowsymbols)
+        tmp_pars <- tmp_pars[tmp_pars$type == "par" & tmp_pars$group != "", ]
+        tmp_pars$value <- NA
+        tmp_pars$text <- NA
+        tmp_pars$strat_by <- NA
+
+        #loop over parameters and fill in values
+        for(pn in 1:nrow(tmp_pars)) {
+          dopar <- tmp_pars[pn, "original_name"]
+          orig_par <- mb$par[[which(lapply(mb$par, "[[", 1) == dopar)]]
+          strat_by <- par_stratify_list[[which(lapply(par_stratify_list, "[[", 1) == dopar)]]
+          tmp_pars[pn, "value"] <- orig_par$parval
+          tmp_pars[pn, "text"] <- paste(orig_par$partext, nm, sep = ", ")
+          if(length(strat_by$stratify_by) == 1) {
+            tmp_pars[pn, "strat_by"] <- paste(strat_by$stratify_by, lab, sep = "_")
+          } else {
+            # eg <- expand.grid(strat_by$stratify_by, stratum_list$labels)
+            # estrats <- paste(apply(eg, 1, paste, collapse = "_"), collapse = "::")
+            # tmp_pars[pn, "strat_by"] <- estrats
+            gr <- tmp_pars[pn, "group"]
+            gr <- unlist(strsplit(gr, split = "_"))
+            tmp_pars[pn, "strat_by"] <- paste(gr, collapse = "::")
+          }
+
+        }  # end parameter value loop
+
+        par_updates <- rbind(par_updates, tmp_pars)
       }  #end of flow loop
 
       #define the new state variable name
@@ -300,14 +336,14 @@ generate_stratified_model <- function(mbmodel,
       newtext <- paste(var$vartext, nm, sep = " ")
 
       #append group name to the flow names
-      newflownames <- paste(var$flownames, nm, sep = ", ")
+      newflownames <- rep(paste(var$flownames, nm, sep = ", "), each = ngroups)
 
       #create the variable sublist with the new, appended objects
       #this follows the modelbuilder structure
       newvar <- list(newname,
                      newtext,
                      var$varval,
-                     allnewflows,
+                     unlist(allnewflows),
                      newflownames)
       names(newvar) <- names(var)  #set to the appropriate names
 
@@ -317,6 +353,45 @@ generate_stratified_model <- function(mbmodel,
       ct <- ct+1  #advance the state variable counter
     }  #end of stratum group loop
   }  #end of state variable loop
+
+  #remove duplicate new parameters
+  rm_ids <- duplicated(par_updates$new_par)
+  new_pars <- par_updates[!rm_ids, ]
+
+  #loop over new parameters and:
+  #  1) assign to the newmb object
+  #  2) update stratification list
+  newmb$par <- list()
+  new_strat_list <- list()
+  for(ip in 1:nrow(new_pars)) {
+    #assign to newmb object
+    update <- list(parname = new_pars[ip, "new_par"],
+                   partext = new_pars[ip, "text"],
+                   parval = new_pars[ip, "value"])
+    newmb$par[[ip]] <- update
+
+    #make new stratification list
+    new_strat_by <- new_pars[ip, "strat_by"]
+    test_inter <- grep("::", new_strat_by)
+    if(length(test_inter) != 0) {
+      new_strats <- unlist(strsplit(new_strat_by, split = "::"))
+      new_strats <- unlist(lapply(strsplit(new_strats, ""), paste, collapse = "_"))
+    } else {
+      new_strats <- new_strat_by
+    }
+
+    strat_update <- list(parname = new_pars[ip, "new_par"],
+                         stratify_by = unlist(new_strats))
+    new_strat_list[[ip]] <- strat_update
+  }
+
+  return(
+    list(
+      mbmodel = newmb,
+      par_stratify_list = new_strat_list
+    )
+  )
+
 }  #end of function
 
 

@@ -57,4 +57,31 @@ stratum_list <- list(
   comment = "This defines the risk structure."
 )
 
-strat_model <- generate_stratified_model()
+risk_model <- generate_stratified_model(mbmodel = mbmodel,
+                                        stratum_list = stratum_list,
+                                        par_stratify_list = par_stratify_list)
+
+mbmodel$var[[1]]$flows
+risk_model$mbmodel$var[[1]]$flows
+
+
+# now stratify again by age
+stratum_list <- list(
+    stratumname = "age",
+    names = c("children", "adults", "elderly"),
+    labels = c("c", "a", "e"),
+    comment = "This defines the age structure."
+)
+
+strat_model <- generate_stratified_model(mbmodel = risk_model$mbmodel,
+                                         stratum_list = stratum_list,
+                                         par_stratify_list = risk_model$par_stratify_list)
+
+mbmodel$var[[1]]$flows  # S
+risk_model$mbmodel$var[[1]]$flows  # S_h
+strat_model$mbmodel$var[[1]]$flows  # S_h_c
+
+mbmodel$var[[2]]$flows  # P
+risk_model$mbmodel$var[[3]]$flows  # P_h
+strat_model$mbmodel$var[[7]]$flows  # P_h_c
+
