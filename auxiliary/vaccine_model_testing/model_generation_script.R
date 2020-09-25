@@ -10,8 +10,8 @@ library("here") #for easy path access relative to project root directory
 
 #load the base model we want to work with
 #needs to be a modelbuilder mbmodel
-modelname <- here("code/base_models","Coronavirus_vaccine_model_v2.Rds")
-mbmodel <- readRDS(modelname) 
+modelname <- here("auxiliary", "modelfiles","Coronavirus_vaccine_model_v2.Rds")
+mbmodel <- readRDS(modelname)
 
 #this runs the model through a checker to make sure it has a valid structure
 #if not valid, a hopefully meaningful error message is returned
@@ -25,56 +25,65 @@ if (!is.null(checkerror))
 # If base model is valid, we can go on to specify the stratifications we want
 # Set up the stratification list
 # This is just an example...
-strata_list <- list(
-  list(
-    stratumname = "age",
-    names = c("children", "adults", "elderly"),
-    labels = c("c", "a", "e"),
-    comment = "This defines the age structure."
-  ),
-  list(
-    stratumname = "risk",
-    names = c("high risk", "low risk"),
-    labels = c("h", "l"),
-    comment = "This defines the risk structure."
-  )
-)
 
+# create list mapping parameter stratifications to state variable
+par_stratify_list <- generate_stratifier_list(mbmodel)
+
+strata_list <- list(
+  stratumname = "risk",
+  names = c("high risk", "low risk"),
+  labels = c("h", "l"),
+  comment = "This defines the risk structure."
+)
 
 # Now expand the model by strata the specified strata
-# The model that is returned is again a modelbuilder structure (a long list object) 
+# The model that is returned is again a modelbuilder structure (a long list object)
 mbmodel_new <- modelbuilder::generate_stratified_model(
-  mbmodel = mbmodel, 
-  strata_list = strata_list
+  mbmodel = mbmodel,
+  stratum_list = strata_list,
+  par_stratify_list = par_stratify_list
 )
+
+# now stratify again by age
+stratum_list <- list(
+  stratumname = "age",
+  names = c("children", "adults", "elderly"),
+  labels = c("c", "a", "e"),
+  comment = "This defines the age structure."
+)
+par_stratify_list <- generate_stratifier_list(mbmodel_new)
+
+final_model <- generate_stratified_model(mbmodel = mbmodel_new,
+                                         stratum_list = stratum_list,
+                                         par_stratify_list = par_stratify_list)
 
 #check to make sure newly generated model is still a valid modelbuilder object
 #if not valid, a hopefully meaningful error message is returned
 # currently doesn't stop script, so rest will likely not work either
-checkerror <- modelbuilder::check_model(mbmodel_new)
+checkerror <- modelbuilder::check_model(final_model)
 if (!is.null(checkerror))
 {
   print(checkerror)
 }
 
 #save newly generated model into rds file
-filename = paste0(mbmodel_new$title,'.Rds')
-saveRDS(mbmodel_new, file = here("code/stratified_models", filename))
+filename = paste0(final_model$title,'.Rds')
+saveRDS(final_model, file = here("auxiliary/vaccine_model_testing/stratified_models", filename))
 
 # run a function that generates CSV files for initial conditions and paramaeters
 # are being filled with the current values of mbmodel, can be adjusted
-savelocation = here('code/generated_tables/')
-modelbuilder::generate_tables(mbmodel = mbmodel_new, location = savelocation)
+savelocation = here('auxiliary/vaccine_model_testing/generated_tables/')
+modelbuilder::generate_tables(mbmodel = final_model, location = savelocation)
 
 # run a function that generates a text file of all the flows in the model
 # this can be useful for checking subscripting
-savelocation = here('code/stratified_models/')
-modelbuilder::export_flows(mbmodel = mbmodel_new, location = savelocation)
+savelocation = here('auxiliary/vaccine_model_testing/stratified_models/')
+modelbuilder::export_flows(mbmodel = final_model, location = savelocation)
 
 #create R code for the model
 #will be saved to the current directory
-savelocation = here('code/stratified_models/')
-modelbuilder::generate_ode(mbmodel = mbmodel_new, location = savelocation)
+savelocation = here('auxiliary/vaccine_model_testing/stratified_models/')
+modelbuilder::generate_ode(mbmodel = final_model, location = savelocation)
 
 #at this stage the new model has been generated and saved as an Rds file
 #CSV files that contain tables for parameter values have been created for manual filling
