@@ -1,6 +1,6 @@
 # Example script for analyzing a model
 
-#load modelbuilder 
+#load modelbuilder
 library("modelbuilder")
 library("here") #for easy path access relative to project root directory
 
@@ -9,10 +9,10 @@ library("here") #for easy path access relative to project root directory
 #any code for an mbmodel (or really any code function that has the right structure) should work
 
 
-modelname <- here("code/stratified_models","simulate_Coronavirus_vaccine_model_v2_stratified_ode.R")
-source(modelname) 
+modelname <- here("auxiliary/vaccine_model_testing/stratified_models","simulate_Coronavirus_vaccine_model_v2_stratified_stratified_ode.R")
+source(modelname)
 
-#these are initial and parameter value spreadsheets 
+#these are initial and parameter value spreadsheets
 #they contain the parameters for the model
 #note that the model has default parameters, so if some are not provided
 #defaults are used. that might not be wanted
@@ -20,8 +20,8 @@ source(modelname)
 #also note that the files are not read from the folder into which they are placed when
 #they are produced with the generation script. this is to prevent accidental overwrites
 #of already filled tables
-inivalfile = here('code/filled_tables','variable_table_Coronavirus_vaccine_model_v2_stratified.csv')
-parvalfile = here('code/filled_tables','parameter_table_Coronavirus_vaccine_model_v2_stratified.csv')
+inivalfile = here('auxiliary/vaccine_model_testing/filled_tables','variable_table_Coronavirus_vaccine_model_v2_stratified_stratified.csv')
+parvalfile = here('auxiliary/vaccine_model_testing/filled_tables','parameter_table_Coronavirus_vaccine_model_v2_stratified_stratified.csv')
 
 inivals_raw <- read.csv(inivalfile)
 parvals_raw <- read.csv(parvalfile)
@@ -37,34 +37,34 @@ parvals = parvals_raw$Initial_Value
 names(parvals) = parvals_raw$Abbreviation
 parvals = as.list(parvals)
 
-mbmodel = readRDS("code/stratified_models/Coronavirus_vaccine_model_v2_stratified.Rds")
+mbmodel = readRDS("auxiliary/vaccine_model_testing/stratified_models/Coronavirus_vaccine_model_v2_stratified_stratified.Rds")
 timeinfo = mbmodel$time
 timevals = list(tstart = timeinfo[[1]]$timeval,
                 tfinal = timeinfo[[2]]$timeval,
                 dt = timeinfo[[3]]$timeval)
 
-#combine all the value lists into one large argument list 
+#combine all the value lists into one large argument list
 #this is fed into the function that contains the ode model
 args_list <- c(inivals, parvals, timevals)
 
 #loop over some parameter we want to explore
 #remaining parameter are fixed based on loaded values
-sigma_e_l_vec = seq(0,1,length=10)  #this is a placeholder
+sigma_l_e_vec = seq(0,1,length=10)  #this is a placeholder
 
 #will contain outcome of interest
-outcome = rep(0,length(sigma_e_l_vec))
+outcome = rep(0,length(sigma_l_e_vec))
 
-for (i in 1:length(sigma_e_l_vec))
+for (i in 1:length(sigma_l_e_vec))
 {
- 
-  args_list$sigma_e_l <- sigma_e_l_vec[i]  #substitute the value for the parameter we want to change
-  
-  #run model 
-  sim = do.call(simulate_Coronavirus_vaccine_model_v2_stratified_ode, args_list)
+
+  args_list$sigma_l_e <- sigma_l_e_vec[i]  #substitute the value for the parameter we want to change
+
+  #run model
+  sim = do.call(simulate_Coronavirus_vaccine_model_v2_stratified_stratified_ode, args_list)
   #pull out some part of interest from the simulation
   #the return from the function (i.e. what's stored in sim)
   #is always a list, with $ts the time-series matrix (what one gets if one just ran deSolve)
-  outcome[i] = tail(sim$ts$S_e_l,1) #final number of susceptible
+  outcome[i] = tail(sim$ts$S_l_e,1) #final number of susceptible
 }
 
 plot(sigma_e_l_vec, outcome,type='b')
