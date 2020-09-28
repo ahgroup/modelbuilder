@@ -71,19 +71,20 @@ generate_model_file <- function(mbmodel, location = NULL, filename = NULL)
 
 
     nvars = length(mbmodel$var)  #number of variables/compartments in model
-
     model_var_text = paste0("\n #Information for all variables")
     model_var_text = paste0(model_var_text, "\n var = vector('list',",nvars,")")
+    model_var_text = paste0(model_var_text, "\n id = 0")
 
     for (n in 1:nvars)
     {
-        model_var_text = paste0(model_var_text, "\n var[[",n,"]]$varname = '",mbmodel$var[[n]]$varname,"'")
-        model_var_text = paste0(model_var_text, "\n var[[",n,"]]$vartext = '",mbmodel$var[[n]]$vartext,"'")
-        model_var_text = paste0(model_var_text, "\n var[[",n,"]]$varval = ",mbmodel$var[[n]]$varval)
+        model_var_text = paste0(model_var_text, "\n id = id + 1")
+        model_var_text = paste0(model_var_text, "\n var[[id]]$varname = '",mbmodel$var[[n]]$varname,"'")
+        model_var_text = paste0(model_var_text, "\n var[[id]]$vartext = '",mbmodel$var[[n]]$vartext,"'")
+        model_var_text = paste0(model_var_text, "\n var[[id]]$varval = ",mbmodel$var[[n]]$varval)
         flowtext = paste(mbmodel$var[[n]]$flows, collapse = "', '")
-        model_var_text = paste0(model_var_text, "\n var[[",n,"]]$flows = c('",flowtext,"')")
+        model_var_text = paste0(model_var_text, "\n var[[id]]$flows = c('",flowtext,"')")
         flownametext = paste(mbmodel$var[[n]]$flownames, collapse = "', '")
-        model_var_text = paste0(model_var_text, "\n var[[",n,"]]$flownames = c('",flownametext,"')")
+        model_var_text = paste0(model_var_text, "\n var[[id]]$flownames = c('",flownametext,"')")
         model_var_text = paste0(model_var_text, "\n ")
     }
     model_var_text = paste0(model_var_text, "\n mbmodel$var = var" )
@@ -97,16 +98,17 @@ generate_model_file <- function(mbmodel, location = NULL, filename = NULL)
     npars = length(mbmodel$par)  #number of variables/compartments in model
     model_par_text = paste0("\n \n #Information for all parameters")
     model_par_text = paste0(model_par_text, "\n par = vector('list',",npars,")")
+    model_par_text = paste0(model_par_text, "\n id = 0")
 
     for (n in 1:npars)
     {
-        model_par_text = paste0(model_par_text, "\n par[[",n,"]]$parname = '",mbmodel$par[[n]]$parname,"'")
-        model_par_text = paste0(model_par_text, "\n par[[",n,"]]$partext = '",mbmodel$par[[n]]$partext,"'")
-        model_par_text = paste0(model_par_text, "\n par[[",n,"]]$parval = ",mbmodel$par[[n]]$parval)
+        model_par_text = paste0(model_par_text, "\n id = id + 1")
+        model_par_text = paste0(model_par_text, "\n par[[id]]$parname = '",mbmodel$par[[n]]$parname,"'")
+        model_par_text = paste0(model_par_text, "\n par[[id]]$partext = '",mbmodel$par[[n]]$partext,"'")
+        model_par_text = paste0(model_par_text, "\n par[[id]]$parval = ",mbmodel$par[[n]]$parval)
         model_par_text = paste0(model_par_text, "\n ")
     }
     model_par_text = paste0(model_par_text, "\n mbmodel$par = par" )
-
 
 
     ##############################################################################
@@ -116,12 +118,14 @@ generate_model_file <- function(mbmodel, location = NULL, filename = NULL)
     ntime = length(mbmodel$time) #number of parameters for time
     model_time_text = paste0("\n \n #Information for time parameters")
     model_time_text = paste0(model_time_text, "\n time = vector('list',",ntime,")")
+    model_time_text = paste0(model_time_text, "\n id = 0")
 
     for (n in 1:ntime)
     {
-        model_time_text = paste0(model_time_text, "\n time[[",n,"]]$timename = '",mbmodel$time[[n]]$timename,"'")
-        model_time_text = paste0(model_time_text, "\n time[[",n,"]]$timetext = '",mbmodel$time[[n]]$timetext,"'")
-        model_time_text = paste0(model_time_text, "\n time[[",n,"]]$timeval = ",mbmodel$time[[n]]$timeval)
+        model_time_text = paste0(model_time_text, "\n id = id + 1")
+        model_time_text = paste0(model_time_text, "\n time[[id]]$timename = '",mbmodel$time[[n]]$timename,"'")
+        model_time_text = paste0(model_time_text, "\n time[[id]]$timetext = '",mbmodel$time[[n]]$timetext,"'")
+        model_time_text = paste0(model_time_text, "\n time[[id]]$timeval = ",mbmodel$time[[n]]$timeval)
         model_time_text = paste0(model_time_text, "\n ")
     }
     model_time_text = paste0(model_time_text, "\n mbmodel$time = time" )
@@ -130,7 +134,6 @@ generate_model_file <- function(mbmodel, location = NULL, filename = NULL)
     ##############################################################################
     #code to produce model saving and exporting snippets
     ##############################################################################
-
 
     # model_save_text = paste0("\n \n #Check, save and export model.")
     # model_save_text = paste0(model_save_text, "\n mbmodelerrors <- modelbuilder::check_model(mbmodel)")
