@@ -3,7 +3,7 @@ library(here)
 
 # load the base model
 model_name <- "Coronavirus_vaccine_model_v2.Rds"
-model_name <- "SEIRSd_model.Rds"
+# model_name <- "SEIRSd_model.Rds"
 mbmodel <- readRDS(here("auxiliary", "modelfiles", model_name))
 
 
