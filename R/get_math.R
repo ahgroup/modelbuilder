@@ -4,7 +4,7 @@
 #' extracts the math symbols/notation.
 #'
 #' @description The flow must be a character string of typical modelbuilder
-#'     model structure. The function also concatenates parantheses and
+#'     model structure. The function also concatenates parentheses and
 #'     the notation before and after them as necessary.
 #' @param flow A modelbuilder flow, which is a character string.
 #' @param flowsymbols A character vector of the flow variables and parameters,
@@ -24,11 +24,11 @@ get_math <- function(flow, flowsymbols) {
   #such that individual elements can be pasted back in order
   flowmath <- unlist(strsplit(flowmath, ""))
 
-  #need to combine parenthese with the math symbol
+  #need to combine parentheses with the math symbol
   #before (opening) or after (closing) such that order
   #of operations is correct.
   #NOTE: THIS IS NOT GENERALIZABLE YET
-  opens <- which(flowmath == "(")  #check for parenthese
+  opens <- which(flowmath == "(")  #check for parentheses
 
   #if parentheses exist, conduct the following
   if(length(opens) != 0) {
@@ -44,8 +44,8 @@ get_math <- function(flow, flowsymbols) {
     #to the parenthesis
     flowmath <- flowmath[-opens]
 
-    #follow similar logic for the closing parenthes, but
-    #attach the match symbols following the paranthesis
+    #follow similar logic for the closing parentheses, but
+    #attach the match symbols following the parenthesis
     closes <- which(flowmath == ")")
     if(length(closes) > 1) {
       #this chunk deals with "))" instances -- NOT ROBUST
