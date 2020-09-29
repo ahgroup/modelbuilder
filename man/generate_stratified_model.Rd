@@ -46,19 +46,11 @@ age groups).
 \dontrun{
 mbmodel <- readRDS("auxiliary/modelfiles/Coronavirus_vaccine_model_v2.Rds")
 strata_list <- list(
- list(
-   stratumname = "age",
-   names = c("children", "adults", "elderly"),
-   labels = c("c", "a", "e"),
-   comment = "This defines the age structure."
- ),
- list(
-   stratumname = "risk",
-   names = c("high risk", "low risk"),
-   labels = c("h", "l"),
-   comment = "This defines the risk structure."
+ stratumname = "risk",
+ names = c("high risk", "low risk"),
+ labels = c("h", "l"),
+ comment = "This defines the risk structure."
  )
-)
 }
 }
 \author{

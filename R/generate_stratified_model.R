@@ -31,21 +31,13 @@
 #' @export
 #' @examples
 #' \dontrun{
-#'mbmodel <- readRDS("auxiliary/modelfiles/Coronavirus_vaccine_model_v2.Rds")
-#'strata_list <- list(
-#'  list(
-#'    stratumname = "age",
-#'    names = c("children", "adults", "elderly"),
-#'    labels = c("c", "a", "e"),
-#'    comment = "This defines the age structure."
-#'  ),
-#'  list(
-#'    stratumname = "risk",
-#'    names = c("high risk", "low risk"),
-#'    labels = c("h", "l"),
-#'    comment = "This defines the risk structure."
+#' mbmodel <- readRDS("auxiliary/modelfiles/Coronavirus_vaccine_model_v2.Rds")
+#' strata_list <- list(
+#'  stratumname = "risk",
+#'  names = c("high risk", "low risk"),
+#'  labels = c("h", "l"),
+#'  comment = "This defines the risk structure."
 #'  )
-#')
 #' }
 
 generate_stratified_model <- function(mbmodel,
@@ -126,65 +118,10 @@ generate_stratified_model <- function(mbmodel,
         flow <- var$flows[f]
 
         #extract just the variables and parameters, in order, from the flows
-        #by splitting the string based upon math symbols
-        mathpattern <- "[-+\\++\\*+\\(+\\)+\\^+/+]"
-        flowsymbols <- unlist(strsplit(flow, mathpattern))
-        to_rm <- which(flowsymbols == "")
-        if(length(to_rm) != 0) {
-          flowsymbols <- flowsymbols[-to_rm]
-        }
+        flowsymbols <- get_vars_pars(flow)
 
-        #extract just the math symbols, in order, from the flows by
-        #removing all characters associated with the variables and parameters
-        varparpattern <- paste0("[", paste(flowsymbols, collapse = ""), "]")
-        flowmath <- gsub(pattern = varparpattern,
-                         replacement = "",
-                         x = flow)
-        #break apart the math symbol string into a character vector
-        #such that individual elements can be pasted back in order
-        flowmath <- unlist(strsplit(flowmath, ""))
-
-        #need to combine parenthese with the math symbol
-        #before (opening) or after (closing) such that order
-        #of operations is correct.
-        #NOTE: THIS IS NOT GENERALIZABLE YET
-        opens <- which(flowmath == "(")  #check for parenthese
-
-        #if parentheses exist, conduct the following
-        if(length(opens) != 0) {
-          openers <- character(length = length(opens))
-
-          #loop over opening parentheses and couple with
-          #the preceding math symbol
-          for(o in 1:length(opens)) {
-            opener <- paste(flowmath[opens[o]-1], flowmath[opens[o]], collapse = "")
-            flowmath[opens[o]-1] <- opener
-          }
-          #now drop the preceding math symbol that is not "attached"
-          #to the parenthesis
-          flowmath <- flowmath[-opens]
-
-          #follow similar logic for the closing parenthes, but
-          #attach the match symbols following the paranthesis
-          closes <- which(flowmath == ")")
-          if(length(closes) > 1) {
-            #this chunk deals with "))" instances -- NOT ROBUST
-            if(diff(closes) == 1) {
-              closer <- paste(flowmath[closes[1]],
-                              paste(flowmath[closes[1]+(1:2)], collapse = ""),
-                              collapse = "")
-              flowmath[closes[1]] <- closer
-              flowmath <- flowmath[-(closes[1]+(1:2))]
-            }
-          } else {
-            #this chunk deals with isolated ")"
-            for(cl in 1:length(closes)) {
-              closer <- paste(flowmath[closes[cl]], flowmath[closes[cl]+1], collapse = "")
-              flowmath[closes[cl]] <- closer
-            }
-            flowmath <- flowmath[-(closes+1)]
-          }
-        }
+        #extract just the math symbols, in order, from the flows
+        flowmath <- get_math(flow, flowsymbols)
 
         #identify as parameter or state variable
         types <- character(length(flowsymbols))
@@ -289,11 +226,6 @@ generate_stratified_model <- function(mbmodel,
                                     unlist(new_flowsymbols[which(flowid==fid)]),
                                     collapse = "")
         }
-        # newvarflows <- paste(paste(flowmath, unlist(new_flowsymbols)), collapse = "")
-
-        #now add in the first flow parameter or variable, which may
-        #be an empty string (likely in most use cases)
-        # newvarflows <- paste(newflows[1], newvarflows, collapse = "")
 
         #replace all the white space to get a flow in the correct
         #formate for modelbuilder
@@ -321,9 +253,6 @@ generate_stratified_model <- function(mbmodel,
           if(length(strat_by$stratify_by) == 1) {
             tmp_pars[pn, "strat_by"] <- paste(strat_by$stratify_by, lab, sep = "_")
           } else {
-            # eg <- expand.grid(strat_by$stratify_by, stratum_list$labels)
-            # estrats <- paste(apply(eg, 1, paste, collapse = "_"), collapse = "::")
-            # tmp_pars[pn, "strat_by"] <- estrats
             gr <- tmp_pars[pn, "group"]
             gr <- unlist(strsplit(gr, split = "_"))
             tmp_pars[pn, "strat_by"] <- paste(gr, collapse = "::")
