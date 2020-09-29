@@ -312,7 +312,7 @@ generate_stratified_model <- function(mbmodel,
 
   #title for model, replacing space with low dash to be used
   #in function and file names
-  modeltitle <- paste0(gsub(" ", "_", mbmodel$title),stratum_list$stratumname)
+  modeltitle <- paste0(gsub(" ", "_", mbmodel$title),"_",stratum_list$stratumname)
 
   #give new title to model by appending 'stratified'
   newmb$title <- modeltitle
