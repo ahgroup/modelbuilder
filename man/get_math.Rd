@@ -17,7 +17,7 @@ A character vector of the math symbols, in order.
 }
 \description{
 The flow must be a character string of typical modelbuilder
-    model structure. The function also concatenates parantheses and
+    model structure. The function also concatenates parentheses and
     the notation before and after them as necessary.
 }
 \details{

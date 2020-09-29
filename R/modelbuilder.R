@@ -34,5 +34,6 @@ utils::globalVariables(c("xvals", "yvals", "varnames","IDvar","style","time","xc
 
 
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage("Welcome to the modelbuilder package. Type modelbuilder() to get started.")
+  welcometext <- paste0(' Welcome to the modelbuilder package. \n This is version ',utils::packageVersion('modelbuilder'),' last updated ', utils::packageDescription('modelbuilder')$Date,'. \n Type modelbuilder() to get started.')
+  packageStartupMessage(welcometext)
 }
