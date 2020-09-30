@@ -94,7 +94,7 @@ generate_stratified_model <- function(mbmodel,
                      mb$details))
   names(newmb) <- c("title", "description", "author", "date", "details")
 
-  #loop over model variable-flows and apply stratum subgroups
+  #loop over all model variables/equations and apply stratum subgroups
   nvars <- length(mb$var)
   ct <- 1  #counter for state variables
   par_updates <- list()  #empty storage for new parameters
@@ -106,7 +106,7 @@ generate_stratified_model <- function(mbmodel,
       lab <- stratum_list$labels[g]
       nm <- stratum_list$names[g]
 
-      #append group lable to the variable names
+      #append group label to the variable names
       newname <- paste(var$varname, lab, sep = "_")
 
       #loop over flows and expand as per the par_stratify_list
@@ -152,14 +152,14 @@ generate_stratified_model <- function(mbmodel,
           expansion$type <- rep(types, times = ngroups)
 
           #if the flow is out of the compartment, then we just need to
-          #make sure that the focal variable recieves the focal subscript
+          #make sure that the focal variable receives the focal subscript
           #in all flows
           if(unlist(strsplit(flowmath, ""))[1] == "-") {
             expansion[expansion$original_name == var$varname, "group"] <- lab
           }
 
           #if the flow is into the compartment and includes and interaction,
-          #then we just need to make sure that "S" recieves the focal subscript
+          #then we just need to make sure that "S" receives the focal subscript
           #because all donations come from "S"
           #NOTE: THIS ONLY WORKS FOR SPECIFIC SIR STYLE MODELS
           #      I THINK WE CAN GENERALIZE BY ADDING A "DONOR"
@@ -312,7 +312,7 @@ generate_stratified_model <- function(mbmodel,
 
   #title for model, replacing space with low dash to be used
   #in function and file names
-  modeltitle <- paste0(gsub(" ", "_", mbmodel$title),"_stratified")
+  modeltitle <- paste0(gsub(" ", "_", mbmodel$title),"_",stratum_list$stratumname)
 
   #give new title to model by appending 'stratified'
   newmb$title <- modeltitle
