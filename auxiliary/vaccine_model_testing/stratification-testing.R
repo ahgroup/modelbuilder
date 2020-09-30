@@ -3,8 +3,11 @@ library(here)
 
 # load the base model
 # model_name <- "Coronavirus_vaccine_model_v2.Rds"
-model_name <- "SEIRSd_model.Rds"
-mbmodel <- readRDS(here("auxiliary", "modelfiles", model_name))
+model_name <- "SIRSd2.Rds"
+mbmodel <- readRDS(here("auxiliary",
+                        "vaccine_model_testing",
+                        "base_models",
+                        model_name))
 
 
 # create list mapping parameter stratifications to state variable
