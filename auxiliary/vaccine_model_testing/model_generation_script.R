@@ -8,11 +8,12 @@
 library("modelbuilder")
 library("here") #for easy path access relative to project root directory
 
+basepath = here("auxiliary/vaccine_model_testing")
+
 #load the base model we want to work with
 #needs to be a modelbuilder mbmodel
-#modelname <- here("code", "base_models","Coronavirus_vaccine_model_v2.Rds")
-#modelname <- here("auxiliary/vaccine_model_testing", "base_models","SIRSd_model.Rds")
-modelname <- here("auxiliary/vaccine_model_testing", "base_models","SIRSd2.Rds")
+modelname <- paste0(basepath, "/base_models/Coronavirus_vaccine_model_v2.Rds"); covac=1;
+#modelname <- paste0(basepath, "/base_models/SIRSd2.Rds")
 mbmodel <- readRDS(modelname)
 
 #this runs the model through a checker to make sure it has a valid structure
@@ -39,6 +40,13 @@ if (!is.null(checkerror))
 # this list can be modified by the user before it is supplied to the function that generates the stratified model
 par_stratify_list <- modelbuilder::generate_stratifier_list(mbmodel)
 
+# for COVID model, a manual intervention to change the stratifier levels of the nu parameter
+# should only be stratified by "S"
+if (covac==1)
+{
+  id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu")
+  par_stratify_list[[id]]$stratify_by <- "S"
+}
 
 # Next, the user specifies the strata which should be generated
 # This needs to be done manually for each stratification
@@ -64,11 +72,6 @@ mbmodel_new <- modelbuilder::generate_stratified_model(
                                   par_stratify_list = par_stratify_list
 )
 
-#code snippets to look at old and new model parameters
-#for development/testing only
-#unlist(lapply(mbmodel$par, "[[", "parname"))
-#unlist(lapply(mbmodel_new$par, "[[", "parname"))
-
 #check to make sure newly generated model is still a valid modelbuilder object
 #if not valid, a hopefully meaningful error message is returned
 # currently doesn't stop script, so rest will likely not work either
@@ -91,6 +94,19 @@ if (!is.null(checkerror))
 # Could be adjusted manually if wanted
 par_stratify_list <- modelbuilder::generate_stratifier_list(mbmodel_new)
 
+
+# for COVID model, a manual intervention to change the stratifier levels of the nu parameter
+# should only be stratified by "S"
+if (covac==1)
+{
+  id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu_Sh")
+  par_stratify_list[[id]]$stratify_by <- "Sh"
+  id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu_Sl")
+  par_stratify_list[[id]]$stratify_by <- "Sl"
+}
+
+
+
 # now specify next level of stratification, this time done by age
 stratum_list <- list(
   stratumname = "age",
@@ -103,6 +119,18 @@ final_model <- modelbuilder::generate_stratified_model(
                                         mbmodel = mbmodel_new,
                                         stratum_list = stratum_list,
                                         par_stratify_list = par_stratify_list)
+
+
+#code snippets to look at various model components before and after
+#stratification
+#for development/testing only
+unlist(lapply(mbmodel$par, "[[", "parname"))
+unlist(lapply(mbmodel$var, "[[", "flows"))
+unlist(lapply(mbmodel_new$par, "[[", "parname"))
+unlist(lapply(mbmodel_new$var, "[[", "flows"))
+unlist(lapply(final_model$par, "[[", "parname"))
+unlist(lapply(final_model$var, "[[", "flows"))
+
 
 #check to make sure newly generated model is still a valid modelbuilder object
 #if not valid, a hopefully meaningful error message is returned
@@ -126,13 +154,13 @@ if (!is.null(checkerror))
 #save newly generated model as Rds file
 #place it into the stratified models folder
 filename = paste0(final_model$title,'.Rds')
-saveRDS(final_model, file = here("code/stratified_models", filename))
+saveRDS(final_model, file = paste0(basepath,"/stratified_models/", filename))
 
 # run a function that generates CSV files for initial conditions and parameters
 # this function works for any modelbuilder object
 # Parameter and initial condition values are set to the values of mbmodel
 # these spreadsheets are meant to be moved by hand to the filled_tables folder and filled
-savelocation = here('code/generated_tables/')
+savelocation = paste0(basepath,'/generated_tables/')
 modelbuilder::generate_tables(mbmodel = final_model, location = savelocation)
 
 # run a function that generates a text file of all the flows in the model
@@ -145,7 +173,7 @@ modelbuilder::generate_tables(mbmodel = final_model, location = savelocation)
 #create R code for the model
 #this takes the model and writes the R code for a function implemented as ODE or discrete time or stochastic model
 #the function will be saved to the current directory
-savelocation = here('code/stratified_models/')
+savelocation = paste0(basepath,'/stratified_models/')
 modelbuilder::generate_ode(mbmodel = final_model, location = savelocation)
 
 #at this stage the new model has been generated and saved as an Rds file
