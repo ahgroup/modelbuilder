@@ -46,7 +46,7 @@ generate_tables <- function(mbmodel, location = NULL, filename = NULL)
     #if location is supplied, that's where the code will be saved to
     #if location is NULL, it will be the current directory
     var_file_path_and_name <- varfilename
-    par_file_path_and_name <- varfilename
+    par_file_path_and_name <- parfilename
     if (!is.null(location))
     {
         var_file_path_and_name <- file.path(location,varfilename)
