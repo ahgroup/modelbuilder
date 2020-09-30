@@ -1,0 +1,84 @@
+####################
+#Note 1
+####################
+Currently, if a parameter shows up in more than one flow, the generate_stratifier_list function might not work
+
+Example: Consider this SIRSd model:
+
+dS/dt = n - bSI + wR - mS
+dI/dt = bSI - gI - mI
+dR/dt = gI - mR - wR 
+
+Natural death of S/I/R is all at rates m.
+If run through function, it thinks m should be stratified with respect to S/I/R. 
+That's not the right thing. What we likely want is m being stratified according to only the flow it shows up.
+So m*S should become m_Sa*Sa and m_Sc*Sc (if e.g. stratified by adults/children). Same for I/R.
+
+Somehow we need to generate something that indicates that parameter m, which is currently same for S/I/R should change into new parameters that differ 
+based on the equation they show up
+
+Somewhat hacky solution for now: Label the mortality rates uniquely in the base model, i.e. mS, mI, mR
+
+
+
+####################
+#Note 2
+####################
+
+Conceptual workflow/setup for stratification:
+
+1. Loop over each model equation.
+2. Repliacte each variable/model equation according to stratifications.
+3. For each new stratified equation, go through each flow term and index parameters based on provided stratification information.
+
+Example for S equation from model above (with m terms modified to mS/mI/mR), stratified by children and adults.
+S becomes Sc and Sa.
+For each new variable (Sc and Sa here), run through each flow of the original variable (S), look at parameter stratifications, apply.
+So for instance to make dSc/dt= equation:
+1. n is not stratified, so it remains n
+2. b is stratified by S and I. Since we are working on the S/Sc equation, the S stratification is only with respect to the current compartment, all other variables are done fully.
+This means bSI turns into Sc*b_Sc_Ic*Ic + Sc*b_Sc_Ia*Ia 
+3. wR is fully stratified with respect to R, so turns into w_Rc*Rc+w_Ra*Ra (that's wrong, see below)
+4. mS*S is stratified with respect to S, since we are working on the S/Sc equation, it is only with respect to itself, so becomes mS_Sc*Sc
+
+Overall, this means the first equation will be dSc/dt = n - b_Sc_Ic*Sc*Ic+b_Sc_Ia*Sc*Ia + w_Rc*Rc+w_Ra*Ra - mS_Sc*Sc
+
+The interaction/transmission term is ok. The problem is that Recovered should only be stratified with respect to itself, recovered children who's immunity is waning should arrive in Sc, but not recovered adults.
+So it should be like this:
+dSc/dt = n - b_Sc_Ic*Sc*Ic+b_Sc_Ia*Sc*Ia + w_Rc*Rc - mS_Sc*Sc
+
+##
+Next, move to I equation, do same stratification into Ic/Ia.
+The gI and mI*I terms are only stratified with respect to whatever equation we are working on, the S is stratified fully.
+That means we get for Ia
+dIa/dt = b_Ia_Sc*Ia*Sc + b_Ia_Sa*Ia*Sa - g_Ia*Ia - mI_Ia*Ia 
+and similar for Ic
+Those equations seem to work ok
+
+##
+Last, for R equation, we get the gI term fully stratified, the R terms only based on compartment. 
+That gives e.g. for the Rc equation:
+dRc/dt = g_Ia*Ia+g_Ic*Ic - mr_Rc*Rc - w_Rc*Rc
+
+This is again wrong, only recovered children should arrive here, that is we need/want
+dRc/dt = g_Ic*Ic - mr_Rc*Rc - w_Rc*Rc
+
+####
+Possible solution:
+Follow workflow above, but add those checks:
+
+For any parameter that is indicated to be stratified by a single variable, the stratification label is always that of the current equation that is worked on.
+E.g. if we work on the Sa equation, any parameter that is indicated to be stratified by a single variable is only stratified for the current stratum, i.e. for Sa it means the 'a' stratum, meaning w*R only is stratified to w_Ra*Ra
+
+For any parameter that is indicated to be stratified by 2 (or more, but can ignore for now) variables, the variable that is not processed is fully expanded/stratified, e.g. as described in #2 above for the Sc equation example
+
+
+
+
+
+
+
+
+
+
+
