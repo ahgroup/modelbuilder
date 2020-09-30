@@ -2,8 +2,8 @@ library(modelbuilder)
 library(here)
 
 # load the base model
-# model_name <- "Coronavirus_vaccine_model_v2.Rds"
-model_name <- "SIRSd2.Rds"
+model_name <- "Coronavirus_vaccine_model_v2.Rds"
+# model_name <- "SIRSd2.Rds"
 mbmodel <- readRDS(here("auxiliary",
                         "vaccine_model_testing",
                         "base_models",
@@ -43,6 +43,8 @@ par_stratify_list <- generate_stratifier_list(risk_model)
 strat_model <- generate_stratified_model(mbmodel = risk_model,
                                          stratum_list = stratum_list,
                                          par_stratify_list = par_stratify_list)
+
+generate_tables(strat_model)
 
 mbmodel$var[[1]]$flows  # S
 risk_model$var[[1]]$flows  # Sh

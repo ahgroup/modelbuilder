@@ -80,6 +80,13 @@ generate_stratified_model <- function(mbmodel,
     stop("All parameters must have a stratification specified.")
   }
 
+  #make dataframe of variable names
+  varnames_map <- data.frame(abb = unlist(lapply(mbmodel$var, "[[", 1)),
+                             name = unlist(lapply(mbmodel$var, "[[", 2)))
+
+  strat_map <- data.frame(abb = stratum_list$labels,
+                          name = stratum_list$names)
+
   #set up a new modelbuilder list object
   #this gets made anew (and overwritten) each iteration through
   #a stratum. newmb is always the most recent, and final, object
@@ -276,7 +283,20 @@ generate_stratified_model <- function(mbmodel,
           orig_par <- mb$par[[which(lapply(mb$par, "[[", 1) == dopar)]]
           strat_by <- par_stratify_list[[which(lapply(par_stratify_list, "[[", 1) == dopar)]]
           tmp_pars[pn, "value"] <- orig_par$parval
-          tmp_pars[pn, "text"] <- paste(orig_par$partext, nm, sep = ", ")
+          tmp_group_names <- unlist(strsplit(tmp_pars[pn, "group"], "_"))
+          tofrom_name <- substr(tmp_group_names, 1, (nchar(tmp_group_names)-1))
+          tofrom_group <- substr(tmp_group_names, nchar(tmp_group_names), nchar(tmp_group_names))
+          tofrom_group_names <- strat_map[match(tofrom_group, strat_map$abb), "name"]
+          tofrom <- paste(tolower(varnames_map[which(varnames_map$abb %in% tofrom_name), "name"]), tofrom_group_names)
+          origtext <- strsplit(orig_par$partext, ":")[[1]][1]
+          if(length(tofrom) == 1) {
+            tmp_pars[pn, "text"] <- paste0(origtext, ": ", tofrom[1])
+          } else if(length(tofrom) == 0) {
+            tmp_pars[pn, "text"] <- origtext
+          } else {
+            tmp_pars[pn, "text"] <- paste0(origtext, ": to ", tofrom[1], " from ", tofrom[2])
+          }
+
           if(length(strat_by$stratify_by) == 1) {
             tmp_pars[pn, "strat_by"] <- paste(strat_by$stratify_by, lab, sep = "_")
           } else {
