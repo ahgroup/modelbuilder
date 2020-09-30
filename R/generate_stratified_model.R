@@ -98,23 +98,23 @@ generate_stratified_model <- function(mbmodel,
   nvars <- length(mb$var)
   ct <- 1  #counter for state variables
   par_updates <- list()  #empty storage for new parameters
-  for(v in 1:nvars) {
+  for(v in 1:nvars) {  #open loop over variable
     var <- mb$var[[v]]
     focal_var <- var$varname
 
-    for(g in 1:ngroups) {
+    for(g in 1:ngroups) {  #open loop over strata
       lab <- stratum_list$labels[g]
       nm <- stratum_list$names[g]
 
       #append group label to the variable names
-      newname <- paste(var$varname, lab, sep = "_")
+      newname <- paste(var$varname, lab, sep = "")
 
       #loop over flows and expand as per the par_stratify_list
       nflows <- length(var$flows)
       #create an empty character object for the appended flows
       # allnewflows <- character(length = nflows)
       allnewflows <- list()
-      for(f in 1:nflows) {
+      for(f in 1:nflows) {  #open loop over each flow in the var equation
         flow <- var$flows[f]
 
         #extract just the variables and parameters, in order, from the flows
@@ -129,12 +129,14 @@ generate_stratified_model <- function(mbmodel,
         stateids <- which(substr(flowsymbols, 1, 1) %in% LETTERS)
         types[stateids] <- "var"
 
-        #get parameter stratification mappings
+        #get parameter stratification mappings for the current
+        #parameters of interest (those in this flow)
         these_pars <- which(lapply(par_stratify_list, "[[", 1) %in%
                               flowsymbols[types == "par"])
         par_maps <- par_stratify_list[these_pars]
 
         #flag if there are more than 1 state variable
+        #this means we need to stratify interaction terms
         if(length(stateids) > 1) {
           inter <- TRUE
         } else {
@@ -143,12 +145,22 @@ generate_stratified_model <- function(mbmodel,
 
         if(inter) {
           #create data frame matching names and subscripts
+          #this is all possible combinations of vars/pars and strata subscripts
           expansion <- expand.grid(flowsymbols,
                                    stratum_list$labels,
                                    stringsAsFactors = FALSE)
           names(expansion) <- c("original_name", "group")
+
+          #set all parameters (non state variables) to have no subscript
+          #this gets updated later based on the stratification mapping
+          #between state variables and parameters
           expansion[!expansion$original_name %in% flowsymbols[stateids], "group"] <- ""
+
+          #flows are getting replicated for each stratum, so we number
+          #them here to keep track
           expansion$flow_num <- rep(1:ngroups, each = length(flowsymbols))
+
+          #add id for whether a parameter or a state variable
           expansion$type <- rep(types, times = ngroups)
 
           #if the flow is out of the compartment, then we just need to
@@ -183,7 +195,9 @@ generate_stratified_model <- function(mbmodel,
         for(p in 1:npars) {
           map <- par_maps[[p]]
           if(length(map$stratify_by) == 1) {
-            expansion[expansion$original_name == map$parname, "group"] <- lab
+            varstrat <- map$stratify_by
+            parlab <- paste0(varstrat, lab)
+            expansion[expansion$original_name == map$parname, "group"] <- parlab
           } else if(length(map$stratify_by) == 0) {
             expansion[expansion$original_name == map$parname, "group"] <- ""
           } else {
@@ -208,9 +222,22 @@ generate_stratified_model <- function(mbmodel,
           if(tmpc["group"] == "") {
             #no appendage if numeric
             new_flowsymbols[fid] <- tmpc["original_name"]
-          } else {
-            #otherwise paste the two columns
+          } else if(tmpc["type"] == "par") {
+            #paste the two columns with _ for parameters
+            #first, check for variable-mapping in the group name
+            #if there, then subset the original_name character string to
+            #just the characters before the first underscore
+            #this is done because the appending for interactions already
+            #includes the full complement of strata
+            varcheck <- substr(tmpc["group"], 1, 1) %in% LETTERS
+            if(varcheck) {
+              origpar <- unlist(strsplit(as.character(tmpc["original_name"]), "_"))[1]
+              tmpc["original_name"] <- origpar
+            }
             new_flowsymbols[fid] <- apply(tmpc[,c("original_name","group")], 1, paste, collapse = "_")
+          } else {
+            #paste subscript for state variables, with no underscore
+            new_flowsymbols[fid] <- apply(tmpc[,c("original_name","group")], 1, paste, collapse = "")
           }
         }
 
@@ -263,8 +290,8 @@ generate_stratified_model <- function(mbmodel,
         par_updates <- rbind(par_updates, tmp_pars)
       }  #end of flow loop
 
-      #define the new state variable name
-      newname <- paste(var$varname, lab, sep = "_")
+      #define the new state variable name, no underscore
+      newname <- paste(var$varname, lab, sep = "")
 
       #append group name to the variable text
       newtext <- paste(var$vartext, nm, sep = " ")

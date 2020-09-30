@@ -2,8 +2,8 @@ library(modelbuilder)
 library(here)
 
 # load the base model
-model_name <- "Coronavirus_vaccine_model_v2.Rds"
-# model_name <- "SEIRSd_model.Rds"
+# model_name <- "Coronavirus_vaccine_model_v2.Rds"
+model_name <- "SEIRSd_model.Rds"
 mbmodel <- readRDS(here("auxiliary", "modelfiles", model_name))
 
 
@@ -25,6 +25,8 @@ risk_model <- generate_stratified_model(mbmodel = mbmodel,
 mbmodel$var[[1]]$flows
 risk_model$var[[1]]$flows
 
+generate_ode(risk_model)
+
 
 # now stratify again by age
 stratum_list <- list(
@@ -40,10 +42,10 @@ strat_model <- generate_stratified_model(mbmodel = risk_model,
                                          par_stratify_list = par_stratify_list)
 
 mbmodel$var[[1]]$flows  # S
-risk_model$var[[1]]$flows  # S_h
-strat_model$var[[1]]$flows  # S_h_c
+risk_model$var[[1]]$flows  # Sh
+strat_model$var[[1]]$flows  # Shc
 
 mbmodel$var[[2]]$flows  # P
-risk_model$var[[3]]$flows  # P_h
-strat_model$var[[7]]$flows  # P_h_c
+risk_model$var[[3]]$flows  # Ph
+strat_model$var[[7]]$flows  # Phc
 
