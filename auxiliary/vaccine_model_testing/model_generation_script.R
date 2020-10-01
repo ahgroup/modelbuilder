@@ -13,6 +13,7 @@ basepath = here("auxiliary/vaccine_model_testing")
 #load the base model we want to work with
 #needs to be a modelbuilder mbmodel
 modelname <- paste0(basepath, "/base_models/Coronavirus_vaccine_model_v2.Rds"); covac=1;
+modelname <- paste0(basepath, "/base_models/COVAX1.Rds"); covac=1;
 #modelname <- paste0(basepath, "/base_models/SIRSd2.Rds")
 mbmodel <- readRDS(modelname)
 
@@ -25,128 +26,117 @@ if (!is.null(checkerror))
   print(checkerror)
 }
 
+###############################################################################
 # If base model is valid, we can go on to specify the stratifications we want
-
-# First, we specify for each parameter the variables according to which it sould be stratified
-# calling the function below generates defaults
-# as default, every parameter is stratified based on the variables in the flow it appears
-# e.g. if we had dS/dt = n - m*S - b*S*I
-# the parameter n would not be stratified at all
-# the parameter m would be stratified by S
-# the parameter b would be stratified by S and I
-# the following function sends in a model and returns the variables by which each parameter should be stratified
-# the function returns a list, which each main list entry containing 2 elements,
-# the name of the parameter and the name of the variables by which it should be stratified
-# this list can be modified by the user before it is supplied to the function that generates the stratified model
-par_stratify_list <- modelbuilder::generate_stratifier_list(mbmodel)
-
-# for COVID model, a manual intervention to change the stratifier levels of the nu parameter
-# should only be stratified by "S"
-if (covac==1)
-{
-  id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu")
-  par_stratify_list[[id]]$stratify_by <- "S"
-}
-
-# Next, the user specifies the strata which should be generated
+# Specify various stratifications here
+# One can choose below which ones to use
+# The user specifies the strata which should be generated
 # This needs to be done manually for each stratification
 # The structure is a list that contains the label given to the stratification,
 # the name for each stratum, and labels, which will be appended to all stratified model parameters and variables
+###############################################################################
 
-# This is an example of such a stratification with 2 risk groups
-
-stratum_list <- list(
+risk_stratum_list <- list(
   stratumname = "risk",
   names = c("high risk", "low risk"),
   labels = c("h", "l"),
   comment = "This defines the risk structure."
 )
 
-# Now expand the model by strata the specified strata
-# The model that is returned is again a modelbuilder structure (a long list object)
-# The new name/title of the model is the old one appended with _stratumname
-# All stratified parameters and variables are set to the same value as the original unstratified ones
-mbmodel_new <- modelbuilder::generate_stratified_model(
-                                  mbmodel = mbmodel,
-                                  stratum_list = stratum_list,
-                                  par_stratify_list = par_stratify_list
-)
-
-#check to make sure newly generated model is still a valid modelbuilder object
-#if not valid, a hopefully meaningful error message is returned
-# currently doesn't stop script, so rest will likely not work either
-checkerror <- modelbuilder::check_model(mbmodel_new)
-if (!is.null(checkerror))
-{
-  print(checkerror)
-}
-
-
-#######################################################
-#The stratification procedure is repeated for every new stratification we want to include
-# Since the model produced by the generate_stratified_model function has exactly the same mbmodel structure as the start model,
-# everything proceeds the same as going from the base model to the first stratified one
-# the order of stratification should not matter, the produced model should be the same
-# however, the naming of parameter and variables will change based on stratification order
-# labels for new strata are always appended at the end of any variable/parameter name
-
-# First we again generate a list of parameters and the variables according to which stratification should occur
-# Could be adjusted manually if wanted
-par_stratify_list <- modelbuilder::generate_stratifier_list(mbmodel_new)
-
-
-# for COVID model, a manual intervention to change the stratifier levels of the nu parameter
-# should only be stratified by "S"
-if (covac==1)
-{
-  id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu_Sh")
-  par_stratify_list[[id]]$stratify_by <- "Sh"
-  id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu_Sl")
-  par_stratify_list[[id]]$stratify_by <- "Sl"
-}
-
-
-
-# now specify next level of stratification, this time done by age
-stratum_list <- list(
+age_stratum_list <- list(
   stratumname = "age",
   names = c("children", "adults", "elderly"),
   labels = c("c", "a", "e"),
   comment = "This defines the age structure."
 )
 
-final_model <- modelbuilder::generate_stratified_model(
-                                        mbmodel = mbmodel_new,
-                                        stratum_list = stratum_list,
-                                        par_stratify_list = par_stratify_list)
+vaccine_stratum_list <- list(
+  stratumname = "vaccine",
+  names = c("unvaccinated", "vaccinated"),
+  labels = c("uv", "v"),
+  comment = "This defines the vaccination structure."
+)
 
 
-#code snippets to look at various model components before and after
-#stratification
-#for development/testing only
-unlist(lapply(mbmodel$par, "[[", "parname"))
-unlist(lapply(mbmodel$var, "[[", "flows"))
-unlist(lapply(mbmodel_new$par, "[[", "parname"))
-unlist(lapply(mbmodel_new$var, "[[", "flows"))
-unlist(lapply(final_model$par, "[[", "parname"))
-unlist(lapply(final_model$var, "[[", "flows"))
+#combine all possible stratifications in a list of lists
+complete_list = list(risk_stratum_list,age_stratum_list,vaccine_stratum_list)
+
+# specify which ones we want to do
+# need to be a subset of above defined strata and labeled by stratumname
+wanted_stratifications = c("vaccine","age")
+
+# loop to do each stratification at a time
+for (st in 1:length(wanted_stratifications))
+{
+  # pull out the stratum list for the current stratification that's being processed
+  id = which(unlist(lapply(complete_list, "[[", "stratumname")) == wanted_stratifications[st])
+  stratum_list = complete_list[[id]]
+
+  # First, we specify for each parameter the variables according to which it sould be stratified
+  # calling the function below generates defaults
+  # as default, every parameter is stratified based on the variables in the flow it appears
+  # e.g. if we had dS/dt = n - m*S - b*S*I
+  # the parameter n would not be stratified at all
+  # the parameter m would be stratified by S
+  # the parameter b would be stratified by S and I
+  # the following function sends in a model and returns the variables by which each parameter should be stratified
+  # the function returns a list, which each main list entry containing 2 elements,
+  # the name of the parameter and the name of the variables by which it should be stratified
+  # this list can be modified by the user before it is supplied to the function that generates the stratified model
+  par_stratify_list <- modelbuilder::generate_stratifier_list(mbmodel)
 
 
-#check to make sure newly generated model is still a valid modelbuilder object
+  # for COVID models, a manual intervention to change the stratifier levels of the nu parameter
+  # should only be stratified by "S"
+  if (covac==1)
+  {
+    id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu")
+    par_stratify_list[[id]]$stratify_by <- "S"
+  }
+  # for COVID model, a manual intervention to change the stratifier levels of the nu parameter
+  # should only be stratified by "S"
+  if (covac==1)
+  {
+    id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu_Sh")
+    par_stratify_list[[id]]$stratify_by <- "Sh"
+    id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu_Sl")
+    par_stratify_list[[id]]$stratify_by <- "Sl"
+  }
+
+  # Now expand the model by the specified strata
+  # The model that is returned is again a modelbuilder structure (a long list object)
+  # The new name/title of the model is the old one appended with _stratumname
+  # All stratified parameters and variables are set to the same value as the original unstratified ones
+  mbmodel <- modelbuilder::generate_stratified_model(
+    mbmodel = mbmodel,
+    stratum_list = stratum_list,
+    par_stratify_list = par_stratify_list
+  )
+
+  #code snippets to look at various model components before and after
+  #stratification
+  #for development/testing only
+  #unlist(lapply(mbmodel$par, "[[", "parname"))
+  #unlist(lapply(mbmodel$var, "[[", "flows"))
+
+  #The stratification procedure is repeated for every new stratification we want to include
+  # Since the model produced by the generate_stratified_model function has exactly the same mbmodel structure as the start model,
+  # everything proceeds the same as going from the base model to the first stratified one
+  # the order of stratification should not matter, the produced model should be the same
+  # however, the naming of parameter and variables will change based on stratification order
+  # labels for new strata are always appended at the end of any variable/parameter name
+
+} #finish loop that does the various stratifications
+
+
+#check to make sure the newly generated model is still a valid modelbuilder object
 #if not valid, a hopefully meaningful error message is returned
 # currently doesn't stop script, so rest will likely not work either
-checkerror <- modelbuilder::check_model(final_model)
+checkerror <- modelbuilder::check_model(mbmodel)
 if (!is.null(checkerror))
 {
   print(checkerror)
 }
-
-# More stratifications could be applied here, following the same pattern as above
-# 1. Specify for each parameter the variables that it should be stratified on
-# This can happen with the generate_stratifier_list function or manually (or a mix of those)
-# 2. Specify strata as a list
-# 3. Send strata list and stratifier list to generate_stratified_model function
-
 
 # Once all stratifications are done, save the new model
 # Also generate/save tables of initial conditions and parameter values for manual filling
