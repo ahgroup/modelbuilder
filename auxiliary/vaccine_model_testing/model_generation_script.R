@@ -12,9 +12,9 @@ basepath = here("auxiliary/vaccine_model_testing")
 
 #load the base model we want to work with
 #needs to be a modelbuilder mbmodel
-modelname <- paste0(basepath, "/base_models/Coronavirus_vaccine_model_v2.Rds"); covac=1;
-modelname <- paste0(basepath, "/base_models/COVAX1.Rds"); covac=1;
-#modelname <- paste0(basepath, "/base_models/SIRSd2.Rds")
+#modelname <- paste0(basepath, "/base_models/Coronavirus_vaccine_model_v2.Rds"); covac=1;
+#modelname <- paste0(basepath, "/base_models/COVAX1.Rds"); covac=1;
+modelname <- paste0(basepath, "/base_models/SIRSd2.Rds"); covac=0;
 mbmodel <- readRDS(modelname)
 
 #this runs the model through a checker to make sure it has a valid structure
@@ -143,15 +143,15 @@ if (!is.null(checkerror))
 
 #save newly generated model as Rds file
 #place it into the stratified models folder
-filename = paste0(final_model$title,'.Rds')
-saveRDS(final_model, file = paste0(basepath,"/stratified_models/", filename))
+filename = paste0(mbmodel$title,'.Rds')
+saveRDS(mbmodel, file = paste0(basepath,"/stratified_models/", filename))
 
 # run a function that generates CSV files for initial conditions and parameters
 # this function works for any modelbuilder object
 # Parameter and initial condition values are set to the values of mbmodel
 # these spreadsheets are meant to be moved by hand to the filled_tables folder and filled
 savelocation = paste0(basepath,'/generated_tables/')
-modelbuilder::generate_tables(mbmodel = final_model, location = savelocation)
+modelbuilder::generate_tables(mbmodel, location = savelocation)
 
 # run a function that generates a text file of all the flows in the model
 # this is not needed for any functionality
@@ -164,7 +164,7 @@ modelbuilder::generate_tables(mbmodel = final_model, location = savelocation)
 #this takes the model and writes the R code for a function implemented as ODE or discrete time or stochastic model
 #the function will be saved to the current directory
 savelocation = paste0(basepath,'/stratified_models/')
-modelbuilder::generate_ode(mbmodel = final_model, location = savelocation)
+modelbuilder::generate_ode(mbmodel, location = savelocation)
 
 #at this stage the new model has been generated and saved as an Rds file
 #CSV files that contain tables for parameter values have been created for manual filling
