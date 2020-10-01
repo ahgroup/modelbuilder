@@ -13,8 +13,8 @@ basepath = here("auxiliary/vaccine_model_testing")
 #load the base model we want to work with
 #needs to be a modelbuilder mbmodel
 #modelname <- paste0(basepath, "/base_models/Coronavirus_vaccine_model_v2.Rds"); covac=1;
-#modelname <- paste0(basepath, "/base_models/COVAX1.Rds"); covac=1;
-modelname <- paste0(basepath, "/base_models/SIRSd2.Rds"); covac=0;
+modelname <- paste0(basepath, "/base_models/COVAX1.Rds"); covac=1;
+#modelname <- paste0(basepath, "/base_models/SIRSd2.Rds"); covac=0;
 mbmodel <- readRDS(modelname)
 
 #this runs the model through a checker to make sure it has a valid structure
@@ -63,7 +63,9 @@ complete_list = list(risk_stratum_list,age_stratum_list,vaccine_stratum_list)
 
 # specify which ones we want to do
 # need to be a subset of above defined strata and labeled by stratumname
-wanted_stratifications = c("vaccine","age")
+#wanted_stratifications = c("vaccine","age")
+wanted_stratifications = c("vaccine")
+
 
 # loop to do each stratification at a time
 for (st in 1:length(wanted_stratifications))
@@ -95,13 +97,13 @@ for (st in 1:length(wanted_stratifications))
   }
   # for COVID model, a manual intervention to change the stratifier levels of the nu parameter
   # should only be stratified by "S"
-  if (covac==1)
-  {
-    id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu_Sh")
-    par_stratify_list[[id]]$stratify_by <- "Sh"
-    id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu_Sl")
-    par_stratify_list[[id]]$stratify_by <- "Sl"
-  }
+  # if (covac==1)
+  # {
+  #   id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu_Sh")
+  #   par_stratify_list[[id]]$stratify_by <- "Sh"
+  #   id = which(unlist(lapply(par_stratify_list, "[[", "parname")) == "nu_Sl")
+  #   par_stratify_list[[id]]$stratify_by <- "Sl"
+  # }
 
   # Now expand the model by the specified strata
   # The model that is returned is again a modelbuilder structure (a long list object)
@@ -145,6 +147,7 @@ if (!is.null(checkerror))
 #place it into the stratified models folder
 filename = paste0(mbmodel$title,'.Rds')
 saveRDS(mbmodel, file = paste0(basepath,"/stratified_models/", filename))
+generate_model_file(mbmodel,location = paste0(basepath,"/stratified_models/"))
 
 # run a function that generates CSV files for initial conditions and parameters
 # this function works for any modelbuilder object
