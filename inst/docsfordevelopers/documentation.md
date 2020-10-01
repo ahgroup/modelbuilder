@@ -2,7 +2,6 @@
 
 
 ## Package structure/use 
-* Currently, user loads package, 
 * The main use case is for the user to load the package and open the main menu by running the `modelbuilder()` function. This function calls a Shiny app (in the /inst/modelbuilder folder), which is the main user interface. The Shiny app in turn uses the various functions in the /R folder to provide all functionality. 
 * The main menu lets users build a new model, load an existing model, modify or analyze existing model, export code for existing model
 * Each model is saved as list structure called 'mbmodel' and stored as an Rds file.
@@ -48,7 +47,6 @@ The following constraints are currently imposed:
 
 * Variable names have to start with an upper-case letter and can only contain letters and numbers
 * Parameter names have to start with a lower-case letter and can only contain letters and numbers
-* Parameters need to be constant
 * Only basic math is allowed, functions (e.g. sin/cos/sqrt) are currently not supported
 
 ### Meta-Information
@@ -87,7 +85,7 @@ i = 1,2,3 being tstart, tfinal and dt
 * `mbmodel$par[[i]]$ub` - upper bound for parameter 
 
 ### Model examples
-Several model examples following the above structure are in the `\auxiliary\modelfiles` folder. The are provided both as Rds files and as .R scripts which can be run to produce the Rds files. 
+Several model examples following the above structure are in the `\auxiliary\modelfiles` folder. They are provided both as Rds files and as .R scripts which can be run to produce the Rds files. 
 A script in `\auxiliary\helperfuncttions` can take a mbmodel provided as Rds or R file and produce the other file. It can also turn any Rds or R script into ode/stochastic/discrete function code.
 
 
