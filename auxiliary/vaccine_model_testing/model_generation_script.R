@@ -12,9 +12,8 @@ basepath = here("auxiliary/vaccine_model_testing")
 
 #load the base model we want to work with
 #needs to be a modelbuilder mbmodel
-#modelname <- paste0(basepath, "/base_models/Coronavirus_vaccine_model_v2.Rds"); covac=1;
-modelname <- paste0(basepath, "/base_models/COVAX1.Rds"); covac=1;
-#modelname <- paste0(basepath, "/base_models/SIRSd2.Rds"); covac=0;
+modelname <- paste0(basepath, "/base_models/Coronavirus_single_vax_model.Rds"); covac=0;
+#modelname <- paste0(basepath, "/base_models/COVAX1.Rds"); covac=1;
 mbmodel <- readRDS(modelname)
 
 #this runs the model through a checker to make sure it has a valid structure
@@ -63,8 +62,7 @@ complete_list = list(risk_stratum_list,age_stratum_list,vaccine_stratum_list)
 
 # specify which ones we want to do
 # need to be a subset of above defined strata and labeled by stratumname
-#wanted_stratifications = c("vaccine","age")
-wanted_stratifications = c("vaccine")
+wanted_stratifications = c("age")
 
 
 # loop to do each stratification at a time
@@ -74,7 +72,7 @@ for (st in 1:length(wanted_stratifications))
   id = which(unlist(lapply(complete_list, "[[", "stratumname")) == wanted_stratifications[st])
   stratum_list = complete_list[[id]]
 
-  # First, we specify for each parameter the variables according to which it sould be stratified
+  # First, we specify for each parameter the variables according to which it should be stratified
   # calling the function below generates defaults
   # as default, every parameter is stratified based on the variables in the flow it appears
   # e.g. if we had dS/dt = n - m*S - b*S*I
