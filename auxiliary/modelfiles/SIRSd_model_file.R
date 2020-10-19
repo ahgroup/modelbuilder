@@ -1,5 +1,6 @@
 ############################## 
 #R script to generate a modelbuilder model object with code. 
+#This file was generated on 2020-10-05 08:12:22 
 ############################## 
  
  mbmodel = list() #create empty list 

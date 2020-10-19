@@ -47,9 +47,9 @@ generate_model_file <- function(mbmodel, location = NULL, filename = NULL)
 
     header_text = "############################## \n"
     header_text = paste0(header_text, "#R script to generate a modelbuilder model object with code. \n")
+    header_text = paste0(header_text, "#This file was generated on ",Sys.time()," \n")
     header_text = paste0(header_text, "############################## \n \n")
-    #header_text = paste0(header_text, " #Load modelbuilder library  \n")
-    #header_text = paste0(header_text, " library(modelbuilder)  \n \n")
+
     header_text = paste0(header_text, " mbmodel = list() #create empty list \n \n")
 
 
