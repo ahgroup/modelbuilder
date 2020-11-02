@@ -55,7 +55,10 @@ server <- function(input, output, session) {
       }
       #generate_buildUI generates the output elements that make up the build UI for the model
       generate_buildUI(mbmodel, output)
-      output$flowdiagram  <- shiny::renderPlot({ generate_flowchart_ggplot(mbmodel) })
+      # output$flowdiagram  <- shiny::renderPlot({ generate_flowchart_ggplot(mbmodel) })
+      output$flowdiagram <- DiagrammeR::renderGrViz({
+        DiagrammeR::render_graph(generate_flowchart(mbmodel))
+      })
       output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
 
     }
@@ -129,7 +132,10 @@ server <- function(input, output, session) {
       {
         mbmodel <<- mbmodeltmp
         output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
-        output$flowdiagram  <- shiny::renderPlot({ generate_flowchart_ggplot(mbmodel) })
+        # output$flowdiagram  <- shiny::renderPlot({ generate_flowchart_ggplot(mbmodel) })
+        output$flowdiagram <- DiagrammeR::renderGrViz({
+          DiagrammeR::render_graph(generate_flowchart(mbmodel))
+        })
         shinyjs::enable(id = "exportode")
         shinyjs::enable("exportstochastic")
         shinyjs::enable("exportdiscrete")
