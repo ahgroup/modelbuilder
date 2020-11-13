@@ -9,9 +9,6 @@
 #' @param mbmodel model structure, either as list object or Rds file name
 #' @return The function returns the diagram stored in a variable
 #' @author Andreas Handel and Andrew Tredennick
-#' @import DiagrammeR
-#' @import DiagrammeRsvg
-#' @import rsvg
 #' @export
 
 generate_flowchart <- function(mbmodel) {
