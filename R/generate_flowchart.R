@@ -32,8 +32,8 @@ generate_flowchart <- function(mbmodel) {
       n = nvars,  #number of nodes
       label = varnames,  #labels of nodes
       type  = "upper",  #upper case letters for variables
-      style = "filled",  #a filled rectangle
-      color = "aqua",  #neutral color for the fill
+      style = "open",  #an open rectangle
+      color = "black",  #rectangle outline
       shape = "rectangle"  #shape of the nodes
     )
 
@@ -80,7 +80,7 @@ generate_flowchart <- function(mbmodel) {
       # this functionality later on.
       if(currentsign == "+" & length(connectvars) == 1) {
         if(connectvars == i) {
-          tmp <- data.frame(from = i,
+          tmp <- data.frame(from = NA,
                             to = i,
                             rel = "out",
                             label = currentflow,
@@ -91,6 +91,27 @@ generate_flowchart <- function(mbmodel) {
     }  #end flow loop
   }  #end variable loop
 
+  # Make dummy compartment for all flows in and out of the system.
+  # Out of the system first
+  numnas <- length(edf[is.na(edf$to), "to"])
+  outdummies <- as.numeric(paste0("999", c(1:numnas)))
+  edf[is.na(edf$to), "to"] <- outdummies
+
+  # In to the system second
+  numnas <- length(edf[is.na(edf$from), "from"])
+  indummies <- as.numeric(paste0("888", c(1:numnas)))
+  edf[is.na(edf$from), "from"] <- indummies
+
+  # Add dummy compartments to nodes dataframe
+  transparent <- rgb(1, 1, 1, 0, names = NULL, maxColorValue = 1)
+  exnodes <- data.frame(id = c(outdummies, indummies),
+                        type = "upper",
+                        label = "",
+                        style = "open",
+                        color = transparent,
+                        shape = "circle")
+
+  ndf <- rbind(ndf, exnodes)
 
   # Create the DiagrammeR graph object based on the node
   # and edge data frames. We default to graphs being built
@@ -98,7 +119,8 @@ generate_flowchart <- function(mbmodel) {
   graph <- create_graph(
     attr_theme = "lr",
     nodes_df = ndf,
-    edges_df = edf
+    edges_df = edf,
+    directed = TRUE
   )
 
   # Update font for nodes
@@ -126,9 +148,8 @@ generate_flowchart <- function(mbmodel) {
 
 # library(DiagrammeRsvg)
 # library(rsvg)
-# render_graph(graph)
-# output$diagram <- renderGrViz({
-#   render_graph(plot)
+render_graph(graph)
+# render_graph(plot)
 # })
 # export_graph(graph = graph, file_type = "png",
 #                        file_name = "../../Desktop/my_crazy_graph.png")
