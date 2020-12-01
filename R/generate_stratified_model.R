@@ -123,9 +123,11 @@ generate_stratified_model <- function(mbmodel,
       allnewflows <- list()
       for(f in 1:nflows) {  #open loop over each flow in the var equation
         flow <- var$flows[f]
+        flow <- gsub(" ", "", flow)
 
         #extract just the variables and parameters, in order, from the flows
         flowsymbols <- get_vars_pars(flow)
+        flowsymbols <- gsub(" ", "", flowsymbols)
 
         #extract just the math symbols, in order, from the flows
         flowmath <- get_math(flow, flowsymbols)
@@ -205,7 +207,7 @@ generate_stratified_model <- function(mbmodel,
             varstrat <- map$stratify_by
             parlab <- paste0(varstrat, lab)
             expansion[expansion$original_name == map$parname, "group"] <- parlab
-          } else if(length(map$stratify_by) == 0) {
+          } else if(is.na(map$stratify_by)) {
             expansion[expansion$original_name == map$parname, "group"] <- ""
           } else {
             #loop over flow replicates and apply parameter mapping

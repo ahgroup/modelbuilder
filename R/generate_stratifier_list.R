@@ -40,6 +40,9 @@ generate_stratifier_list <- function(mbmodel)
     pattern = "[-+\\++\\*+\\(+\\)+\\^+/+]"
     flowsymbols = unique(unlist(strsplit(parflows,pattern)))
 
+    #take out white space
+    flowsymbols = gsub(" ", "", flowsymbols)
+
     #those are the variables that are in the flows for the current parameter
     strata = intersect(mod_vars,flowsymbols)
 
