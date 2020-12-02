@@ -9,6 +9,8 @@
 #' @param mbmodel model structure, either as list object or Rds file name
 #' @return The function returns the diagram stored in a variable
 #' @author Andreas Handel and Andrew Tredennick
+#' @import DiagrammeR
+#' @importFrom grDevices rgb
 #' @export
 
 generate_flowchart <- function(mbmodel) {
@@ -55,6 +57,16 @@ generate_flowchart <- function(mbmodel) {
       # other rows of the matrix does it show up in.
       connectvars <- unname(which(flowmatred == currentflow, arr.ind = TRUE)[,1])
 
+      # If the flow does not show up in any other rows BUT starts with
+      # a plus sign, then the donating node will be the state variable
+      # in the flow
+      if(length(connectvars) == 1 & currentsign == "+") {
+        varspars <- get_vars_pars(currentflow)
+        var <- varspars[which(varspars %in% LETTERS)]
+        cnnew <- which(varnames == var)
+        connectvars <- c(connectvars, cnnew)
+      }
+
       # If current sign is negative, it is an outflow and goes either the
       # connectvar that is not equal to the current variable id (indexed by i)
       # or it goes to NA (this happens when there is an unspecified death
@@ -65,11 +77,13 @@ generate_flowchart <- function(mbmodel) {
         } else {
           cn <- connectvars[connectvars!=i]
         }
+
         tmp <- data.frame(from = i,
                           to = cn,
                           rel = "out",
                           label = currentflow,
                           fontname = "Arial")
+
         edf <- rbind(edf, tmp)
       }
 
@@ -87,6 +101,14 @@ generate_flowchart <- function(mbmodel) {
                             fontname = "Arial")
           edf <- rbind(edf, tmp)
         }
+      }
+      if(currentsign == "+" & length(connectvars) == 2) {
+        tmp <- data.frame(from = connectvars[connectvars!=i],
+                          to = i,
+                          rel = "out",
+                          label = currentflow,
+                          fontname = "Arial")
+        edf <- rbind(edf, tmp)
       }
     }  #end flow loop
   }  #end variable loop
@@ -112,6 +134,9 @@ generate_flowchart <- function(mbmodel) {
                         shape = "circle")
 
   ndf <- rbind(ndf, exnodes)
+
+  # Keep only distinct rows
+  edf <- unique(edf)
 
   # Create the DiagrammeR graph object based on the node
   # and edge data frames. We default to graphs being built
@@ -148,7 +173,7 @@ generate_flowchart <- function(mbmodel) {
 
 # library(DiagrammeRsvg)
 # library(rsvg)
-render_graph(graph)
+# render_graph(graph)
 # render_graph(plot)
 # })
 # export_graph(graph = graph, file_type = "png",
