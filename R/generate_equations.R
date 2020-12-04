@@ -26,7 +26,8 @@ generate_equations <- function(mbmodel)
         seqs = paste0(seqs,'\\dot ', mbmodel$var[[n]]$varname,' & = ',paste(mbmodel$var[[n]]$flows, collapse = ' '), ' \\\\ \n' )
     }
     seqs=paste0(seqs,'\\end{aligned} \n$$')
-    #strip any * signs from equation for display
+    #if we want to show it in 'math notation'
+    #comment out line below to strip any * signs from equation for display
     seqs = gsub("\\*","",seqs)
     #finish block that creates the ODE function
     ##############################################################################
