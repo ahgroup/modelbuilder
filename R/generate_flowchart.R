@@ -57,15 +57,40 @@ generate_flowchart <- function(mbmodel) {
       # other rows of the matrix does it show up in.
       connectvars <- unname(which(flowmatred == currentflow, arr.ind = TRUE)[,1])
 
+      # Extract the variable names
+      varspars <- unique(get_vars_pars(currentflowfull))
+      vars <- varspars[which(varspars %in% LETTERS)]
+
       # If the flow does not show up in any other rows BUT starts with
       # a plus sign, then the donating node will be the state variable
       # in the flow
-      if(length(connectvars) == 1 & currentsign == "+") {
-        varspars <- get_vars_pars(currentflow)
-        var <- varspars[which(varspars %in% LETTERS)]
-        cnnew <- which(varnames == var)
-        connectvars <- c(connectvars, cnnew)
+      if(currentsign == "+") {
+        if(length(connectvars) == 1 & length(vars) == 0) {
+          connectvars <- i
+        }
+        if(length(connectvars) == 1 & length(vars) >= 1){
+          if(!varnames[i] %in% vars) {
+            connectvars <- i
+          }
+          if(varnames[i] %in% vars) {
+            connectvars <- c(i, i)
+          }
+        }
+        if(length(connectvars) > 1) {
+          connectvars <- connectvars
+        }
       }
+
+      # if(length(connectvars) == 1 & currentsign == "+") {
+      #   varspars <- get_vars_pars(currentflow)
+      #   var <- varspars[which(varspars %in% LETTERS)]
+      #   cnnew <- which(varnames == var)
+      #   if(length(cnnew) == 1) {
+      #     connectvars <- c(connectvars, cnnew)
+      #   } else {
+      #     connectvars <- c(i, i)
+      #   }
+      # }
 
       # If current sign is negative, it is an outflow and goes either the
       # connectvar that is not equal to the current variable id (indexed by i)
@@ -103,11 +128,19 @@ generate_flowchart <- function(mbmodel) {
         }
       }
       if(currentsign == "+" & length(connectvars) == 2) {
-        tmp <- data.frame(from = connectvars[connectvars!=i],
-                          to = i,
-                          rel = "out",
-                          label = currentflow,
-                          fontname = "Arial")
+        if(length(unique(connectvars)) == 1) {
+          tmp <- data.frame(from = i,
+                            to = i,
+                            rel = "out",
+                            label = currentflow,
+                            fontname = "Arial")
+        } else {
+          tmp <- data.frame(from = connectvars[connectvars!=i],
+                            to = i,
+                            rel = "out",
+                            label = currentflow,
+                            fontname = "Arial")
+        }
         edf <- rbind(edf, tmp)
       }
     }  #end flow loop
