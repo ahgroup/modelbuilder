@@ -9,7 +9,7 @@
 #' @param mbmodel model structure, either as list object or Rds file name
 #' @return The function returns the diagram stored in a variable
 #' @author Andreas Handel and Andrew Tredennick
-#' @import DiagrammeR
+#' @import ggplot2
 #' @importFrom grDevices rgb
 #' @export
 
@@ -30,14 +30,15 @@ generate_flowchart <- function(mbmodel) {
 
   # Create a node data frame
   ndf <-
-    create_node_df(
-      n = nvars,  #number of nodes
+    data.frame(
+      id = 1:nvars,  #number of nodes
       label = varnames,  #labels of nodes
       type  = "upper",  #upper case letters for variables
       style = "open",  #an open rectangle
       color = "black",  #rectangle outline
       shape = "rectangle"  #shape of the nodes
     )
+
 
   # Create the edge data frame by looping through the variables
   # and associated flows.
@@ -148,60 +149,108 @@ generate_flowchart <- function(mbmodel) {
 
   # Make dummy compartment for all flows in and out of the system.
   # Out of the system first
+  exdummies <- NULL
   numnas <- length(edf[is.na(edf$to), "to"])
-  outdummies <- as.numeric(paste0("999", c(1:numnas)))
-  edf[is.na(edf$to), "to"] <- outdummies
+  if(numnas > 0) {
+    outdummies <- as.numeric(paste0("999", c(1:numnas)))
+    edf[is.na(edf$to), "to"] <- outdummies
+  }
 
   # In to the system second
+  indummies <- NULL
   numnas <- length(edf[is.na(edf$from), "from"])
-  indummies <- as.numeric(paste0("888", c(1:numnas)))
-  edf[is.na(edf$from), "from"] <- indummies
+  if(numnas > 0) {
+    indummies <- as.numeric(paste0("-999", c(1:numnas)))
+    edf[is.na(edf$from), "from"] <- indummies
+  }
+
 
   # Add dummy compartments to nodes dataframe
-  transparent <- rgb(1, 1, 1, 0, names = NULL, maxColorValue = 1)
-  exnodes <- data.frame(id = c(outdummies, indummies),
-                        type = "upper",
-                        label = "",
-                        style = "open",
-                        color = transparent,
-                        shape = "circle")
-
-  ndf <- rbind(ndf, exnodes)
+  if(is.numeric(exdummies) | is.numeric(indummies)) {
+    transparent <- rgb(1, 1, 1, 0, names = NULL, maxColorValue = 1)
+    exnodes <- data.frame(id = c(outdummies, indummies),
+                          type = "upper",
+                          label = "",
+                          style = "open",
+                          color = transparent,
+                          shape = "circle")
+    ndf <- rbind(ndf, exnodes)
+  }
 
   # Keep only distinct rows
   edf <- unique(edf)
 
-  # Create the DiagrammeR graph object based on the node
-  # and edge data frames. We default to graphs being built
-  # left-to-right (attr_theme = "lr)
-  graph <- create_graph(
-    attr_theme = "lr",
-    nodes_df = ndf,
-    edges_df = edf,
-    directed = TRUE
-  )
+  # Add x and y locations for the nodes
+  ndf <- ndf[order(ndf$id), ]
+  ndf$x <- 1:nrow(ndf)*3
+  ndf$y <- 1
 
-  # Update font for nodes
-  graph <- set_node_attrs(
-    graph = graph,
-    node_attr = "fontname",
-    values = "Arial"  #chose Arial b/c it works across operating systems
-  )
+  # Create segment coordinates
+  edf <- merge(edf, ndf[ , c("x", "y", "id")], by.x = "from", by.y = "id")
+  edf <- merge(edf, ndf[ , c("x", "y", "id")], by.x = "to", by.y = "id",
+               suffixes = c("start", "end"))
+  edf$xmid <- with(edf, (xend + xstart) / 2)
+  edf$ymid <- with(edf, (yend + ystart) / 2) + 0.25
+  edf$diff <- with(edf, abs(to-from))
 
-  # Update edge attributes for color and size of arrows
-  graph <- set_edge_attrs(
-    graph = graph,
-    edge_attr = "color",
-    values = "grey35"
-  )
+  cdf <- subset(edf, diff > 1 & diff < 9000)
+  sdf <- subset(edf, diff <= 1 | diff >= 9000)
+  nrow(sdf) + nrow(cdf) == nrow(edf)
 
-  graph <- set_edge_attrs(
-    graph = graph,
-    edge_attr = "arrowsize",
-    values = 0.5
-  )
 
-  return(graph)
+  outplot <- ggplot() +
+    geom_tile(data = ndf,
+              aes(x = x, y = y),
+              color = "black",
+              fill = "white",
+              width = 1) +
+    geom_text(data = ndf,
+              aes(x = x, y = y, label = label),
+              size = 8) +
+    geom_segment(data = sdf,
+                 aes(x = xstart+0.5, y = ystart, xend = xend-0.5, yend = yend),
+                 arrow = arrow(length = unit(0.25,"cm"), type = "closed"),
+                 arrow.fill = "black",
+                 lineend = "round",
+                 linejoin = "mitre") +
+    geom_text(data = sdf,
+              aes(x = xmid, y = ymid, label = label),
+              size = 5) +
+    geom_curve(data = cdf,
+               aes(x = xstart, y = ystart+0.5, xend = xend, yend = yend+0.5),
+               arrow = arrow(length = unit(0.25,"cm"), type = "closed"),
+               arrow.fill = "black",
+               lineend = "round") +
+    geom_text(data = cdf,
+              aes(x = xmid, y = ymid + 2, label = label)) +
+    coord_equal(expand = TRUE, ylim = c(-5, 5)) +
+    theme_void()
+
+  # ggcode <- 'ggplot() +
+  #   geom_tile(data = ndf,
+  #             aes(x = x, y = y),
+  #             color = "black",
+  #             fill = "white",
+  #             width = 1) +
+  #   geom_text(data = ndf,
+  #             aes(x = x, y = y, label = label),
+  #             size = 8) +
+  #   geom_segment(data = edf,
+  #                aes(x = xstart+0.5, y = ystart, xend = xend-0.5, yend = yend),
+  #                arrow = arrow(length = unit(0.25,"cm"), type = "closed"),
+  #                arrow.fill = "black",
+  #                lineend = "round",
+  #                linejoin = "mitre") +
+  #   geom_text(data = edf,
+  #             aes(x = xmid, y = ymid, label = label),
+  #             size = 5) +
+  #   coord_equal() +
+  #   theme_void()'
+
+  # sink("./test.txt")
+  # cat(ggcode)
+  # sink()
+
 }
 
 # library(DiagrammeRsvg)
@@ -211,3 +260,41 @@ generate_flowchart <- function(mbmodel) {
 # })
 # export_graph(graph = graph, file_type = "png",
 #                        file_name = "../../Desktop/my_crazy_graph.png")
+
+
+
+
+
+
+
+# # Create the DiagrammeR graph object based on the node
+# # and edge data frames. We default to graphs being built
+# # left-to-right (attr_theme = "lr)
+# graph <- create_graph(
+#   attr_theme = "lr",
+#   nodes_df = ndf,
+#   edges_df = edf,
+#   directed = TRUE
+# )
+#
+# # Update font for nodes
+# graph <- set_node_attrs(
+#   graph = graph,
+#   node_attr = "fontname",
+#   values = "Arial"  #chose Arial b/c it works across operating systems
+# )
+#
+# # Update edge attributes for color and size of arrows
+# graph <- set_edge_attrs(
+#   graph = graph,
+#   edge_attr = "color",
+#   values = "grey35"
+# )
+#
+# graph <- set_edge_attrs(
+#   graph = graph,
+#   edge_attr = "arrowsize",
+#   values = 0.5
+# )
+#
+# return(graph)
