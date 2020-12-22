@@ -5,10 +5,12 @@
 \title{This function takes as input a modelbuilder model
     and creates a diagram using DiagrammeR.}
 \usage{
-generate_flowchart(mbmodel)
+generate_flowchart(mbmodel, code_path = NULL)
 }
 \arguments{
 \item{mbmodel}{model structure, either as list object or Rds file name}
+
+\item{code_path}{path where ggplot2 code will be written}
 }
 \value{
 The function returns the diagram stored in a variable

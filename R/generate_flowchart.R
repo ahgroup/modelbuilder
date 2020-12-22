@@ -7,13 +7,25 @@
 #' if the user provides an Rds file name, this file needs to contain an object called 'mbmodel'
 #' and contain a valid modelbuilder model structure
 #' @param mbmodel model structure, either as list object or Rds file name
+#' @param code_path path where ggplot2 code will be written
 #' @return The function returns the diagram stored in a variable
 #' @author Andreas Handel and Andrew Tredennick
 #' @import ggplot2
 #' @importFrom grDevices rgb
 #' @export
 
-generate_flowchart <- function(mbmodel) {
+generate_flowchart <- function(mbmodel, code_path = NULL) {
+
+  # define path for ggplot2 code if not provided and warn the
+  # user of path this function sees
+  if(is.null(code_path)) {
+    code_path <- getwd()
+    warning(paste("ggplot2 code being written to current working directory,\n",
+                  getwd()))
+  } else {
+    warning(paste("ggplot2 code being written to", code_path))
+  }
+
   # Extract relevant details from the mbmodel and make a matrix
   # of variables X flows for iterating and indexing the nodes and
   # connections.
@@ -185,6 +197,24 @@ generate_flowchart <- function(mbmodel) {
   ndf$x <- 1:nrow(ndf)*3
   ndf$y <- 1
 
+  # update inflow node positions from nowhere
+  inflownodes <- subset(ndf, id < -9990)$id
+  for(id in inflownodes) {
+    newxyid <- edf[which(edf$from == id), "to"]
+    newxy <- ndf[which(ndf$id == newxyid), c("x", "y")]
+    newxy$y <- newxy$y + 2
+    ndf[which(ndf$id == id), c("x", "y")] <- newxy
+  }
+
+  # update outflow node positions to nowhere
+  outflownodes <- subset(ndf, id > 9990)$id
+  for(id in outflownodes) {
+    newxyid <- edf[which(edf$to == id), "from"]
+    newxy <- ndf[which(ndf$id == newxyid), c("x", "y")]
+    newxy$y <- newxy$y - 2
+    ndf[which(ndf$id == id), c("x", "y")] <- newxy
+  }
+
   # Create segment coordinates
   edf <- merge(edf, ndf[ , c("x", "y", "id")], by.x = "from", by.y = "id")
   edf <- merge(edf, ndf[ , c("x", "y", "id")], by.x = "to", by.y = "id",
@@ -195,7 +225,12 @@ generate_flowchart <- function(mbmodel) {
 
   cdf <- subset(edf, diff > 1 & diff < 9000)
   sdf <- subset(edf, diff <= 1 | diff >= 9000)
-  nrow(sdf) + nrow(cdf) == nrow(edf)
+  vdf <- subset(sdf, abs(diff) >= 9990)
+  sdf <- subset(sdf, abs(diff) < 9990)
+  nrow(vdf) + nrow(sdf) + nrow(cdf) == nrow(edf)
+
+  # now drop "hidden" nodes without labels
+  ndf <- subset(ndf, label != "")
 
 
   outplot <- ggplot() +
@@ -203,7 +238,8 @@ generate_flowchart <- function(mbmodel) {
               aes(x = x, y = y),
               color = "black",
               fill = "white",
-              width = 1) +
+              width = 1,
+              height = 1) +
     geom_text(data = ndf,
               aes(x = x, y = y, label = label),
               size = 8) +
@@ -214,8 +250,15 @@ generate_flowchart <- function(mbmodel) {
                  lineend = "round",
                  linejoin = "mitre") +
     geom_text(data = sdf,
-              aes(x = xmid, y = ymid, label = label),
-              size = 5) +
+              aes(x = xmid, y = ymid, label = label)) +
+    geom_segment(data = vdf,
+                 aes(x = xstart, y = ystart-0.5, xend = xend, yend = yend+0.5),
+                 arrow = arrow(length = unit(0.25,"cm"), type = "closed"),
+                 arrow.fill = "black",
+                 lineend = "round",
+                 linejoin = "mitre") +
+    geom_text(data = vdf,
+              aes(x = xmid+0.25, y = ymid, label = label)) +
     geom_curve(data = cdf,
                aes(x = xstart, y = ystart+0.5, xend = xend, yend = yend+0.5),
                arrow = arrow(length = unit(0.25,"cm"), type = "closed"),
@@ -223,34 +266,56 @@ generate_flowchart <- function(mbmodel) {
                lineend = "round") +
     geom_text(data = cdf,
               aes(x = xmid, y = ymid + 2, label = label)) +
-    coord_equal(expand = TRUE, ylim = c(-5, 5)) +
+    coord_equal() +
     theme_void()
 
-  # ggcode <- 'ggplot() +
-  #   geom_tile(data = ndf,
-  #             aes(x = x, y = y),
-  #             color = "black",
-  #             fill = "white",
-  #             width = 1) +
-  #   geom_text(data = ndf,
-  #             aes(x = x, y = y, label = label),
-  #             size = 8) +
-  #   geom_segment(data = edf,
-  #                aes(x = xstart+0.5, y = ystart, xend = xend-0.5, yend = yend),
-  #                arrow = arrow(length = unit(0.25,"cm"), type = "closed"),
-  #                arrow.fill = "black",
-  #                lineend = "round",
-  #                linejoin = "mitre") +
-  #   geom_text(data = edf,
-  #             aes(x = xmid, y = ymid, label = label),
-  #             size = 5) +
-  #   coord_equal() +
-  #   theme_void()'
+  ggcode <- 'ggplot() +
+    geom_tile(data = ndf,
+              aes(x = x, y = y),
+              color = "black",
+              fill = "white",
+              width = 1,
+              height = 1) +
+    geom_text(data = ndf,
+              aes(x = x, y = y, label = label),
+              size = 8) +
+    geom_segment(data = sdf,
+                 aes(x = xstart+0.5, y = ystart, xend = xend-0.5, yend = yend),
+                 arrow = arrow(length = unit(0.25,"cm"), type = "closed"),
+                 arrow.fill = "black",
+                 lineend = "round",
+                 linejoin = "mitre") +
+    geom_text(data = sdf,
+              aes(x = xmid, y = ymid, label = label)) +
+    geom_segment(data = vdf,
+                 aes(x = xstart, y = ystart-0.5, xend = xend, yend = yend+0.5),
+                 arrow = arrow(length = unit(0.25,"cm"), type = "closed"),
+                 arrow.fill = "black",
+                 lineend = "round",
+                 linejoin = "mitre") +
+    geom_text(data = vdf,
+              aes(x = xmid+0.25, y = ymid, label = label)) +
+    geom_curve(data = cdf,
+               aes(x = xstart, y = ystart+0.5, xend = xend, yend = yend+0.5),
+               arrow = arrow(length = unit(0.25,"cm"), type = "closed"),
+               arrow.fill = "black",
+               lineend = "round") +
+    geom_text(data = cdf,
+              aes(x = xmid, y = ymid + 2, label = label)) +
+    coord_equal() +
+    theme_void()'
 
-  # sink("./test.txt")
-  # cat(ggcode)
-  # sink()
+  sink(paste0(code_path, "ggplot2_code.txt"))
+  cat(ggcode)
+  sink()
 
+  outlist <- list(flowchart = outplot,
+                  dataframes = list(nodes = ndf,
+                                    horizontal_edges = sdf,
+                                    vertical_edge = vdf,
+                                    curved_edges = cdf))
+
+  return(outlist)
 }
 
 # library(DiagrammeRsvg)
