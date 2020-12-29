@@ -1,9 +1,10 @@
 # Script to test development generate_flowchart function
 
 library(modelbuilder)
+library(tidyverse)
 
-mbmodel <- readRDS("./inst/modelexamples/SIRSd_model.rds")
-flowchart <- generate_flowchart(mbmodel, code_path = "./auxiliary/development/")
+mbmodel <- readRDS("./inst/modelexamples/Basic_Bacteria_model.Rds")
+flowchart <- generate_flowchart(mbmodel)
 
 # print the flowchart
 flowchart$flowchart
@@ -12,5 +13,8 @@ flowchart$flowchart
 flowchart$dataframes
 
 # look at ggplot2 code
-ggcode <- readLines("./auxiliary/development/ggplot2_code.txt")
-ggcode  # best option is to copy the code from the text file into an R script
+cat(flowchart$ggplot_code)
+
+# add to the ggplot
+flowchart$flowchart +
+  ggtitle("My Awesome Diagram", subtitle = "")
