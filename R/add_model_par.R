@@ -13,23 +13,40 @@ add_model_par <- function(values, output)
 {
 
     insertUI(
-        selector = paste0("#par", values$npar - 1, 'slot'), #current variable
+        #*** Alter selection to be based on the paramater indicator
+        selector = paste0("#par", values$parInd, 'slot'), #current variable
+
         where = "afterEnd",
         ## wrap element in a div with id for ease of removal
-        ui = tags$div(
+        ui = tags$div(style = "padding: 1em 0em 0em 2em;",
 
-            fluidRow( class = 'myrow',
-                      column(2,
-                             textInput(paste0("par", values$npar, 'name'), "Parameter Name")
-                      ),
-                      column(3,
-                             textInput(paste0("par", values$npar,'text'), "Parameter description")
-                      ),
-                      column(2,
-                             numericInput(paste0("par", values$npar,'val'), "Default value", value = 0)
-                      )
-            ),
-            id = paste0("par", values$npar, 'slot')
+          #*** Alter text input to use the paramater indicator instead of the next parameter incrementally
+          fluidRow( class = 'myrow',
+                    column(2,
+                           textInput(paste0("par", values$parInd + 1, 'name'), "Parameter Name")
+                    ),
+                    column(3,
+                           textInput(paste0("par", values$parInd + 1, 'text'), "Parameter description")
+                    ),
+                    column(2,
+                           numericInput(paste0("par", values$parInd + 1, 'val'), "Default value", value = 0)
+                    ),
+
+                    #*** Include add/remove paramater buttons
+                    column(1, actionButton(paste0("addpar_", values$parInd + 1), "", class="submitbutton", icon = icon("plus-square"),
+                                           style="margin-left: 0px; margin-top: 25px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
+
+                    column(1, actionButton(paste0("rmpar_", values$parInd + 1), "", class="submitbutton", icon = icon("trash-alt"),
+                                           style="margin-left: -10px; margin-top: 25px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"))
+
+
+
+          ), # End fluidRow
+
+
+
+            #*** Alter the slot value to use the paramater indicator instead of the next parameter incrementally
+            id = paste0("par", values$parInd + 1, 'slot')
         ) #close tags$div
     ) #close insertUI
 } #ends function

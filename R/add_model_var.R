@@ -13,34 +13,63 @@ add_model_var <- function(values, output)
 {
 
     insertUI(
-        selector = paste0("#var", values$nvar - 1, 'slot'), #current variable
+        # selector = paste0("#var", values$nvar - 1, 'slot'), #current variable
+
+      selector = paste0("#var", values$varInd, 'slot'), #current variable
+
         where = "afterEnd",
         ## wrap element in a div with id for ease of removal
-        ui = tags$div(
-            h3(paste("Variable", values$nvar)),
+        ui = tags$div(style = "padding: 0em 0em 0em 2em;",
+
+          # style = "border-bottom: 2px solid #2b48c9;padding: 0em 0em 0em 2em;",
+
+            fluidRow(
+              # column(12,
+              column(3, h2(paste("Variable", values$varInd + 1)), align = "left"),
+              column(1, actionButton(paste0("addvar_", values$varInd + 1), "", class="submitbutton", icon = icon("plus-square"),
+                                     style="margin-left: -80px; margin-top: 20px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
+
+              column(1, actionButton(paste0("rmvar_", values$varInd + 1), "", class="submitbutton", icon = icon("trash-alt"),
+                                     style="margin-left: -95px; margin-top: 20px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"))
+            ),
+
+
             fluidRow( class = 'myrow',
-                      column(2,
-                             textInput(paste0("var", values$nvar,'name'), "Variable name")
+                      column(3,
+                             textInput(paste0("var", values$varInd + 1,'name'), "Variable name")
+                      ),
+                      column(4,
+                             textInput(paste0("var", values$varInd + 1,'text'), "Variable description")
                       ),
                       column(3,
-                             textInput(paste0("var", values$nvar,'text'), "Variable description")
-                      ),
-                      column(2,
-                             numericInput(paste0("var", values$nvar,'val'), "Starting value", value = 0)
-                      )
+                             numericInput(paste0("var", values$varInd + 1,'val'), "Start value", value = 0)
+                      )# ,
+
+                      # print(values$varInd + 1),
+
             ),
             tags$div(
                 fluidRow(
-                    column(6,
-                           textInput(paste0("var", values$nvar, 'f1name'), "Flow")
+                    column(3,
+                           textInput(paste0("var", values$varInd + 1, 'f1name'), "Flow")
                     ),
-                    column(6,
-                           textInput(paste0("var", values$nvar, 'f1text'), "Flow description")
-                    )
-                ),
-                id = paste0("var", values$nvar, "flow", values$nflow[values$nvar], 'slot')
+                    column(4,
+                           textInput(paste0("var", values$varInd + 1, 'f1text'), "Flow description")
+                    ),
+
+                    #*** Include add/remove flow buttons
+                    column(2, actionButton(paste0("addflow_", values$varInd + 1, "_", 1), "", class="submitbutton", icon = icon("plus-square"),
+                                           style="margin-left: 0px; margin-top: 25px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
+
+                    column(1, actionButton(paste0("rmflow_", values$varInd + 1, "_", 1), "", class="submitbutton", icon = icon("trash-alt"),
+                                           style="margin-left: -60px; margin-top: 25px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"))
+
+
+                ), # End fluidRow
+
+                id = paste0("var", values$varInd + 1, "flow", values$nflow[values$varInd], 'slot')
             ), #close flow tag
-            id = paste0("var", values$nvar, 'slot')
+            id = paste0("var", values$varInd + 1, 'slot')
         ) #close tags$div
     ) #close insertUI
 } #ends function

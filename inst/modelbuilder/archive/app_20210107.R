@@ -25,42 +25,6 @@ examplemodeldir = system.file("modelexamples", package = packagename) #find path
 allexamplemodels = c("none",list.files(examplemodeldir))
 
 
-#*** REMOVE AFTER DEV
-source("Y:/GitRepos/modelBuilder/R/generate_buildUI.R")
-source("Y:/GitRepos/modelBuilder/R/add_model_var.R")
-source("Y:/GitRepos/modelBuilder/R/remove_model_var.R")
-source("Y:/GitRepos/modelBuilder/R/add_model_par.R")
-source("Y:/GitRepos/modelBuilder/R/remove_model_par.R")
-source("Y:/GitRepos/modelBuilder/R/add_model_flow.R")
-source("Y:/GitRepos/modelBuilder/R/remove_model_flow.R")
-
-
-# On MON
-#*** Q for AH: Want numbered flows (label contain #)?
-#*** NEXT: Get rid of add/rem buttons on top (superfluous now)
-#*** NEXT: ATR's other requests (click button on top of model parms that will )
-#*** NEXT: Check why can't delete first parm
-#*** NEXT: Was able to get delete not to work when clicking around a lot - try to replicate and diagnose
-
-
-#*** NEXT: Test with loaded situation
-#*** NEXT: After next meeting, figure out how to get 0 as default parameter value (issue is also present for starting val)
-
-
-
-
-
-
-require(DiagrammeR)
-
-#*** Attach necessary packages (remove after dev)
-library(DiagrammeR)
-library(ggplot2)
-library(plotly)
-library(shiny)
-library(shinyjs)
-library(shinydashboard)
-
 #this function is the server part of the app
 server <- function(input, output, session) {
 
@@ -80,13 +44,6 @@ server <- function(input, output, session) {
   #generate the UI to either build a new model or
   #edit a loaded model
   observeEvent( input$alltabs == 'build', {
-
-    #*** Add element to store added/subtracted variable buttons
-    values$currentVarButtons <- list(1)
-    values$currentFlowButtons <- list(1)
-    names(values$currentFlowButtons) <- 1
-    values$currentParButtons <- list(1)
-
     #set number of variables/parameters/flows for loaded model (if one is loaded)
     if ( !is.null(mbmodel ) )
     {
@@ -114,171 +71,18 @@ server <- function(input, output, session) {
   }) #end observe for build UI setup
 
 
-  # #add a new variable
-  # observeEvent(input$addvar, {
-  #
-  #   print("trying to add var...")
-  #
-  #   values$nvar = values$nvar + 1 #increment counter to newly added variable
-  #
-  #   # Add indicator value to be using in the add_model_var fxn
-  #   values$varInd = input$targetvar
-  #   add_model_var(values, output)
-  #
-  #   # Update the selected variable incrementally
-  #   updateNumericInput(session, inputId = 'targetvar', label = NULL, value = input$targetvar + 1)
-  #
-  #   # values$nvar <- input$targetvar + 1
-  #
-  # }) #close observeevent
+  #add a new variable
+  observeEvent(input$addvar, {
+    values$nvar = values$nvar + 1 #increment counter to newly added variable
+    add_model_var(values, output)
+  }) #close observeevent
 
-
-  # #remove the last variable
-  # observeEvent(input$rmvar, {
-  #   if (values$nvar == 1) return() #don't remove the last variable
-  #
-  #   # Add indicator value to be using in the remove_model_var fxn
-  #   values$varInd = input$targetvar
-  #   remove_model_var(values, output)
-  #
-  #   # Update the selected variable incrementally
-  #   updateNumericInput(session, inputId = 'targetvar', label = NULL, value = input$targetvar - 1)
-  #
-  #   values$nvar = values$nvar - 1 #reduce counter for number of variables - needs to happen last
-  # })
-
-
-  observeEvent(input$last_btn, {
-
-    # ------------------------------ Variables ------------------------------- #
-
-    # Remove variable
-    if(grepl("rmvar_", input$last_btn) & length(values$currentVarButtons) > 1)
-    {
-
-      redVar <- gsub("rmvar_", "", input$last_btn)
-      values$varInd <- redVar
-      remove_model_var(values, output)
-
-      # Get rid of record of buttons that have been removed
-      values$currentVarButtons[values$currentVarButtons == redVar] <- NULL
-      values$currentFlowButtons[names(values$currentFlowButtons) == redVar] <- NULL
-
-      valuesHold[valuesHold == redVar]
-
-    } # End 'if'
-
-
-    # Add variable
-    if(grepl("addvar_", input$last_btn))
-    {
-
-      #*** Adjust flow indicator to be one
-      values$flowInd <- 1
-
-      redVar <- as.numeric(as.character(gsub("addvar_", "", input$last_btn)))
-      values$varInd <- redVar
-
-
-      # Add buttons that have been added
-      values$currentVarButtons[length(values$currentVarButtons) + 1] <- redVar + 1
-      values$currentFlowButtons[length(values$currentVarButtons)] <- 1
-      names(values$currentFlowButtons) <- values$currentVarButtons
-      valuesHold <<- values$currentVarButtons
-
-
-      add_model_var(values, output)
-
-    } # End 'if'
-
-    # ------------------------------ Parameters ------------------------------ #
-
-    # Remove parameters
-    if(grepl("rmpar_", input$last_btn) & length(values$currentParButtons) > 1)
-    {
-
-      redPar <- gsub("rmpar_", "", input$last_btn)
-      values$parInd <- redPar
-      remove_model_par(values, output)
-
-      # Get rid of record of buttons that have been removed
-      values$currentParButtons[values$currentParButtons == redPar] <- NULL
-
-    } # End 'if'
-
-
-    # Add parameters
-    if(grepl("addpar_", input$last_btn))
-    {
-
-      redPar <- as.numeric(as.character(gsub("addpar_", "", input$last_btn)))
-      values$parInd <- redPar
-
-
-      # Add buttons that have been added
-      values$currentParButtons[length(values$currentParButtons) + 1] <- redPar + 1
-      valuesHold <<- values$currentParButtons
-
-      add_model_par(values, output)
-
-    } # End 'if'
-
-    # -------------------------------- Flows --------------------------------- #
-    # Remove flows
-    if(grepl("rmflow_", input$last_btn))
-      {
-        # Grab variable and flow indicators (first numeric element is always variable, second is flow)
-        redVar <- as.numeric(as.character(strsplit(input$last_btn, "_")[[1]][2]))
-
-        if(length(values$currentFlowButtons[names(values$currentFlowButtons) == redVar][[1]]) > 1)
-          {
-          values$varInd <- redVar
-
-          redFlow <- as.numeric(as.character(strsplit(input$last_btn, "_")[[1]][3]))
-          values$flowInd <- redFlow
-
-          remove_model_flow(values, output)
-
-          # Get rid of record of buttons that have been removed
-          #*** Note, the below line is so complicated to deal with getting rid of a single sub-list element within a greater list
-          values$currentFlowButtons[names(values$currentFlowButtons) == redVar][[1]] <- values$currentFlowButtons[names(values$currentFlowButtons) == redVar][[1]][-which(values$currentFlowButtons[names(values$currentFlowButtons) == redVar][[1]] == redFlow)]
-
-        } # End 'if'
-      } # End 'if'
-
-    # Add flows
-    if(grepl("addflow_", input$last_btn))
-    {
-      # Grab variable and flow indicators (first numeric element is always variable, second is flow)
-      redVar <- as.numeric(as.character(strsplit(input$last_btn, "_")[[1]][2]))
-      values$varInd <- redVar
-
-      redFlow <- as.numeric(as.character(strsplit(input$last_btn, "_")[[1]][3]))
-      values$flowInd <- redFlow
-
-      # Add buttons that have been added
-      # if(length(values$currentFlowButtons))
-
-        #*** ISSUE HERE IS THAT NEED (I THINK) TO HAVE A LIST OF LISTS TO ACCOUNT FOR FLOW VAR AND FLOW # WITHIN A VAR
-        #*** I THEN NEED TO HAVE A MULTI LENGTH LIST FROM THE BEGINNING AND TO INDEX IT APPROPRIATELY SO I DON'T GET HOSED
-        #*** MAYBE A LIST IS NOT THE ANSWER BUT IT IS THE BEST OPTION NOW
-
-      # values$currentFlowButtons[values$currentFlowButtons == redFlow] <- redFlow + 1
-      values$currentFlowButtons[[redVar]][length(values$currentFlowButtons[[redVar]]) + 1] <- redFlow + 1
-      valuesHold <<- values$currentFlowButtons
-
-      # print("currentVarButtons")
-      # print(values$currentVarButtons)
-      #
-      # print("currentFlowButtons")
-      # print(values$currentFlowButtons)
-
-      add_model_flow(values, output)
-
-    } # End 'if'
-
-  }) # End last_btn observeEvent
-
+  #remove the last variable
+  observeEvent(input$rmvar, {
+    if (values$nvar == 1) return() #don't remove the last variable
+    remove_model_var(values, output)
+    values$nvar = values$nvar - 1 #reduce counter for number of variables - needs to happen last
+  })
 
   #add a new flow
   #the change to the values variable can't be moved into the function, otherwise it doesn't get assigned properly
@@ -664,12 +468,6 @@ ui <- fluidPage(
     shinyjs::useShinyjs(),  # Set up shinyjs
     tags$head(includeHTML(("google-analytics.html"))), #this is only needed for Google analytics when deployed as app to the UGA server. Should not affect R package use.
     includeCSS("packagestyle.css"),
-
-    #***
-    tags$head(tags$script(HTML("$(document).on('click', '.submitbutton', function () {
-                               Shiny.onInputChange('last_btn', this.id);
-                               });"))),
-
     tags$div(id = "shinyheadertitle", "modelbuilder - Graphical building and analysis of simulation models"),
     tags$div(id = "infotext", paste0('This is ', packagename,  'version ',utils::packageVersion(packagename),' last updated ', utils::packageDescription(packagename)$Date,'.')),
     tags$div(id = "infotext", "Written and maintained by", a("Andreas Handel", href="http://handelgroup.uga.edu", target="_blank"), "with many contributions from", a("others.",  href="https://github.com/ahgroup/modelbuilder#contributors", target="_blank")),

@@ -50,59 +50,129 @@ generate_buildUI <- function(mbmodel, output)
             tags$p("All variables need to start with an uppercase letter, all parameters need to start with a lowercase letter. Only letters and numbers are allowed. Flows can include variables, parameters and the following mathematical symbols: +-*/^()"),
            #downloadButton("savediagram", "Save Diagram", class="savebutton")
             tags$br(),
-            fluidRow(
-                column(4,
-                       actionButton("addvar", "Add variable", class="submitbutton")
-                ),
-                column(4,
-                       actionButton("addpar", "Add parameter", class="submitbutton")
-                ),
-                column(4,
-                       actionButton("addflow", "Add flow to variable", class="submitbutton")
-                ),
-                align = "center"
-            ),
-            fluidRow(
-                column(4,
-                       actionButton("rmvar", "Remove last Variable", class="submitbutton")
-                ),
-                column(4,
-                       actionButton("rmpar", "Remove last Parameter", class="submitbutton")
-                ),
-                column(4,
-                       actionButton("rmflow", "Remove flow of variable", class="submitbutton"),
-                       numericInput("targetvar", "Selected variable", value = 1)
-                ),
-                align = "center"
-            ),
+            # fluidRow(
+            #     column(4,
+            #            actionButton("addvar", "Add variable", class="submitbutton")
+            #     ),
+            #     column(4,
+            #            actionButton("addpar", "Add parameter", class="submitbutton")
+            #     ),
+            #     column(4,
+            #            actionButton("addflow", "Add flow to variable", class="submitbutton")
+            #     ),
+            #     align = "center"
+            # ),
+            # fluidRow(
+            #     column(4,
+            #            actionButton("rmvar", "Remove last Variable", class="submitbutton")
+            #     ),
+            #     column(4,
+            #            actionButton("rmpar", "Remove last Parameter", class="submitbutton")
+            #     ),
+            #     column(4,
+            #            actionButton("rmflow", "Remove flow of variable", class="submitbutton"),
+            #            numericInput("targetvar", "Selected variable", value = 1)
+            #     ),
+            #     align = "center"
+            # ),
+
+
+           fluidRow(
+
+             column(3,
+
+                # actionButton("addvar", "Add variable", class="submitbutton"),
+                # actionButton("rmvar", "Remove Variable", class="submitbutton")
+
+                actionButton("addvar_1", "Add variable", class="submitbutton"),
+                actionButton("rmvar_1", "Remove Variable", class="submitbutton")
+
+
+              ),
+
+             column(1),
+
+             column(3,
+
+               # actionButton("addpar", "Add parameter", class="submitbutton"),
+               # actionButton("rmpar", "Remove parameter", class="submitbutton")
+
+               actionButton("addpar_1", "Add parameter", class="submitbutton"),
+               actionButton("rmpar_1", "Remove parameter", class="submitbutton")
+
+             ),
+
+            align = "left"),
+
+
+           fluidRow(
+
+             column(3,
+
+                div(style = "display: inline-block;vertical-align:-12px; margin-left:5px", h5("Selected variable:", style = "font-weight: bold;"), selected = 'mean'),
+                div(style = "display: inline-block;vertical-align:-12px; width: 120px;", numericInput("targetvar", label = NULL, value = 1))
+
+             ),
+
+             column(1),
+
+             column(3,
+
+                div(style = "display: inline-block;vertical-align:-12px; margin-left:5px", h5("Selected parameter:", style = "font-weight: bold;"), selected = 'mean'),
+                div(style = "display: inline-block;vertical-align:-12px; width: 135px;", numericInput("targetpar", label = NULL, value = 1))
+
+             ),
+
+             align = "left"
+
+             ),
+
+
             fluidRow(class = 'myrow', #splits screen into 2 for variables and parameters
                       column(6,
                              p('Model variable information', class='mainsectionheader'),
                              ## wrap element in a div with id
                              lapply(1:max(1,length(mbmodel$var)), function(n) {
-                             tags$div(
-                                 h3(paste("Variable",n)),
+                             tags$div(style = "border-top: 2px solid #2b48c9; padding: 0em 0em 0em 2em;",
+                                 #*** Adjusted column width to be wider to accomodate variable add/remove buttons)
+                                fluidRow(
+                               # column(12,
+                                        column(3, h2(paste("Variable", n)), align = "left"),
+                                        column(1, actionButton(paste0("addvar_", n), "", class="submitbutton", icon = icon("plus-square"),
+                                                               style="margin-left: -80px; margin-top: 20px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
+
+                                        column(1, actionButton(paste0("rmvar_", n), "", class="submitbutton", icon = icon("trash-alt"),
+                                                               style="margin-left: -95px; margin-top: 20px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"))
+                                 ),
                                  fluidRow( class = 'myrow',
-                                           column(2,
+                                           column(3,
                                                   textInput(paste0("var",n,"name"), "Variable name", value = mbmodel$var[[n]]$varname)
                                            ),
-                                           column(3,
+                                           column(4,
                                                   textInput(paste0("var",n,"text"), "Variable description", value = mbmodel$var[[n]]$vartext)
                                            ),
-                                           column(2,
+                                           column(3,
                                                   numericInput(paste0("var",n,"val"), "Starting value", value = mbmodel$var[[n]]$varval)
                                            )
                                  ),
+
                                  #loop over flows for each variable
                                  lapply(1:max(1, length(mbmodel$var[[n]]$flows)), function(nn) {
                                      tags$div(
                                      fluidRow(
-                                         column(6,
+                                         column(3,
                                                 textInput(paste0("var",n,"f",nn,"name"), "Flow", value = mbmodel$var[[n]]$flows[nn])
                                          ),
-                                         column(6,
+                                         column(4,
                                                 textInput(paste0("var",n,"f",nn,"text"), "Flow description", value = mbmodel$var[[n]]$flownames[nn])
-                                         )
+                                         ),
+
+                                         column(2, actionButton(paste0("addflow_", n, "_", nn), "", class="submitbutton", icon = icon("plus-square"),
+                                                                style="margin-left: 0px; margin-top: 25px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
+
+                                         column(1, actionButton(paste0("rmflow_", n, "_", nn), "", class="submitbutton", icon = icon("trash-alt"),
+                                                                style="margin-left: -60px; margin-top: 25px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"))
+
                                      ),
                                      id = paste0('var',n,'flow',nn,'slot')  ) #close flow div
                                  }), #end apply loop over flows for each  variable
@@ -113,7 +183,7 @@ generate_buildUI <- function(mbmodel, output)
                       column(6,
                              p('Model parameter information', class='mainsectionheader'),
                              lapply(1:max(1,length(mbmodel$par)), function(n) {
-                             tags$div(
+                             tags$div(style = "border-top: 2px solid #2b48c9;padding: 1em 0em 0em 2em;",
                                  fluidRow( class = 'myrow',
                                            column(2,
                                                   textInput(paste0("par",n,"name"), "Parameter name", value = mbmodel$par[[n]]$parname)
@@ -123,8 +193,16 @@ generate_buildUI <- function(mbmodel, output)
                                            ),
                                            column(2,
                                                   numericInput(paste0("par",n,"val"), "Default value", value = mbmodel$par[[n]]$parval)
-                                           )
-                                 ),
+                                           ),
+
+                                           column(1, actionButton(paste0("addpar_", n), "", class="submitbutton", icon = icon("plus-square"),
+                                                                  style="margin-left: -0px; margin-top: 25px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
+
+                                           column(1, actionButton(paste0("rmpar_1", n), "", class="submitbutton", icon = icon("trash-alt"),
+                                                                  style="margin-left: -10px; margin-top: 25px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"))
+
+
+                                 ), # End fluidRow
                                  id = paste0("par",n,"slot"))
                              })
                       ) #end parameter column
@@ -133,14 +211,14 @@ generate_buildUI <- function(mbmodel, output)
                      #all the outcomes here
                      fluidRow(
                       column(6,
-                          h2('Model Diagram'),
+                          h2('Model Diagram', style = "border-top: 2px solid #2b48c9;"),
                           # h3('Not yet working rightTTT'),
                           # plotOutput(outputId = "flowdiagram", height = "500px")
                           grVizOutput(outputId = "flowdiagram")
                         ),
                       column(6,
                           # Placeholder for results of type text
-                          h2('Model Equations'),
+                          h2('Model Equations', style = "border-top: 2px solid #2b48c9;"),
                           uiOutput(outputId = "equations")
                         )
                       ) #end fluidrow for outcomes
