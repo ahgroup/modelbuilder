@@ -7,7 +7,6 @@
 #' @return No direct return. output structure is modified to contain text for display in a Shiny UI
 #' @details This function is called by the Shiny server to produce the Shiny input UI elements for the build tab.
 #' @author Andreas Handel
-#' @import DiagrammeR
 #' @export
 
 generate_buildUI <- function(mbmodel, output)
@@ -136,7 +135,7 @@ generate_buildUI <- function(mbmodel, output)
                           h2('Model Diagram'),
                           # h3('Not yet working rightTTT'),
                           # plotOutput(outputId = "flowdiagram", height = "500px")
-                          grVizOutput(outputId = "flowdiagram")
+                          #grVizOutput(outputId = "flowdiagram")
                         ),
                       column(6,
                           # Placeholder for results of type text

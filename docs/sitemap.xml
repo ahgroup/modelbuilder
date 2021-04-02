@@ -28,9 +28,6 @@
     <loc>https://ahgroup.github.io/modelbuilder/index.html/reference/generate_equations.html</loc>
   </url>
   <url>
-    <loc>https://ahgroup.github.io/modelbuilder/index.html/reference/generate_flowchart_ggplot.html</loc>
-  </url>
-  <url>
     <loc>https://ahgroup.github.io/modelbuilder/index.html/reference/generate_function_documentation.html</loc>
   </url>
   <url>
@@ -58,7 +55,22 @@
     <loc>https://ahgroup.github.io/modelbuilder/index.html/reference/generate_stochastic.html</loc>
   </url>
   <url>
+    <loc>https://ahgroup.github.io/modelbuilder/index.html/reference/generate_stratified_model.html</loc>
+  </url>
+  <url>
+    <loc>https://ahgroup.github.io/modelbuilder/index.html/reference/generate_stratifier_list.html</loc>
+  </url>
+  <url>
+    <loc>https://ahgroup.github.io/modelbuilder/index.html/reference/generate_tables.html</loc>
+  </url>
+  <url>
     <loc>https://ahgroup.github.io/modelbuilder/index.html/reference/generate_text.html</loc>
+  </url>
+  <url>
+    <loc>https://ahgroup.github.io/modelbuilder/index.html/reference/get_math.html</loc>
+  </url>
+  <url>
+    <loc>https://ahgroup.github.io/modelbuilder/index.html/reference/get_vars_pars.html</loc>
   </url>
   <url>
     <loc>https://ahgroup.github.io/modelbuilder/index.html/reference/load_model.html</loc>

@@ -8,6 +8,13 @@
 
 <title>A helper function that takes a model and generates shiny UI elements — generate_shinyinput • modelbuilder</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -44,6 +51,7 @@
 <meta property="og:title" content="A helper function that takes a model and generates shiny UI elements — generate_shinyinput" />
 <meta property="og:description" content="This function generates shiny UI inputs for a supplied model.
 This is a helper function called by the shiny app." />
+<meta property="og:image" content="https://ahgroup.github.io/modelbuilder/index.html/logo.png" />
 
 
 
@@ -75,7 +83,7 @@ This is a helper function called by the shiny app." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">modelbuilder</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.8</span>
       </span>
     </div>
 
@@ -83,7 +91,7 @@ This is a helper function called by the shiny app." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -117,7 +125,7 @@ This is a helper function called by the shiny app." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/ahgroup/modelbuilder">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fas fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -144,15 +152,15 @@ This is a helper function called by the shiny app." />
 This is a helper function called by the shiny app.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>generate_shinyinput</span>(
-  <span class='kw'>use_mbmodel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>mbmodel</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>use_doc</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>model_file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>model_function</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>otherinputs</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>packagename</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>generate_shinyinput</span><span class='op'>(</span>
+  use_mbmodel <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  mbmodel <span class='op'>=</span> <span class='cn'>NULL</span>,
+  use_doc <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  model_file <span class='op'>=</span> <span class='cn'>NULL</span>,
+  model_function <span class='op'>=</span> <span class='cn'>NULL</span>,
+  otherinputs <span class='op'>=</span> <span class='cn'>NULL</span>,
+  packagename <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -219,7 +227,7 @@ Non-numeric arguments of functions are removed and need to be included in the ot
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
