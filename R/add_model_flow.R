@@ -14,7 +14,7 @@ add_model_flow <- function(values, input, output)
 {
     insertUI(
         # selector = paste0("#var", input$targetvar, "flow", values$nflow[input$targetvar]-1, 'slot'), #current variable
-      selector = paste0("#var", values$varInd, "flow", values$flowInd, 'slot'), #current variable
+      selector = paste0("#var", values$varInd, "flow", values$flowButtonClicked, 'slot'), #current variable
       where = "afterEnd",
         ## wrap element in a div with id for ease of removal
         ui =
@@ -22,23 +22,23 @@ add_model_flow <- function(values, input, output)
                 fluidRow(
                     column(3,
                            # textInput(paste0("var", input$targetvar, 'f' , values$nflow[input$targetvar],'name'), "Flow")
-                           textInput(paste0("var", values$varInd, 'f' , values$flowInd + 1, 'name'), "Flow")
+                           textInput(paste0("var", values$varInd, 'f' , values$flowInd, 'name'), "Flow")
                     ),
                     column(4,
                            # textInput(paste0("var", input$targetvar, 'f' , values$nflow[input$targetvar],'text'), "Flow description")
-                           textInput(paste0("var", values$varInd, 'f' , values$flowInd + 1, 'text'), "Flow description")
+                           textInput(paste0("var", values$varInd, 'f' , values$flowInd, 'text'), "Flow description")
                     ),
 
                     #*** Include add/remove flow buttons
-                    column(2, actionButton(paste0("addflow_", values$varInd, "_", values$flowInd + 1), "", class="submitbutton", icon = icon("plus-square"),
+                    column(2, actionButton(paste0("addflow_", values$varInd, "_", values$flowInd), "", class="submitbutton", icon = icon("plus-square"),
                                            style="margin-left: 0px; margin-top: 25px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
 
-                    column(1, actionButton(paste0("rmflow_", values$varInd, "_", values$flowInd + 1), "", class="submitbutton", icon = icon("trash-alt"),
+                    column(1, actionButton(paste0("rmflow_", values$varInd, "_", values$flowInd), "", class="submitbutton", icon = icon("trash-alt"),
                                            style="margin-left: -60px; margin-top: 25px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"))
 
                 ),
                 # id = paste0("var", input$targetvar, "flow", values$nflow[input$targetvar], 'slot')
-                id = paste0("var", values$varInd, "flow", values$flowInd + 1, 'slot')
+                id = paste0("var", values$varInd, "flow", values$flowInd, 'slot')
             ) #close flow tag
     ) #close insertUI
 
