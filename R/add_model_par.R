@@ -18,7 +18,7 @@ add_model_par <- function(values, output)
 
         where = "afterEnd",
         ## wrap element in a div with id for ease of removal
-        ui = tags$div(style = "padding: 1em 0em 0em 2em;",
+        ui = tags$div(style = "padding: 0em 0em 0em 0em;",
 
           #*** Alter text input to use the paramater indicator instead of the next parameter incrementally
           fluidRow( class = 'myrow',

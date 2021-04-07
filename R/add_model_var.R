@@ -20,25 +20,25 @@ add_model_var <- function(values, output, input, newVarNumber)
 
         where = "afterEnd",
         ## wrap element in a div with id for ease of removal
-        ui = tags$div(style = "padding: 0em 0em 0em 2em;",
+        ui = tags$div(style = "padding: 0em 0em 0em 0em;",
 
             fluidRow(
-              
+
               # This textOutput will be updated when a variable name is entered
               column(3, h2(textOutput(paste0("var", newVarNumber, "DisplayName"))), align = "left"),
-              
+
               column(1, actionButton(paste0("addvar_", newVarNumber), "", class="submitbutton", icon = icon("plus-square"),
-                                     style="margin-left: -80px; margin-top: 20px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4"), 
+                                     style="margin-left: -80px; margin-top: 20px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4"),
                      align = "right"),
 
               column(1, actionButton(paste0("rmvar_", newVarNumber), "", class="submitbutton", icon = icon("trash-alt"),
-                                     style="margin-left: -95px; margin-top: 20px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"), 
+                                     style="margin-left: -95px; margin-top: 20px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"),
                      align = "right")
             ),
 
 
             fluidRow( class = 'myrow',
-                      
+
                       # this textInput updates the displayed variable name
                       column(3,
                              textInput(paste0("var", newVarNumber, 'name'), "Variable name")
