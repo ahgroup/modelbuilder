@@ -26,9 +26,9 @@ allexamplemodels = c("none",list.files(examplemodeldir))
 
 
 #*** REMOVE AFTER DEV
-for(i in list.files("C:/Users/jzientek/Documents/Gitlab/covidtracker/R/")){
+for(i in list.files("C:/Users/jzientek/Documents/Gitlab/modelBuilder/R/")){
   if(grepl(".R", i)){
-    source(paste0("C:/Users/jzientek/Documents/Gitlab/covidtracker/R/", i))
+    source(paste0("C:/Users/jzientek/Documents/Gitlab/modelBuilder/R/", i))
   }
 }
 
@@ -149,7 +149,7 @@ server <- function(input, output, session) {
         
         
         ## Initialize values$currentFlowButtons for loaded model
-        values$currentFlowButtons < list()
+        values$currentFlowButtons <- list()
         
         for (i in 1:length(mbmodel$var))
         {
