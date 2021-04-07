@@ -50,84 +50,7 @@ generate_buildUI <- function(mbmodel, output)
             tags$p("All variables need to start with an uppercase letter, all parameters need to start with a lowercase letter. Only letters and numbers are allowed. Flows can include variables, parameters and the following mathematical symbols: +-*/^()"),
            #downloadButton("savediagram", "Save Diagram", class="savebutton")
             tags$br(),
-            # fluidRow(
-            #     column(4,
-            #            actionButton("addvar", "Add variable", class="submitbutton")
-            #     ),
-            #     column(4,
-            #            actionButton("addpar", "Add parameter", class="submitbutton")
-            #     ),
-            #     column(4,
-            #            actionButton("addflow", "Add flow to variable", class="submitbutton")
-            #     ),
-            #     align = "center"
-            # ),
-            # fluidRow(
-            #     column(4,
-            #            actionButton("rmvar", "Remove last Variable", class="submitbutton")
-            #     ),
-            #     column(4,
-            #            actionButton("rmpar", "Remove last Parameter", class="submitbutton")
-            #     ),
-            #     column(4,
-            #            actionButton("rmflow", "Remove flow of variable", class="submitbutton"),
-            #            numericInput("targetvar", "Selected variable", value = 1)
-            #     ),
-            #     align = "center"
-            # ),
-
-
-           fluidRow(
-
-             column(3,
-
-                # actionButton("addvar", "Add variable", class="submitbutton"),
-                # actionButton("rmvar", "Remove Variable", class="submitbutton")
-
-                actionButton("addvar_1", "Add variable", class="submitbutton"),
-                actionButton("rmvar_1", "Remove Variable", class="submitbutton")
-
-
-              ),
-
-             column(1),
-
-             column(3,
-
-               # actionButton("addpar", "Add parameter", class="submitbutton"),
-               # actionButton("rmpar", "Remove parameter", class="submitbutton")
-
-               actionButton("addpar_1", "Add parameter", class="submitbutton"),
-               actionButton("rmpar_1", "Remove parameter", class="submitbutton")
-
-             ),
-
-            align = "left"),
-
-
-           fluidRow(
-
-             column(3,
-
-                div(style = "display: inline-block;vertical-align:-12px; margin-left:5px", h5("Selected variable:", style = "font-weight: bold;"), selected = 'mean'),
-                div(style = "display: inline-block;vertical-align:-12px; width: 120px;", numericInput("targetvar", label = NULL, value = 1))
-
-             ),
-
-             column(1),
-
-             column(3,
-
-                div(style = "display: inline-block;vertical-align:-12px; margin-left:5px", h5("Selected parameter:", style = "font-weight: bold;"), selected = 'mean'),
-                div(style = "display: inline-block;vertical-align:-12px; width: 135px;", numericInput("targetpar", label = NULL, value = 1))
-
-             ),
-
-             align = "left"
-
-             ),
-
-
+           
             fluidRow(class = 'myrow', #splits screen into 2 for variables and parameters
                       column(6,
                              p('Model variable information', class='mainsectionheader'),
@@ -136,14 +59,18 @@ generate_buildUI <- function(mbmodel, output)
                              tags$div(style = "border-top: 2px solid #2b48c9; padding: 0em 0em 0em 2em;",
                                  #*** Adjusted column width to be wider to accomodate variable add/remove buttons)
                                 fluidRow(
-                               # column(12,
-                                        column(3, h2(paste("Variable", n)), align = "left"),
-                                        column(1, actionButton(paste0("addvar_", n), "", class="submitbutton", icon = icon("plus-square"),
-                                                               style="margin-left: -80px; margin-top: 20px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
-
-                                        column(1, actionButton(paste0("rmvar_", n), "", class="submitbutton", icon = icon("trash-alt"),
-                                                               style="margin-left: -95px; margin-top: 20px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"))
-                                 ),
+                                  
+                                  # This textOutput will be updated when a variable name is entered
+                                  column(3, h2(textOutput(paste0("var", n, "DisplayName"))), align = "left"), 
+                                  
+                                  column(1, actionButton(paste0("addvar_", n), "", class="submitbutton", icon = icon("plus-square"), 
+                                                         style="margin-left: -80px; margin-top: 20px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")), 
+                                  
+                                  column(1, actionButton(paste0("rmvar_", n), "", class="submitbutton", icon = icon("trash-alt"), 
+                                                         style="margin-left: -95px; margin-top: 20px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"))
+                                  
+                                ),
+                               
                                  fluidRow( class = 'myrow',
                                            column(3,
                                                   textInput(paste0("var",n,"name"), "Variable name", value = mbmodel$var[[n]]$varname)
@@ -198,7 +125,7 @@ generate_buildUI <- function(mbmodel, output)
                                            column(1, actionButton(paste0("addpar_", n), "", class="submitbutton", icon = icon("plus-square"),
                                                                   style="margin-left: -0px; margin-top: 25px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
 
-                                           column(1, actionButton(paste0("rmpar_1", n), "", class="submitbutton", icon = icon("trash-alt"),
+                                           column(1, actionButton(paste0("rmpar_", n), "", class="submitbutton", icon = icon("trash-alt"),
                                                                   style="margin-left: -10px; margin-top: 25px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"))
 
 
