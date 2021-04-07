@@ -294,7 +294,7 @@ server <- function(input, output, session) {
 
       #*** Adjust flow indicator to be one
       values$flowInd <- 1
-
+      
       redVar <- as.numeric(as.character(gsub("addvar_", "", input$last_btn)))
       values$varInd <- redVar
       
@@ -489,9 +489,9 @@ server <- function(input, output, session) {
         mbmodel <<- mbmodeltmp
         output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
         # output$flowdiagram  <- shiny::renderPlot({ generate_flowchart_ggplot(mbmodel) })
-        output$flowdiagram <- DiagrammeR::renderGrViz({
-          DiagrammeR::render_graph(generate_flowchart(mbmodel))
-        })
+        #output$flowdiagram <- DiagrammeR::renderGrViz({
+        #  DiagrammeR::render_graph(generate_flowchart(mbmodel))
+        #})
         shinyjs::enable(id = "exportode")
         shinyjs::enable("exportstochastic")
         shinyjs::enable("exportdiscrete")
