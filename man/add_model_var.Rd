@@ -4,7 +4,7 @@
 \alias{add_model_var}
 \title{A helper function that adds a variable to the shiny UI elements of the build tab}
 \usage{
-add_model_var(values, output)
+add_model_var(values, output, input, newVarNumber)
 }
 \arguments{
 \item{values}{a shiny variable keeping track of UI elements}

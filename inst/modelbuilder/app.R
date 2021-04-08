@@ -31,12 +31,15 @@ allexamplemodels = c("none",list.files(examplemodeldir))
 #   }
 # }
 
-for(i in list.files("Y:/gitRepos/modelBuilder/R/")){
-  if(grepl(".R", i)){
-    source(paste0("Y:/gitRepos/modelBuilder/R/", i))
-  }
-}
+#for(i in list.files("Y:/gitRepos/modelBuilder/R/")){
+#  if(grepl(".R", i)){
+#    source(paste0("Y:/gitRepos/modelBuilder/R/", i))
+#  }
+#}
 
+## Update namespace if functions were added to R folder
+#devtools::document()
+#
 
 # On MON
 #*** NEXT: Rename variables and flows when add to
