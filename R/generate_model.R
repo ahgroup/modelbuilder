@@ -58,14 +58,6 @@ generate_model <- function(input, values) {
         par[[n]]$partext = isolate(eval(parse(text = paste0("input$par",n,"text") )))
         par[[n]]$parval = isolate(eval(parse(text = paste0("input$par",n,"val") )))
 
-        # if(is.numeric(isolate(eval(parse(text = paste0("input$par",n,"val") ))))){
-        #     tmpParVal <- isolate(eval(parse(text = paste0("input$par",n,"val") )))
-        # } else {
-        #     tmpParVal <- 0
-        # }
-        #
-        # par[[n]]$parval = tmpParVal
-
     }
     dynmodel$par = par
 
