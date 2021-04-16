@@ -406,13 +406,6 @@ server <- function(input, output, session) {
 
   }) # End clickTime_btn observeEvent
 
-  observe({
-    #joe
-    #print(values$currentFlowButtons)
-    aaa <<- values$masterVarDF
-    bbb <<- values$currentFlowButtons
-  })
-
   # Close modal after the user clicks 'cancel'
   observeEvent(input$remove_model_variableCancel, {
 

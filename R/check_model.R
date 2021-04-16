@@ -8,10 +8,6 @@
 
 check_model <- function(mbmodel) {
 
-    print("joe")
-    joe <<- mbmodel
-    mbmodel <- joe
-
     mberror = NULL
 
     ################################

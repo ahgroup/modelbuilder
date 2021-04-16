@@ -22,11 +22,6 @@ generate_model <- function(input, values) {
     dynmodel$details = isolate(input$modeldetails)
     dynmodel$date = Sys.Date()
 
-    joe2 <<- values$masterVarDF
-    joe3 <<- values$currentFlowButtons
-    joe4 <<- values$currentParButtons
-    joe5 <<- reactiveValuesToList(input)
-
     var = vector("list", nrow(values$masterVarDF))
     names(var) <- values$masterVarDF$varNumber
 
@@ -63,7 +58,7 @@ generate_model <- function(input, values) {
 
     }
 
-    print(par)
+    #print(par)
 
     dynmodel$par = par
 
