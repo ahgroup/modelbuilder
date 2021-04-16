@@ -24,6 +24,9 @@ generate_model <- function(input, values) {
 
     joe2 <<- values$masterVarDF
     joe3 <<- values$currentFlowButtons
+    joe4 <<- values$currentParButtons
+    joe5 <<- reactiveValuesToList(input)
+
     var = vector("list", nrow(values$masterVarDF))
     names(var) <- values$masterVarDF$varNumber
 
@@ -59,6 +62,9 @@ generate_model <- function(input, values) {
         par[[n]]$parval = isolate(eval(parse(text = paste0("input$par",n,"val") )))
 
     }
+
+    print(par)
+
     dynmodel$par = par
 
     time = vector("list", 3)
