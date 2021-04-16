@@ -25,11 +25,11 @@ examplemodeldir = system.file("modelexamples", package = packagename) #find path
 allexamplemodels = c("none",list.files(examplemodeldir))
 
 
-# for(i in list.files("C:/Users/jzientek/Documents/Gitlab/covidtracker/R/")){
-#   if(grepl(".R", i)){
-#     source(paste0("C:/Users/jzientek/Documents/Gitlab/covidtracker/R/", i))
-#   }
-# }
+#for(i in list.files("C:/Users/jzientek/Documents/Gitlab/covidtracker/R/")){
+#  if(grepl(".R", i)){
+#    source(paste0("C:/Users/jzientek/Documents/Gitlab/covidtracker/R/", i))
+#  }
+#}
 
 #for(i in list.files("Y:/gitRepos/modelBuilder/R/")){
 #  if(grepl(".R", i)){
@@ -38,7 +38,7 @@ allexamplemodels = c("none",list.files(examplemodeldir))
 #}
 
 ## Update namespace if functions were added to R folder
-#devtools::document()
+devtools::document()
 #
 
 # On MON
@@ -240,39 +240,26 @@ server <- function(input, output, session) {
 
   }) #end observe for build UI setup
 
+  ### Set defaulted initial parameter and variable to 0 instead of NA
+  # WHAT: Setting default parameter and variable to 0. This will only happen when starting to build a
+  # model. After this initial parameter and variable are set to 0, none will be able to be NA
+  # HOW: Using a updateNumericInput and hardcoded inputIds because this will be the only
+  # time a parameter/variable can have a value of NA.
+  # WHY: When a model of NULL is passed into generate_buildUI, a the default value for the first
+  # parameter and variable is NULL. This is an issue when exporting a model because of check_model.
+  # generate_buildUI is used for creating a model from scratch as well as
+  # uploading a previous model. Therefore we can't change this in generate_buildUI.
+  observe({
+    # update initial variable
+    if(!is.null(input$var1val) && is.na(input$var1val)){
+      updateNumericInput(session, "var1val", value = 0)
+    }
 
-  # #add a new variable
-  # observeEvent(input$addvar, {
-  #
-  #   print("trying to add var...")
-  #
-  #   values$nvar = values$nvar + 1 #increment counter to newly added variable
-  #
-  #   # Add indicator value to be using in the add_model_var fxn
-  #   values$varInd = input$targetvar
-  #   add_model_var(values, output)
-  #
-  #   # Update the selected variable incrementally
-  #   updateNumericInput(session, inputId = 'targetvar', label = NULL, value = input$targetvar + 1)
-  #
-  #   # values$nvar <- input$targetvar + 1
-  #
-  # }) #close observeevent
-
-
-  # #remove the last variable
-  # observeEvent(input$rmvar, {
-  #   if (values$nvar == 1) return() #don't remove the last variable
-  #
-  #   # Add indicator value to be using in the remove_model_var fxn
-  #   values$varInd = input$targetvar
-  #   remove_model_var(values, output)
-  #
-  #   # Update the selected variable incrementally
-  #   updateNumericInput(session, inputId = 'targetvar', label = NULL, value = input$targetvar - 1)
-  #
-  #   values$nvar = values$nvar - 1 #reduce counter for number of variables - needs to happen last
-  # })
+    # update initial parameter
+    if(!is.null(input$par1val) && is.na(input$par1val)){
+      updateNumericInput(session, "par1val", value = 0)
+    }
+  })# end observe
 
   # Add a variable (and its corresponding flows/parameters) or show the remove variable confirmation modal
   # each time the clikTime_btn object is changed
@@ -325,7 +312,9 @@ server <- function(input, output, session) {
     } # End 'if'
 
     # ------------------------------ Parameters ------------------------------ #
-
+    #observe({
+    #  print(values$currentParButtons)
+    #})
     # Remove parameters
     if(grepl("rmpar_", input$last_btn) & length(values$currentParButtons) > 1)
     {
@@ -417,6 +406,12 @@ server <- function(input, output, session) {
 
   }) # End clickTime_btn observeEvent
 
+  observe({
+    #joe
+    #print(values$currentFlowButtons)
+    aaa <<- values$masterVarDF
+    bbb <<- values$currentFlowButtons
+  })
 
   # Close modal after the user clicks 'cancel'
   observeEvent(input$remove_model_variableCancel, {
@@ -488,10 +483,13 @@ server <- function(input, output, session) {
   #and the new model will replace the current model stored in mbmodel
 
   observeEvent(input$makemodel, {
+
       #create model, save in temporary structure
       mbmodeltmp <- generate_model(input, values)
+
       #check if the model is a correct mbmodel structure with all required content provided
       mbmodelerrors = check_model(mbmodeltmp)
+
       if (is.null(mbmodelerrors)) #if no error message, create the model
       {
         mbmodel <<- mbmodeltmp

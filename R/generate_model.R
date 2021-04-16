@@ -12,7 +12,6 @@
 #' @export
 
 generate_model <- function(input, values) {
-
     # browser()
     #structure that holds the model
     dynmodel = list()
@@ -23,17 +22,19 @@ generate_model <- function(input, values) {
     dynmodel$details = isolate(input$modeldetails)
     dynmodel$date = Sys.Date()
 
+    joe2 <<- values$masterVarDF
+    joe3 <<- values$currentFlowButtons
+    var = vector("list", nrow(values$masterVarDF))
+    names(var) <- values$masterVarDF$varNumber
 
-
-    var = vector("list",values$nvar)
-    for (n in 1:values$nvar)
+    for (n in values$masterVarDF$varNumber)
     {
         var[[n]]$varname = isolate(eval(parse(text = paste0("input$var",n,"name") )))
         var[[n]]$vartext = isolate(eval(parse(text = paste0("input$var",n,"text") )))
         var[[n]]$varval = isolate(eval(parse(text = paste0("input$var",n,"val") )))
         allflows = NULL
         allflowtext = NULL
-        for (f in 1:values$nflow[n]) #turn all flows and descriptions into vector
+        for (f in unique(values$currentFlowButtons[[n]])) #turn all flows and descriptions into vector
         {
             newflow = isolate(eval(parse(text = paste0("input$var", n, 'f' , f,'name'))))
             #if a flow does not have a + or - sign in front, assume it's positive and add a + sign
@@ -44,16 +45,26 @@ generate_model <- function(input, values) {
         }
         var[[n]]$flows = allflows
         var[[n]]$flownames = allflowtext
+
+        #names(var) <- NULL
     }
     dynmodel$var = var
     # browser()
 
-    par = vector("list",values$npar)
-    for (n in 1:values$npar)
+    par = vector("list",length(values$currentParButtons))
+    for (n in 1:length(values$currentParButtons))
     {
         par[[n]]$parname = isolate(eval(parse(text = paste0("input$par",n,"name") )))
         par[[n]]$partext = isolate(eval(parse(text = paste0("input$par",n,"text") )))
         par[[n]]$parval = isolate(eval(parse(text = paste0("input$par",n,"val") )))
+
+        # if(is.numeric(isolate(eval(parse(text = paste0("input$par",n,"val") ))))){
+        #     tmpParVal <- isolate(eval(parse(text = paste0("input$par",n,"val") )))
+        # } else {
+        #     tmpParVal <- 0
+        # }
+        #
+        # par[[n]]$parval = tmpParVal
 
     }
     dynmodel$par = par
