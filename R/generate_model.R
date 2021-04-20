@@ -16,6 +16,12 @@ generate_model <- function(input, values) {
     #structure that holds the model
     dynmodel = list()
 
+    joe <<- reactiveValuesToList(input)
+    joe1 <<- reactiveValuesToList(values)
+
+    #input <- joe
+    #values <- joe1
+
     dynmodel$title <- isolate(input$modeltitle)
     dynmodel$author <- isolate(input$modelauthor)
     dynmodel$description <- isolate(input$modeldescription)
@@ -25,7 +31,7 @@ generate_model <- function(input, values) {
     var = vector("list", nrow(values$masterVarDF))
     names(var) <- values$masterVarDF$varNumber
 
-    for (n in values$masterVarDF$varNumber)
+    for (n in as.character(values$masterVarDF$varNumber))
     {
         var[[n]]$varname = isolate(eval(parse(text = paste0("input$var",n,"name") )))
         var[[n]]$vartext = isolate(eval(parse(text = paste0("input$var",n,"text") )))
