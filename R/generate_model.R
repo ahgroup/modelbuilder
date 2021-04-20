@@ -16,12 +16,6 @@ generate_model <- function(input, values) {
     #structure that holds the model
     dynmodel = list()
 
-    joe <<- reactiveValuesToList(input)
-    joe1 <<- reactiveValuesToList(values)
-
-    #input <- joe
-    #values <- joe1
-
     dynmodel$title <- isolate(input$modeltitle)
     dynmodel$author <- isolate(input$modelauthor)
     dynmodel$description <- isolate(input$modeldescription)

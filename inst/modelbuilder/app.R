@@ -477,13 +477,12 @@ server <- function(input, output, session) {
 
   observeEvent(input$makemodel, {
 
-    print("joe1")
       #create model, save in temporary structure
       mbmodeltmp <- generate_model(input, values)
-print("joe2")
+
       #check if the model is a correct mbmodel structure with all required content provided
       mbmodelerrors = check_model(mbmodeltmp)
-print('joe3')
+
       if (is.null(mbmodelerrors)) #if no error message, create the model
       {
         mbmodel <<- mbmodeltmp
