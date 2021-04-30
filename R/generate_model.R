@@ -22,6 +22,9 @@ generate_model <- function(input, values) {
     dynmodel$details = isolate(input$modeldetails)
     dynmodel$date = Sys.Date()
 
+    # What: Create list of named variables
+    # How: Use the variable number from masterVarDF to name each element in the list
+    # Why: Indexing conflicts could arrise if just using the variable number as an index.
     var = vector("list", nrow(values$masterVarDF))
     names(var) <- values$masterVarDF$varNumber
 

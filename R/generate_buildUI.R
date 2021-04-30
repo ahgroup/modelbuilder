@@ -66,6 +66,7 @@ generate_buildUI <- function(mbmodel, output)
                                   # This textOutput will be updated when a variable name is entered
                                   column(3, h2(textOutput(paste0("var", n, "DisplayName"))), align = "left"),
 
+                                  # Include add/remove variable buttons
                                   column(1, actionButton(paste0("addvar_", n), "", class="submitbutton", icon = icon("plus-square"),
                                                          style="margin-left: -80px; margin-top: 20px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
 
@@ -97,6 +98,7 @@ generate_buildUI <- function(mbmodel, output)
                                                 textInput(paste0("var",n,"f",nn,"text"), "Flow description", value = mbmodel$var[[n]]$flownames[nn])
                                          ),
 
+                                         # Include add/remove flow buttons
                                          column(2, actionButton(paste0("addflow_", n, "_", nn), "", class="submitbutton", icon = icon("plus-square"),
                                                                 style="margin-left: 0px; margin-top: 25px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
 
@@ -128,6 +130,7 @@ generate_buildUI <- function(mbmodel, output)
                                                   numericInput(paste0("par",n,"val"), "Default value", value = mbmodel$par[[n]]$parval)
                                            ),
 
+                                           # Include add/remove parameter buttons
                                            column(1, actionButton(paste0("addpar_", n), "", class="submitbutton", icon = icon("plus-square"),
                                                                   style="margin-left: -0px; margin-top: 25px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
 

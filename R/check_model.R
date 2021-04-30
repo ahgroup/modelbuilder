@@ -87,6 +87,8 @@ check_model <- function(mbmodel) {
         if (sum(!(flowsymbols %in% allsymbols)) >0)
         {
             wrongflows = flowsymbols[which(!(flowsymbols %in% allsymbols))]
+
+            # collapse wrongflows so that the error message is not repeated for each wrong flow
             mberror = paste0("Your flows for variable ",mbmodel$var[[n]]$varname, " contain these non-allowed symbols: ",
                              paste0(wrongflows, collapse = ", ")); return(mberror)
         }

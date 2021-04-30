@@ -27,6 +27,7 @@ add_model_var <- function(values, output, input, newVarNumber)
               # This textOutput will be updated when a variable name is entered
               column(3, h2(textOutput(paste0("var", newVarNumber, "DisplayName"))), align = "left"),
 
+              # Include add/remove variable buttons
               column(1, actionButton(paste0("addvar_", newVarNumber), "", class="submitbutton", icon = icon("plus-square"),
                                      style="margin-left: -80px; margin-top: 20px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4"),
                      align = "right"),

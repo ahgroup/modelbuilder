@@ -24,39 +24,8 @@ examplemodeldir = system.file("modelexamples", package = packagename) #find path
 
 allexamplemodels = c("none",list.files(examplemodeldir))
 
-
-#for(i in list.files("C:/Users/jzientek/Documents/Gitlab/covidtracker/R/")){
-#  if(grepl(".R", i)){
-#    source(paste0("C:/Users/jzientek/Documents/Gitlab/covidtracker/R/", i))
-#  }
-#}
-
-#for(i in list.files("Y:/gitRepos/modelBuilder/R/")){
-#  if(grepl(".R", i)){
-#    source(paste0("Y:/gitRepos/modelBuilder/R/", i))
-#  }
-#}
-
 ## Update namespace if functions were added to R folder
 devtools::document()
-#
-
-# On MON
-#*** NEXT: Rename variables and flows when add to
-#*** NEXT: Get rid of add/rem buttons on top (superfluous now)
-#*** NEXT: ATR's other requests (click button on top of model parms that will )
-#*** NEXT: Check why can't delete first parm
-#*** NEXT: Was able to get delete not to work when clicking around a lot - try to replicate and diagnose
-
-#*** NEXT: Test with loaded situation
-#*** NEXT: Move to OneNote notes from last meeting
-
-
-
-
-
-
-require(DiagrammeR)
 
 #*** Attach necessary packages (remove after dev)
 library(DiagrammeR)
@@ -331,14 +300,13 @@ server <- function(input, output, session) {
     # Add parameters
     if(grepl("addpar_", input$last_btn))
     {
-
-      #redPar <- as.numeric(as.character(gsub("addpar_", "", input$last_btn)))
+      # new parameter will be one more than the current highest parameter to avoid indexing issues
       redPar <- max(as.numeric(as.character(unlist(values$currentParButtons)))) + 1
       values$parInd <- redPar
       values$buttonClicked <- as.numeric(as.character(gsub("addpar_", "", input$last_btn)))
 
       # Add buttons that have been added
-      values$currentParButtons[length(values$currentParButtons) + 1] <- redPar #length(values$currentParButtons) + 1 #length(values$currentParButtons) + 1 #redPar + 1
+      values$currentParButtons[length(values$currentParButtons) + 1] <- redPar
       valuesHold <<- values$currentParButtons
 
       add_model_par(values, output)
@@ -350,8 +318,10 @@ server <- function(input, output, session) {
     if(grepl("rmflow_", input$last_btn))
       {
         # Grab variable and flow indicators (first numeric element is always variable, second is flow)
+        # from the last button clicked
         redVar <- as.numeric(as.character(strsplit(input$last_btn, "_")[[1]][2]))
 
+        # Only allow flow to be removed if there are more than one flows for the given variable
         if(length(values$currentFlowButtons[names(values$currentFlowButtons) == redVar][[1]]) > 1)
           {
           values$varInd <- redVar
@@ -383,22 +353,15 @@ server <- function(input, output, session) {
       # Add buttons that have been added
       # if(length(values$currentFlowButtons))
 
+      # Telander, please explain / resolve this comment
+
         #*** ISSUE HERE IS THAT NEED (I THINK) TO HAVE A LIST OF LISTS TO ACCOUNT FOR FLOW VAR AND FLOW # WITHIN A VAR
         #*** I THEN NEED TO HAVE A MULTI LENGTH LIST FROM THE BEGINNING AND TO INDEX IT APPROPRIATELY SO I DON'T GET HOSED
         #*** MAYBE A LIST IS NOT THE ANSWER BUT IT IS THE BEST OPTION NOW
 
-      # values$currentFlowButtons[values$currentFlowButtons == redFlow] <- redFlow + 1
-
-      # Note: Should this be length(values$currentFlowButtons[[redVar]]) + 1 instead of redFlwo + 1?
       values$currentFlowButtons[[as.character(redVar)]][length(values$currentFlowButtons[[as.character(redVar)]]) + 1] <- values$flowInd
 
       valuesHold <<- values$currentFlowButtons
-
-      # print("currentVarButtons")
-      # print(values$currentVarButtons)
-      #
-      # print("currentFlowButtons")
-      # print(values$currentFlowButtons)
 
       add_model_flow(values, output)
 

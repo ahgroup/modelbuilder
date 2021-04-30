@@ -13,7 +13,7 @@
 add_model_flow <- function(values, input, output)
 {
     insertUI(
-        # selector = paste0("#var", input$targetvar, "flow", values$nflow[input$targetvar]-1, 'slot'), #current variable
+      # insert new flow below the flow button that was clicked
       selector = paste0("#var", values$varInd, "flow", values$flowButtonClicked, 'slot'), #current variable
       where = "afterEnd",
         ## wrap element in a div with id for ease of removal
@@ -21,11 +21,9 @@ add_model_flow <- function(values, input, output)
             tags$div(
                 fluidRow(
                     column(3,
-                           # textInput(paste0("var", input$targetvar, 'f' , values$nflow[input$targetvar],'name'), "Flow")
                            textInput(paste0("var", values$varInd, 'f' , values$flowInd, 'name'), "Flow")
                     ),
                     column(4,
-                           # textInput(paste0("var", input$targetvar, 'f' , values$nflow[input$targetvar],'text'), "Flow description")
                            textInput(paste0("var", values$varInd, 'f' , values$flowInd, 'text'), "Flow description")
                     ),
 
@@ -37,7 +35,6 @@ add_model_flow <- function(values, input, output)
                                            style="margin-left: -60px; margin-top: 25px; width: 50px; color: #fff; background-color: #d42300; border-color: gray"))
 
                 ),
-                # id = paste0("var", input$targetvar, "flow", values$nflow[input$targetvar], 'slot')
                 id = paste0("var", values$varInd, "flow", values$flowInd, 'slot')
             ) #close flow tag
     ) #close insertUI
