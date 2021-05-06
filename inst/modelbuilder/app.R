@@ -24,16 +24,18 @@ examplemodeldir = system.file("modelexamples", package = packagename) #find path
 
 allexamplemodels = c("none",list.files(examplemodeldir))
 
-## Update namespace if functions were added to R folder
-devtools::document()
-
 #*** Attach necessary packages (remove after dev)
+library(devtools)
 library(DiagrammeR)
 library(ggplot2)
 library(plotly)
 library(shiny)
 library(shinyjs)
 library(shinydashboard)
+
+## Update namespace if functions were added to R folder
+devtools::document()
+devtools::load_all()
 
 #this function is the server part of the app
 server <- function(input, output, session) {
@@ -685,6 +687,9 @@ server <- function(input, output, session) {
     shinyjs::disable(id = "exportdiscrete")
     updateSelectInput(session, "examplemodel", selected = 'none')
     mbmodel <<- NULL
+
+    # set buildUiTrigger to 0 so that the build tab is wiped after clearing a model
+    values$buildUiTrigger <- 0
   })
 
   #######################################################
@@ -791,7 +796,7 @@ server <- function(input, output, session) {
 
 #This is the UI for the Main Menu of modelbuilder
 ui <- fluidPage(
-    shinyjs::useShinyjs(),  # Set up shinyjs
+    shinyjs::useShinyjs(),  # Set up shinyjsd
     tags$head(includeHTML(("google-analytics.html"))), #this is only needed for Google analytics when deployed as app to the UGA server. Should not affect R package use.
     includeCSS("packagestyle.css"),
 
