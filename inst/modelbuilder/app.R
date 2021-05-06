@@ -353,14 +353,6 @@ server <- function(input, output, session) {
 
 
       # Add buttons that have been added
-      # if(length(values$currentFlowButtons))
-
-      # Telander, please explain / resolve this comment
-
-        #*** ISSUE HERE IS THAT NEED (I THINK) TO HAVE A LIST OF LISTS TO ACCOUNT FOR FLOW VAR AND FLOW # WITHIN A VAR
-        #*** I THEN NEED TO HAVE A MULTI LENGTH LIST FROM THE BEGINNING AND TO INDEX IT APPROPRIATELY SO I DON'T GET HOSED
-        #*** MAYBE A LIST IS NOT THE ANSWER BUT IT IS THE BEST OPTION NOW
-
       values$currentFlowButtons[[as.character(redVar)]][length(values$currentFlowButtons[[as.character(redVar)]]) + 1] <- values$flowInd
 
       valuesHold <<- values$currentFlowButtons
