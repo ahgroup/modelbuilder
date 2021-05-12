@@ -25,17 +25,17 @@ examplemodeldir = system.file("modelexamples", package = packagename) #find path
 allexamplemodels = c("none",list.files(examplemodeldir))
 
 #*** Attach necessary packages (remove after dev)
-library(devtools)
-library(DiagrammeR)
-library(ggplot2)
-library(plotly)
-library(shiny)
-library(shinyjs)
-library(shinydashboard)
-
-## Update namespace if functions were added to R folder
-devtools::document()
-devtools::load_all()
+# library(devtools)
+# library(DiagrammeR)
+# library(ggplot2)
+# library(plotly)
+# library(shiny)
+# library(shinyjs)
+# library(shinydashboard)
+#
+# ## Update namespace if functions were added to R folder
+# devtools::document()
+# devtools::load_all()
 
 #this function is the server part of the app
 server <- function(input, output, session) {
