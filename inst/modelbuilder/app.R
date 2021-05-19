@@ -146,13 +146,10 @@ server <- function(input, output, session) {
         generate_buildUI(mbmodel, output)
 
 
-        # TODO: the plot is in the wrong format to be rendered using DiagrammeR
-        # output$flowdiagram  <- shiny::renderPlot({ generate_flowchart_ggplot(mbmodel) })
-        #output$flowdiagram <- DiagrammeR::renderGrViz({
-        #  #DiagrammeR::render_graph(generate_flowchart(mbmodel))
-        #  generate_flowchart(mbmodel)
-        #})
-
+        # make a flow diagram using flowdiagramr functions
+        model_list <- flowdiagramr::convert_from_modelbuilder(mbmodel)
+        diagram_list <- flowdiagramr::prepare_diagram(model_list)
+        output$flowdiagram  <- shiny::renderPlot({ flowdiagramr::make_diagram(diagram_list) })
 
         output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
 
@@ -444,10 +441,9 @@ server <- function(input, output, session) {
       {
         mbmodel <<- mbmodeltmp
         output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
-        # output$flowdiagram  <- shiny::renderPlot({ generate_flowchart_ggplot(mbmodel) })
-        #output$flowdiagram <- DiagrammeR::renderGrViz({
-        #  DiagrammeR::render_graph(generate_flowchart(mbmodel))
-        #})
+        model_list <- flowdiagramr::convert_from_modelbuilder(mbmodel)
+        diagram_list <- flowdiagramr::prepare_diagram(model_list)
+        output$flowdiagram  <- shiny::renderPlot({ flowdiagramr::make_diagram(diagram_list) })
         shinyjs::enable(id = "exportode")
         shinyjs::enable("exportstochastic")
         shinyjs::enable("exportdiscrete")

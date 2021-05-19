@@ -150,8 +150,8 @@ generate_buildUI <- function(mbmodel, output)
                           h2('Model Diagram', style = "border-top: 2px solid #2b48c9;padding: 0.5em 0em 0em 0em;"),
 
                           # h3('Not yet working rightTTT'),
-                          # plotOutput(outputId = "flowdiagram", height = "500px")
-                          grVizOutput(outputId = "flowdiagram")
+                          plotOutput(outputId = "flowdiagram", height = "500px")
+                          # grVizOutput(outputId = "flowdiagram")
                         ),
                       column(6,
                           # Placeholder for results of type text
