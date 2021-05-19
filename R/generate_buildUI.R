@@ -151,7 +151,6 @@ generate_buildUI <- function(mbmodel, output)
 
                           # h3('Not yet working rightTTT'),
                           plotOutput(outputId = "flowdiagram", height = "500px")
-                          # grVizOutput(outputId = "flowdiagram")
                         ),
                       column(6,
                           # Placeholder for results of type text
