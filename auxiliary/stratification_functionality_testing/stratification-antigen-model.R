@@ -12,8 +12,10 @@ mbmodel <- readRDS(here("auxiliary",
 # create list mapping parameter stratifications to state variable
 par_stratify_list <- generate_stratifier_list(mbmodel)
 
-#
-par_stratify_list <-
+# loop through elements and constrain stratify_by to one variable
+for(i in 1:length(par_stratify_list)) {
+  par_stratify_list[[i]]$stratify_by <- ""
+}
 
 
 # make stratification by antigen
