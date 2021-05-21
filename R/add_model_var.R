@@ -11,9 +11,6 @@
 
 add_model_var <- function(values, output, input, newVarNumber)
 {
-
-  # print(input$vartext2)
-
     insertUI(
 
       selector = paste0("#var", values$varInd, 'slot'), #current variable

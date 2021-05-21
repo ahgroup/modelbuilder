@@ -48,19 +48,17 @@ generate_buildUI <- function(mbmodel, output)
 
             actionButton("makemodel", "Make model", class="submitbutton"),
             tags$p("All variables need to start with an uppercase letter, all parameters need to start with a lowercase letter. Only letters and numbers are allowed. Flows can include variables, parameters and the following mathematical symbols: +-*/^()"),
-           #downloadButton("savediagram", "Save Diagram", class="savebutton")
             tags$br(),
 
             fluidRow(class = 'myrow', #splits screen into 2 for variables and parameters
                       column(6,
-
-                             #*** ADDING BORDER AT THE TOP OF THE variable SECTION TO DELINEATE
+                             # Adding border at the top of the variable section to delineate
                              p('Model variable information', class = 'mainsectionheader', style = "border-top: 2px solid #2b48c9;padding: 0.5em 0em 0em 0em;"),
 
                              ## wrap element in a div with id
                              lapply(1:max(1,length(mbmodel$var)), function(n) {
                              tags$div(
-                                 #*** Adjusted column width to be wider to accomodate variable add/remove buttons)
+                                 # Adjusted column width to be wider to accomodate variable add/remove buttons)
                                 fluidRow(
 
                                   # This textOutput will be updated when a variable name is entered
@@ -113,12 +111,10 @@ generate_buildUI <- function(mbmodel, output)
                       ), #end variable column
                      #start parameter column
                       column(6,
-
-                             #*** ADDING BORDER AT THE TOP OF THE PARAMETER SECTION TO DELINEATE
+                             # Adding border at the top of the parameter section to delineate
                              p('Model parameter information', class='mainsectionheader', style = "border-top: 2px solid #2b48c9;padding: 0.5em 0em 0em 0em;"),
                              lapply(1:max(1,length(mbmodel$par)), function(n) {
                              tags$div(
-                               # style = "border-top: 2px solid #2b48c9;padding: 1em 0em 0em 2em;",
                                  fluidRow( class = 'myrow',
                                            column(2,
                                                   textInput(paste0("par",n,"name"), "Parameter name", value = mbmodel$par[[n]]$parname)

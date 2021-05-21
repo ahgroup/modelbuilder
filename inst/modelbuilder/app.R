@@ -52,6 +52,9 @@ server <- function(input, output, session) {
 
 
   ## Update displayed variable names
+  # Variables are instantiated with a name (i.e. "Variable 1"). If the user
+  # changes the Variable Name, then the displayed name for that variable is
+  # changed to the entered value.
   observe({
 
     # NOTE: This needs to be an lapply instead of a for loop, otherwise last value of i is used in each case
@@ -113,8 +116,8 @@ server <- function(input, output, session) {
           values$currentParButtons[length(values$currentParButtons) + 1] <- i
         }
 
-
         ## Initialize values$currentFlowButtons for loaded model
+        ## This is used to assess what flow buttons are included in the loaded model
         values$currentFlowButtons <- list()
 
         for (i in 1:length(mbmodel$var))
@@ -221,18 +224,26 @@ server <- function(input, output, session) {
   # NOTE: See comment later in code for explanation of clickTime_btn and last_btn
   observeEvent(input$clickTime_btn, {
 
+
+    # ----------------------------- Overall note ----------------------------- #
+    # Each variable, flow, and parameter has its own add/remove button. Variables,
+    # flows, and parameters can only be removed if there are is more than one remaining.
+
     # ------------------------------ Variables ------------------------------- #
-    # Remove variable
+    # Remove variable, checking to make sure that there is at least one variable
+    # We don't want the user to have zero variables as now the only way to add
+    # variables is by using the add button part of an existing variable
     if(grepl("rmvar_", input$last_btn) & length(values$currentVarButtons) > 1)
     {
 
+      # Keep track of which variable needs to be removed, using the last button clicked
       redVar <- gsub("rmvar_", "", input$last_btn)
       values$varInd <- redVar
 
-      #print(redVar)
-
+      # Show the modal that makes sure the user really wants to delete the variable
       showModal(remove_model_variableModal(values$masterVarDF[values$masterVarDF$varNumber == redVar, "varName"]))
 
+      # Keep track of which variable that we just removed
       values$removeVariableNumber <- redVar
       values$currentVarButtons
 
@@ -242,12 +253,14 @@ server <- function(input, output, session) {
     if(grepl("addvar_", input$last_btn))
     {
 
-      #*** Adjust flow indicator to be one
+      # Adjust flow indicator to be one (as this is a new variable we know that this will be the first flow
+      # and there will only be one flow)
       values$flowInd <- 1
-
       redVar <- as.numeric(as.character(gsub("addvar_", "", input$last_btn)))
       values$varInd <- redVar
 
+      # Keep track of the variable number to add (adding one to the prior variable - we know this based
+      # on the last button clicked)
       newVarNumber <- as.character(max(as.numeric(values$masterVarDF$varNumber)) + 1)
       newVarVector <- c(varNumber = newVarNumber, varName = "")
 
@@ -267,14 +280,11 @@ server <- function(input, output, session) {
     } # End 'if'
 
     # ------------------------------ Parameters ------------------------------ #
-    #observe({
-    #  print(values$currentParButtons)
-    #})
     # Remove parameters
     if(grepl("rmpar_", input$last_btn) & length(values$currentParButtons) > 1)
     {
+      # Keep track of which parameter needs to be removed, using the last button clicked
       redPar <- gsub("rmpar_", "", input$last_btn)
-
       values$parInd <- redPar
       remove_model_par(values, output)
 
@@ -334,7 +344,6 @@ server <- function(input, output, session) {
 
       values$flowButtonClicked <- as.numeric(as.character(strsplit(input$last_btn, "_")[[1]][3]))
       values$flowInd <- max(values$currentFlowButtons[[as.character(redVar)]]) + 1
-
 
       # Add buttons that have been added
       values$currentFlowButtons[[as.character(redVar)]][length(values$currentFlowButtons[[as.character(redVar)]]) + 1] <- values$flowInd

@@ -14,8 +14,7 @@ remove_model_flow <- function(values, input, output)
 {
 
     removeUI(
-      #*** Alter the slot value to use the flow indicator instead of the next flow incrementally
-      # selector = paste0("#var", input$targetvar, "flow", values$flowInd, 'slot'),
+      # Alter the slot value to use the flow indicator instead of the next flow incrementally
       selector = paste0("#var", values$varInd, "flow", values$flowInd, 'slot'),
       immediate = TRUE
     ) #close removetUI

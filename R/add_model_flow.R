@@ -27,7 +27,7 @@ add_model_flow <- function(values, input, output)
                            textInput(paste0("var", values$varInd, 'f' , values$flowInd, 'text'), "Flow description")
                     ),
 
-                    #*** Include add/remove flow buttons
+                    # Include add/remove flow buttons
                     column(2, actionButton(paste0("addflow_", values$varInd, "_", values$flowInd), "", class="submitbutton", icon = icon("plus-square"),
                                            style="margin-left: 0px; margin-top: 25px; width: 50px; color: #fff; background-color: #2e879b; border-color: #2e6da4")),
 

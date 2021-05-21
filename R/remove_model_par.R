@@ -12,7 +12,7 @@
 remove_model_par <- function(values, output)
 {
     removeUI(
-      #*** Alter the slot value to use the paramater indicator instead of the next parameter incrementally
+      # Alter the slot value to use the paramater indicator instead of the next parameter incrementally
       selector = paste0("#par", values$parInd, 'slot'),
       immediate = TRUE
 

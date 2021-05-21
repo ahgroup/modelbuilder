@@ -12,8 +12,7 @@
 remove_model_var <- function(values, output)
 {
     removeUI(
-
-      #*** Alter the slot value to use the variable indicator instead of the next variable incrementally
+      # Alter the slot value to use the variable indicator instead of the next variable incrementally
       selector = paste0("#var", values$varInd, 'slot'), #current variable
 
         immediate = TRUE
