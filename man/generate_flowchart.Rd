@@ -5,7 +5,7 @@
 \title{This function takes as input a modelbuilder model
     and creates a diagram using DiagrammeR.}
 \usage{
-generate_flowchart(mbmodel, code_path = NULL)
+generate_flowchart(mbmodel)
 }
 \arguments{
 \item{mbmodel}{model structure, either as list object or Rds file name}

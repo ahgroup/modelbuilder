@@ -10,6 +10,10 @@ add_model_var(values, output, input, newVarNumber)
 \item{values}{a shiny variable keeping track of UI elements}
 
 \item{output}{shiny output structure}
+
+\item{input}{shiny input structure}
+
+\item{newVarNumber}{the variable number to be assigned}
 }
 \value{
 No direct return. output structure is modified to contain text for display in a Shiny UI
