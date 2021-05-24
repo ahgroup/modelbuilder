@@ -12,8 +12,10 @@
 remove_model_par <- function(values, output)
 {
     removeUI(
-        selector = paste0("#par", values$npar, 'slot'),
-        immediate = TRUE
-    )
+      # Alter the slot value to use the paramater indicator instead of the next parameter incrementally
+      selector = paste0("#par", values$parInd, 'slot'),
+      immediate = TRUE
+
+    ) # End 'removeUI' fxn
 
 } #ends function

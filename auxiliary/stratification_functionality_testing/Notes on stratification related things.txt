@@ -1,3 +1,26 @@
+## 2021-05-19
+Stratification function does not currently do simple stratification. For example, it is not possible to stratify b*S*I to b_i * S_i * I_i. The function will do all combinations of i and j for the state variables. We we're able to get close by manually adjusting the stratify by list with an empty string:
+
+# loop through elements and constrain stratify_by to one variable
+for(i in 1:length(par_stratify_list)) {
+  par_stratify_list[[i]]$stratify_by <- ""
+}
+
+This worked well for parameters, but not for variables. One option is to have an "ignore_interactions" flag that would allow for just "i" in the flows, instead of all i and j. E.g., this:
+
+[[56]]$flows
+ [1] "-k_14*A14*H1"  "-k_14*A14*H2"  "-k_14*A14*H3"  "-k_14*A14*H4"
+ [5] "-k_14*A14*H5"  "-k_14*A14*H6"  "-k_14*A14*H7"  "-k_14*A14*H8"
+ [9] "-k_14*A14*H9"  "-k_14*A14*H10" "-k_14*A14*H11" "-k_14*A14*H12"
+[13] "-k_14*A14*H13" "-k_14*A14*H14" "+r_14*B14"     "-d_14*A14"
+
+would be subsetted to this:
+
+[[56]]$flows
+ [1] "-k_14*A14*H14"  "+r_14*B14"   "-d_14*A14"
+
+
+
 ####################
 #Note 1
 ####################
@@ -7,14 +30,14 @@ Example: Consider this SIRSd model:
 
 dS/dt = n - bSI + wR - mS
 dI/dt = bSI - gI - mI
-dR/dt = gI - mR - wR 
+dR/dt = gI - mR - wR
 
 Natural death of S/I/R is all at rates m.
-If run through function, it thinks m should be stratified with respect to S/I/R. 
+If run through function, it thinks m should be stratified with respect to S/I/R.
 That's not the right thing. What we likely want is m being stratified according to only the flow it shows up.
 So m*S should become m_Sa*Sa and m_Sc*Sc (if e.g. stratified by adults/children). Same for I/R.
 
-Somehow we need to generate something that indicates that parameter m, which is currently same for S/I/R should change into new parameters that differ 
+Somehow we need to generate something that indicates that parameter m, which is currently same for S/I/R should change into new parameters that differ
 based on the equation they show up
 
 Somewhat hacky solution for now: Label the mortality rates uniquely in the base model, i.e. mS, mI, mR
@@ -37,7 +60,7 @@ For each new variable (Sc and Sa here), run through each flow of the original va
 So for instance to make dSc/dt= equation:
 1. n is not stratified, so it remains n
 2. b is stratified by S and I. Since we are working on the S/Sc equation, the S stratification is only with respect to the current compartment, all other variables are done fully.
-This means bSI turns into Sc*b_Sc_Ic*Ic + Sc*b_Sc_Ia*Ia 
+This means bSI turns into Sc*b_Sc_Ic*Ic + Sc*b_Sc_Ia*Ia
 3. wR is fully stratified with respect to R, so turns into w_Rc*Rc+w_Ra*Ra (that's wrong, see below)
 4. mS*S is stratified with respect to S, since we are working on the S/Sc equation, it is only with respect to itself, so becomes mS_Sc*Sc
 
@@ -51,12 +74,12 @@ dSc/dt = n - b_Sc_Ic*Sc*Ic+b_Sc_Ia*Sc*Ia + w_Rc*Rc - mS_Sc*Sc
 Next, move to I equation, do same stratification into Ic/Ia.
 The gI and mI*I terms are only stratified with respect to whatever equation we are working on, the S is stratified fully.
 That means we get for Ia
-dIa/dt = b_Ia_Sc*Ia*Sc + b_Ia_Sa*Ia*Sa - g_Ia*Ia - mI_Ia*Ia 
+dIa/dt = b_Ia_Sc*Ia*Sc + b_Ia_Sa*Ia*Sa - g_Ia*Ia - mI_Ia*Ia
 and similar for Ic
 Those equations seem to work ok
 
 ##
-Last, for R equation, we get the gI term fully stratified, the R terms only based on compartment. 
+Last, for R equation, we get the gI term fully stratified, the R terms only based on compartment.
 That gives e.g. for the Rc equation:
 dRc/dt = g_Ia*Ia+g_Ic*Ic - mr_Rc*Rc - w_Rc*Rc
 

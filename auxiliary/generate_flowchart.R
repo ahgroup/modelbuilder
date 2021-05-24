@@ -12,7 +12,7 @@
 #' @rawNamespace import(ggplot2, except = last_plot)
 #' @export
 
-generate_flowchart <- function(mbmodel, code_path = NULL) {
+generate_flowchart <- function(mbmodel) {
 
   # Extract relevant details from the mbmodel and make a matrix
   # of variables X flows for iterating and indexing the nodes and

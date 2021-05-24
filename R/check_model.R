@@ -51,8 +51,13 @@ check_model <- function(mbmodel) {
     if ( sum(!(as.numeric(parvals) >= 0)) ) {mberror = "All parameter values need to be numbers >=0"; return(mberror) }
 
     ################################
-    #check all variable related fields
-    vars = unlist(mbmodel$var)
+    ##check all variable related fields
+
+    # set names of var to be NULL so that names of elements in var are not included in sub-element names
+    varsTmp <- mbmodel$var
+    names(varsTmp) <- NULL
+
+    vars = unlist(varsTmp)
     #check that all variables have completely filled fields
     if ( sum(vars == "") > 0) {mberror = "Please fill all variable fields"; return(mberror) }
     # Variable names have to start with an upper-case letter and can only contain letters and numbers
@@ -82,7 +87,10 @@ check_model <- function(mbmodel) {
         if (sum(!(flowsymbols %in% allsymbols)) >0)
         {
             wrongflows = flowsymbols[which(!(flowsymbols %in% allsymbols))]
-            mberror = paste0("Your flows for variable ",mbmodel$var[[n]]$varname, " contain these non-allowed symbols: ",wrongflows); return(mberror)
+
+            # collapse wrongflows so that the error message is not repeated for each wrong flow
+            mberror = paste0("Your flows for variable ",mbmodel$var[[n]]$varname, " contain these non-allowed symbols: ",
+                             paste0(wrongflows, collapse = ", ")); return(mberror)
         }
     }
 
