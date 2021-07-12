@@ -58,7 +58,7 @@ Warning: Error in if: missing value where TRUE/FALSE needed
 * Add further model checks to make sure user doesn't do something wrong.
 
 
-* Add a repository for user contributed models to package/github site. Should allow easy upload of a model (Rds) file, then automated checking of model and if model is ok, automatic addition to 'database' of models. might want to do that through a shiny app? See e.g. the NetLogo website for a conceputal example: https://ccl.northwestern.edu/netlogo/models/community/
+* Add a repository for user contributed models to package/github site. Should allow easy upload of a model (Rds) file, then automated checking of model and if model is ok, automatic addition to 'database' of models. might want to do that through a shiny app? See e.g. the NetLogo website for a conceptual example: https://ccl.northwestern.edu/netlogo/models/community/
 
 
 
@@ -81,8 +81,10 @@ Warning: Error in if: missing value where TRUE/FALSE needed
 * Hashtags on twitter when promoting app: #rstats, #dynamicalsystems * Contribute code to Epirecipes? http://epirecip.es/
 * develop a 'modelverse' set of packages that allow development/analysis and fitting of compartmental models without coding
 
+
+
 ### Similar packages
-* ModelMaker – not been updated since 2000
+* ModelMaker not been updated since 2000
 * SAAM II
 * STELLA: https://www.iseesystems.com/store/products/ - around $2,000
 * PowerSim
