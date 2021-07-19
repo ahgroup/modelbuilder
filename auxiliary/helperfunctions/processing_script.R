@@ -2,6 +2,8 @@ library(here)
 library(modelbuilder)
 
 modelfilepath = here::here('auxiliary/modelfiles')
+modelfilepath = here::here('auxiliary/modelfiles/DSAIDE')
+modelfilepath = here::here('auxiliary/modelfiles/DSAIRM')
 
 #code exists that can start with an R file which encodes a modelbuilder object in plain (R) text,
 #or with and Rds object that stores a modelbuilder object
@@ -13,9 +15,9 @@ modelfilepath = here::here('auxiliary/modelfiles')
 ############################################################
 #load file.R text model files, save them as Rds files
 #"inverse" of above code
-#files = list.files(path = modelfilepath, pattern = "file.R$", full.names = TRUE)
-files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Stratified_Inoculum_Model_file.R"
-#files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Basic_Inoculum_Model_file.R"
+files = list.files(path = modelfilepath, pattern = "file.R$", full.names = TRUE)
+#files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Stratified_Inoculum_Model_file.R"
+#files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Basic_Virus_Model_file.R"
 for (n in 1: length(files))
 {
     source(files[n])
@@ -35,7 +37,7 @@ for (n in 1: length(files))
 ############################################################
 #load RDS files, create file.R files that encode model
 #"inverse" of next code snippet
-#files = list.files(path = modelfilepath, pattern = "\\.Rds$", full.names = TRUE)
+files = list.files(path = modelfilepath, pattern = "\\.Rds$", full.names = TRUE)
 #files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Basic_Inoculum_Model.rds"
 for (n in 1: length(files))
 {
@@ -45,15 +47,15 @@ for (n in 1: length(files))
 
 ############################################################
 #load RDS files, export as code
-#files = list.files(path = modelfilepath, pattern = "\\.Rds$", full.names = TRUE)
-files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Stratified_Inoculum_Model.Rds"
+files = list.files(path = modelfilepath, pattern = "\\.Rds$", full.names = TRUE)
+#files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Stratified_Inoculum_Model.Rds"
 #files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Basic_Inoculum_Model.rds"
 for (n in 1: length(files))
 {
     mbmodel = readRDS(files[n])
-    #modelbuilder::generate_discrete(mbmodel,location = modelfilepath, filename = NULL)
+    modelbuilder::generate_discrete(mbmodel,location = modelfilepath, filename = NULL)
     modelbuilder::generate_ode(mbmodel,location = modelfilepath, filename = NULL)
-    #modelbuilder::generate_stochastic(mbmodel,location = modelfilepath, filename = NULL)
+    modelbuilder::generate_stochastic(mbmodel,location = modelfilepath, filename = NULL)
 }
 
 
