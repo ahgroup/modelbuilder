@@ -19,20 +19,13 @@ Warning: Error in if: missing value where TRUE/FALSE needed
 * Continue implementing unit tests using the testthat package
 * Simplify and modularize code further if possible
 
-
 ## Content Improvement
 
-
 ### High priority
-* Everything needed for our COVID vaccine modeling effort
+
+* Allow saving of unfinished model to come back later
 
 ### Medium priority
-
-* Get model diagram plotting to work 
-  - There's current code, it's just not quite working. If one could fix that, it would be best/easiest.
-  - Alternative would be to try and use the diagrammeR package.
-  - I was able to get it to work with base R using the 'diagram' package, but want ggplot structure for easier export/etc.
-  - consider making this a separate R package?
 
 * Implement a generate_rxode() function which produces code that uses the RxOde package.
   - Should first look into RxOde to decide if worth doing.

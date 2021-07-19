@@ -65,10 +65,18 @@ generate_function_documentation <- function(mbmodel, modeltype)
     #sdesc=paste0(sdesc,"#' } \n")
     #sdesc=paste0(sdesc,"#' Values for model times : numeric \n") #this text doesn't show properly in the help file, so uncommenting for now
     #sdesc=paste0(sdesc,"#' \\itemize{ \n")
-    for (n in 1:ntime)
+    # Have start/final and timestep for ODE and discrete.
+    # No start time and time step for adaptivetau/stochastic since that's not supported
+    if (modeltype != "stochastic")
     {
-        sdesc=paste0(sdesc,"#' @param ", mbmodel$time[[n]]$timename," : ", mbmodel$time[[n]]$timetext," : numeric", "\n")
-        #sdesc=paste0(sdesc,"#' ", mbmodel$time[[n]]$timename," : ", mbmodel$time[[n]]$timetext," : numeric", "\n")
+        for (n in 1:ntime)
+        {
+           sdesc=paste0(sdesc,"#' @param ", mbmodel$time[[n]]$timename," : ", mbmodel$time[[n]]$timetext," : numeric", "\n")
+            #sdesc=paste0(sdesc,"#' ", mbmodel$time[[n]]$timename," : ", mbmodel$time[[n]]$timetext," : numeric", "\n")
+        }
+    } else #for stochastic model, only use tfinal, no tstart and dt
+    {
+        sdesc=paste0(sdesc,"#' @param ", mbmodel$time[[2]]$timename," : ", mbmodel$time[[2]]$timetext," : numeric", "\n")
     }
     #sdesc=paste0(sdesc,"#' } \n")
 

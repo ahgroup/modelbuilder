@@ -45,11 +45,20 @@ generate_function_inputs <- function(mbmodel, modeltype)
     parvec = substr(parvec,1,nchar(parvec)-2)
     #parstring = paste0(parstring,'), ') #close parantheses
 
+    # Have start/final and timestep for ODE and discrete.
+    # No start time and time step for adaptivetau/stochastic since that's not supported
     timestring = ""
-    for (n in 1:ntime)
+    if (modeltype != "stochastic")
     {
-        timestring=paste0(timestring, mbmodel$time[[n]]$timename," = ", mbmodel$time[[n]]$timeval,', ')
+        for (n in 1:ntime)
+        {
+            timestring=paste0(timestring, mbmodel$time[[n]]$timename," = ", mbmodel$time[[n]]$timeval,', ')
+        }
+    } else #for stochastic model, only use tfinal, no tstart and dt
+    {
+        timestring=paste0(timestring, mbmodel$time[[2]]$timename," = ", mbmodel$time[[2]]$timeval,', ')
     }
+
     timestring = substr(timestring,1,nchar(timestring)-2)
     #timestring = paste0(timestring,') ') #close parantheses
 

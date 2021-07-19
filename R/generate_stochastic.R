@@ -147,6 +147,7 @@ generate_stochastic <- function(mbmodel, location = NULL, filename = NULL)
     smain = paste0(smain,'  result <- list() \n');
     smain = paste0(smain,'  result$ts <- as.data.frame(simout) \n')
     smain = paste0(smain,'  return(result) \n }')
+    smain = paste0(smain,'  \n ')
     #finish block that creates main function part
     ##############################################################################
 
