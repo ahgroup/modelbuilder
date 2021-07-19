@@ -19,8 +19,8 @@
 #' @param b : rate at which virus infects cells : numeric
 #' @param p : rate at which infected cells produce virus : numeric
 #' @param g : possible conversion factor for virus units : numeric
-#' @param rngseed : set random number seed for reproducibility : numeric
 #' @param tfinal : Final time of simulation : numeric
+#' @param rngseed : set random number seed for reproducibility : numeric
 #' @return The function returns the output as a list. 
 #' The time-series from the simulation is returned as a dataframe saved as list element \code{ts}. 
 #' The \code{ts} dataframe has one column per compartment/variable. The first column is time.   
@@ -77,4 +77,5 @@ simulate_Basic_Virus_Model_stochastic <- function(U = 1e+05, I = 0, V = 1, n = 0
   result <- list() 
   result$ts <- as.data.frame(simout) 
   return(result) 
- }
+ }  
+ 
