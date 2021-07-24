@@ -19,14 +19,14 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/ahgroup/modelbuilder/workflows/R-CMD-check/badge.svg)](https://github.com/ahgroup/modelbuilder/actions)
 [![Coverage status](https://codecov.io/gh/ahgroup/modelbuilder/branch/master/graph/badge.svg)](https://codecov.io/github/ahgroup/modelbuilder?branch=master)
 [![test-coverage](https://github.com/ahgroup/modelbuilder/workflows/test-coverage/badge.svg)](https://github.com/ahgroup/modelbuilder/actions)
-[![R-CMD-check](https://github.com/ahgroup/modelbuilder/workflows/R-CMD-check/badge.svg)](https://github.com/ahgroup/modelbuilder/actions)
 <!-- badges: end -->
 
 A software package for graphical building and analysis of compartmental simulation models.
 
 ## Note
-AS OF RIGHT NOW, THE PACKAGE HAS BASIC FUNCTIONALITY, BUT HAS NOT BEEN PROPERLY TESTED AND DEBUGGED YET!
-This is an early version of the package, only some features are already implemented.
+
+**This is an early version of the package, only some features are already implemented.  It should mostly work, but has not been fully tested/debugged. At the moment, the package is undergoing some major modifications. Not all bits might work. Let us know if something fails.**
+
 
 
 ## Description

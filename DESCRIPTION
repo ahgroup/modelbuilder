@@ -37,9 +37,7 @@ Suggests:
     knitr,
     pkgdown,
     rmarkdown (>= 1.10),
-    testthat,
-    flowdiagramr
-Additional_repositories: https://github.com/andreashandel/flowdiagramr/
+    testthat
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 URL: https://ahgroup.github.io/modelbuilder, https://github.com/ahgroup/modelbuilder

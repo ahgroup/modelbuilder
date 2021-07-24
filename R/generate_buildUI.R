@@ -142,7 +142,7 @@ generate_buildUI <- function(mbmodel, output)
                      #all the outcomes here
                      fluidRow(
                       column(6,
-                          h2('Model Diagram', style = "border-top: 2px solid #2b48c9;padding: 0.5em 0em 0em 0em;"),
+                          h2('Model Diagram - CURRENTLY DISABLED', style = "border-top: 2px solid #2b48c9;padding: 0.5em 0em 0em 0em;"),
 
                           plotOutput(outputId = "flowdiagram", height = "500px")
                         ),

@@ -9,9 +9,8 @@
 ^\.travis\.yml$
 ^CRAN-RELEASE$
 ^README\.md$
+^README\.Rmd$
 ^cran-comments\.md$
-^to-do\.md$
-^appveyor\.yml$
 ^codecov\.yml$
 ^_pkgdown\.yml$
 ^\.github$

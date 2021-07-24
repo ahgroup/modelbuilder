@@ -17,9 +17,11 @@ simulation models.
 
 ## Note
 
-AS OF RIGHT NOW, THE PACKAGE HAS BASIC FUNCTIONALITY, BUT HAS NOT BEEN
-PROPERLY TESTED AND DEBUGGED YET! This is an early version of the
-package, only some features are already implemented.
+**This is an early version of the package, only some features are
+already implemented. It should mostly work, but has not been fully
+tested/debugged. At the moment, the package is undergoing some major
+modifications. Not all bits might work. Let us know if something
+fails.**
 
 ## Description
 

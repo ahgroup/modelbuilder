@@ -18,12 +18,13 @@ Warning: Error in if: missing value where TRUE/FALSE needed
 ## Code Improvements
 * Continue implementing unit tests using the testthat package
 * Simplify and modularize code further if possible
+* Turn on flow diagram once the flowdiagramr package is on CRAN
 
 ## Content Improvement
 
 ### High priority
 
-* Allow saving of unfinished model to come back later
+* Allow saving of unfinished model to come back later. To do so, add a new list entry to mbmodel called "checked". If user saves model during building, have that set as false. Only once user finalizes model is it checked. Unchecked models can not be exported to code or analyzed.
 
 ### Medium priority
 

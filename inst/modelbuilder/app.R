@@ -139,13 +139,13 @@ server <- function(input, output, session) {
         # make a flow diagram using flowdiagramr functions
         # this is wrappe in a function and then run through "try"
         # so that the app doesn't crash if flowdiagramr throws and error
-        make_chart <- function(mbmodel) {
-          model_list <- flowdiagramr::convert_from_modelbuilder(mbmodel)
-          diagram_list <- flowdiagramr::prepare_diagram(model_list)
-          output$flowdiagram  <- shiny::renderPlot({ flowdiagramr::make_diagram(diagram_list) })
-        }
-        try(make_chart(mbmodel))
-
+        # CURRENTLY DISABLED UNTIL flowdiagramr IS ON CRAN
+        # make_chart <- function(mbmodel) {
+        #   model_list <- flowdiagramr::convert_from_modelbuilder(mbmodel)
+        #   diagram_list <- flowdiagramr::prepare_diagram(model_list)
+        #   output$flowdiagram  <- shiny::renderPlot({ flowdiagramr::make_diagram(diagram_list) })
+        # }
+        # try(make_chart(mbmodel))
 
 
         output$equations <- renderUI(withMathJax(generate_equations(mbmodel)))
@@ -447,12 +447,13 @@ server <- function(input, output, session) {
         # make a flow diagram using flowdiagramr functions
         # this is wrappe in a function and then run through "try"
         # so that the app doesn't crash if flowdiagramr throws and error
-        make_chart <- function(mbmodel) {
-          model_list <- flowdiagramr::convert_from_modelbuilder(mbmodel)
-          diagram_list <- flowdiagramr::prepare_diagram(model_list)
-          output$flowdiagram  <- shiny::renderPlot({ flowdiagramr::make_diagram(diagram_list) })
-        }
-        try(make_chart(mbmodel))
+        # CURRENTLY DISABLED UNTIL flowdiagramr IS ON CRAN
+        # make_chart <- function(mbmodel) {
+        #   model_list <- flowdiagramr::convert_from_modelbuilder(mbmodel)
+        #   diagram_list <- flowdiagramr::prepare_diagram(model_list)
+        #   output$flowdiagram  <- shiny::renderPlot({ flowdiagramr::make_diagram(diagram_list) })
+        # }
+        # try(make_chart(mbmodel))
 
         shinyjs::enable(id = "exportode")
         shinyjs::enable("exportstochastic")
