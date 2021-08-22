@@ -27,13 +27,13 @@ navbar:
     news:
       text: Changelog
       href: news/index.html
-    related:
-      text: Related Packages
-      menu:
-      - text: DSAIRM
-      - href: https://ahgroup.github.io/DSAIRM/index.html
-      - text: DSAIDE
-      - href: https://ahgroup.github.io/DSAIDE/index.html
+    # related:
+    #   text: Related Packages
+    #   menu:
+    #   - text: DSAIRM
+    #   - href: https://ahgroup.github.io/DSAIRM/index.html
+    #   - text: DSAIDE
+    #   - href: https://ahgroup.github.io/DSAIDE/index.html
     github:
       icon: fa-github fa-lg
       href: https://github.com/ahgroup/modelbuilder

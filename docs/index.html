@@ -47,7 +47,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
+    <span class="fa fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -60,28 +60,11 @@
 <li>
   <a href="news/index.html">Changelog</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Related Packages
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li class="dropdown-header">DSAIRM</li>
-    <li>
-      <a href="https://ahgroup.github.io/DSAIRM/index.html"></a>
-    </li>
-    <li class="dropdown-header">DSAIDE</li>
-    <li>
-      <a href="https://ahgroup.github.io/DSAIDE/index.html"></a>
-    </li>
-  </ul>
-</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/ahgroup/modelbuilder">
-    <span class="fas fa-github fa-lg"></span>
+    <span class="fa fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -103,38 +86,37 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>A software package for graphical building and analysis of compartmental simulation models.</p>
+<p><strong>modelbuilder - A package for graphical building and analysis of compartmental simulation models</strong></p>
 <div id="note" class="section level2">
 <h2 class="hasAnchor">
 <a href="#note" class="anchor"></a>Note</h2>
-<p>AS OF RIGHT NOW, THE PACKAGE HAS BASIC FUNCTIONALITY, BUT HAS NOT BEEN PROPERLY TESTED AND DEBUGGED YET! This is an early version of the package, only some features are already implemented.</p>
+<p><strong>The package is under active development. This is an early version of the package, only some features are already implemented. It should mostly work, but has not been fully tested/debugged. Let us know if something fails.</strong></p>
 </div>
 <div id="description" class="section level2">
 <h2 class="hasAnchor">
 <a href="#description" class="anchor"></a>Description</h2>
-<p>This R package provides functionality that lets the user build and analyze compartmental simulation models, implemented as ordinary differential equations, stochastic equivalents, or discrete time models.<br>
-All model building and analysis can be done without writing code. The user can export code for one of the model implementations for further customization.</p>
+<p>This R package provides functionality that lets the user build and analyze compartmental simulation models, implemented as ordinary differential equations, stochastic equivalents, or discrete time models. All model building and analysis can be done without writing code. The user can export code for one of the model implementations for further customization.</p>
 </div>
-<div id="installation" class="section level2">
+<div id="getting-started" class="section level2">
 <h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<p>I assume you have <code>R</code> installed. I also highly recommend <code>RStudio</code>, though it’s not required.</p>
-<p>The package has not yet been submitted to CRAN, therefore it currently needs to be installed from Github. To do so, you need the <code>remotes</code> package. If you don’t have it, install it first. The following commands will get you up and running:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">'remotes'</span><span class="op">)</span>
-<span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span><span class="op">(</span><span class="st">'ahgroup/modelbuilder'</span><span class="op">)</span></code></pre></div>
+<a href="#getting-started" class="anchor"></a>Getting Started</h2>
+<p>The main use case is to install the R package and use it locally. If you want to get a quick glimpse at the package to see if this package is for you, you can give it <a href="https://shiny.ovpr.uga.edu/modelbuilder/">a quick try online, without having to install it</a>. Note that not all functionality might work in this online version.</p>
+<p>If you like what you see, you can install it locally. I assume you have <code>R</code> installed. I also highly recommend <code>RStudio</code>, though it’s not required. The package has not yet been submitted to CRAN, therefore it currently needs to be installed from Github. To do so, you need the <code>remotes</code> package. If you don’t have it, install it first. Then, install and get <strong>modelbuilder</strong> up and running with these commands:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">'remotes'</span>) <span class="co">#install this package if you don't have it</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install_github</span>(<span class="st">'ahgroup/modelbuilder'</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">'modelbuilder'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">modelbuilder</span>()</span></code></pre></div>
+<p>Next, see the <a href="https://ahgroup.github.io/modelbuilder/articles/modelbuilder.html">Get Started section</a> for a basic and currently sparse - but hopefully still informative - introduction.</p>
 </div>
-<div id="basic-use" class="section level2">
+<div id="further-information" class="section level2">
 <h2 class="hasAnchor">
-<a href="#basic-use" class="anchor"></a>Basic Use</h2>
-<p>After install (which you need to do only once), load the package by runing <code><a href="https://ahgroup.github.io/modelbuilder">library('modelbuilder')</a></code>. You should receive a short greeting. Now you can open the main menu by running <code><a href="reference/modelbuilder.html">modelbuilder()</a></code>. From the main menu, you can load a model, export code for a model, build a new or modify an existing model, and analyze model dynamics ofr a loaded model.</p>
-<p>See the <a href="https://ahgroup.github.io/modelbuilder/articles/modelbuilder.html">Get Started section</a> for a basic and currently sparse introduction.</p>
-</div>
-<div id="contributing-to-the-package" class="section level2">
-<h2 class="hasAnchor">
-<a href="#contributing-to-the-package" class="anchor"></a>Contributing to the package</h2>
-<p>The package is on GitHub and you can use the usual GitHub process to contribute updated, bug fixes, etc. If you don’t know how to do that or don’t have the time, you can also file an issue on GitHub and let me know what should be changed.</p>
-<p>The package is built in a way that makes it (hopefully) easy for others to contribute simulation models for others to use. A formal structure for model sharing is forthcoming.</p>
+<a href="#further-information" class="anchor"></a>Further information</h2>
+<ul>
+<li>We developed two packages that teach the use of compartmental simulation models for use on the population level (<a href="https://ahgroup.github.io/DSAIDE/">DSAIDE package</a>), and individual host/patient level (<a href="https://ahgroup.github.io/DSAIRM/">DSAIRM package</a>). Those packages come with pre-coded simulations and are meant for learning, while <strong>modelbuilder</strong> lets you build your own models and is geared towards more advanced users.</li>
+<li>I regularly teach courses related to infectious diseases and modeling. Materials covering population level infectious diseases and modeling <a href="https://andreashandel.github.io/IDEMAcourse/">can be found here</a>, similar materials covering modeling on the within-host, patient level <a href="https://andreashandel.github.io/SMIcourse/">can be found here</a>.</li>
+<li>Contributions to the package are very welcome! If you want to take a deeper look at the package, see <a href="https://github.com/ahgroup/modelbuilder/blob/master/auxiliary/docsfordevelopers/documentation.md">this Markdown file</a> which provides further information on the details of the package structure. I’d be excited to receive any contributions from individuals who want to help improve the package. If you plan to make substantial contributions, it might be best to get in touch with me first.</li>
+<li>I send out a monthly newsletter in which (among other things) I announce any noteworthy updates to my R packages. If you want to stay updated, <a href="https://www.andreashandel.com/susbscribe/">you can sign up here</a>.</li>
+</ul>
 </div>
 <div id="acknowledgements" class="section level2">
 <h2 class="hasAnchor">
@@ -176,7 +158,6 @@ All model building and analysis can be done without writing code. The user can e
 <li><a href="https://github.com/ahgroup/modelbuilder/actions"><img src="https://github.com/ahgroup/modelbuilder/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://codecov.io/github/ahgroup/modelbuilder?branch=master"><img src="https://codecov.io/gh/ahgroup/modelbuilder/branch/master/graph/badge.svg" alt="Coverage status"></a></li>
 <li><a href="https://github.com/ahgroup/modelbuilder/actions"><img src="https://github.com/ahgroup/modelbuilder/workflows/test-coverage/badge.svg" alt="test-coverage"></a></li>
-<li><a href="https://github.com/ahgroup/modelbuilder/actions"><img src="https://github.com/ahgroup/modelbuilder/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 </ul>
 </div>
 </div>

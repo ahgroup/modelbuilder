@@ -3,7 +3,7 @@ pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   modelbuilder: modelbuilder.html
-last_built: 2021-04-02T15:08Z
+last_built: 2021-08-22T17:30Z
 urls:
   reference: https://ahgroup.github.io/modelbuilder/index.html/reference
   article: https://ahgroup.github.io/modelbuilder/index.html/articles
