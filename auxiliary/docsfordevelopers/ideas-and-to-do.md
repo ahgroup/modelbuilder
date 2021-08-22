@@ -1,3 +1,9 @@
+2021-08-22
+
+* Switch to fs package for file/path functions to ensure it works on Linux type systems (see e.g. current failures of testthat on ubuntu)
+
+
+
 # To-do/Ideas/Notes Resources for modelbuilder package
 
 
