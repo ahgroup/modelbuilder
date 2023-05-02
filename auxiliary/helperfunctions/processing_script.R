@@ -3,7 +3,8 @@ library(modelbuilder)
 
 #modelfilepath = here::here('auxiliary/modelfiles')
 #modelfilepath = here::here('auxiliary/modelfiles/DSAIDE')
-modelfilepath = here::here('auxiliary/modelfiles/DSAIRM')
+#modelfilepath = here::here('auxiliary/modelfiles/DSAIRM')
+modelfilepath = here::here('auxiliary/modelfiles/other')
 
 #code exists that can start with an R file which encodes a modelbuilder object in plain (R) text,
 #or with and Rds object that stores a modelbuilder object
@@ -14,13 +15,14 @@ modelfilepath = here::here('auxiliary/modelfiles/DSAIRM')
 
 ############################################################
 #load file.R text model files, save them as Rds files
-#"inverse" of above code
+#"inverse" of below  code
 files = list.files(path = modelfilepath, pattern = "file.R$", full.names = TRUE)
 #files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Stratified_Inoculum_Model_file.R"
-#files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Basic_Virus_Model_file.R"
+#files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/other/Influenza_OAS_Model_file.R"
 for (n in 1: length(files))
 {
     source(files[n])
+    #print(files[n])
     mbmodelerrors <- modelbuilder::check_model(mbmodel)
     if (!is.null(mbmodelerrors))
     {
