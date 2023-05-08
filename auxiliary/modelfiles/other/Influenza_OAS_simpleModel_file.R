@@ -1,13 +1,13 @@
 ############################## 
 #R script to generate a modelbuilder model object with code. 
-#This file was generated on 2023-05-08 15:16:21.944237 
+#This file was generated on 2023-05-08 15:16:21.950125 
 ############################## 
  
  mbmodel = list() #create empty list 
  
  #Model meta-information
- mbmodel$title = 'Influenza OAS Model'
- mbmodel$description = 'Influenza Antibody Model with 2 types of B-cells/antibodies'
+ mbmodel$title = 'Influenza OAS simpleModel'
+ mbmodel$description = 'Influenza Antibody Model with 2 types of B-cells/antibodies. EMM only.'
  mbmodel$author = 'Andreas Handel'
  mbmodel$date = Sys.Date()
  mbmodel$details = 'An extension of Zarnitsyna et al 2016 PLoS Pathogens' 
@@ -33,7 +33,7 @@
  var[[id]]$varname = 'B1'
  var[[id]]$vartext = 'Type 1 B cells'
  var[[id]]$varval = 100
- var[[id]]$flows = c('+s1*B1*(Hf+del1*Hb)/(p1+Hf+del1*Hb)*(1/(1+a1*Hb))')
+ var[[id]]$flows = c('+s1*B1*Hf/(p1+Hf)')
  var[[id]]$flownames = c('B1 cell activation')
  
  id = id + 1
@@ -47,7 +47,7 @@
  var[[id]]$varname = 'B2'
  var[[id]]$vartext = 'Type 2 B cells'
  var[[id]]$varval = 10
- var[[id]]$flows = c('+s2*B2*(Hf+del2*Hb)/(p2+Hf+del2*Hb)*(1/(1+a2*Hb))')
+ var[[id]]$flows = c('+s2*B2*Hf/(p2+Hf)')
  var[[id]]$flownames = c('B2 cell activation')
  
  id = id + 1
@@ -60,7 +60,7 @@
  mbmodel$var = var
  
  #Information for all parameters
- par = vector('list',16)
+ par = vector('list',12)
  id = 0
  id = id + 1
  par[[id]]$parname = 'k1'
@@ -88,19 +88,9 @@
  par[[id]]$parval = 1
  
  id = id + 1
- par[[id]]$parname = 'del1'
- par[[id]]$partext = 'bound antibody strength 1'
- par[[id]]$parval = 0
- 
- id = id + 1
  par[[id]]$parname = 'p1'
  par[[id]]$partext = 'saturation level 1'
  par[[id]]$parval = 1000
- 
- id = id + 1
- par[[id]]$parname = 'a1'
- par[[id]]$partext = 'FIM impact 1'
- par[[id]]$parval = 0
  
  id = id + 1
  par[[id]]$parname = 'g1'
@@ -118,19 +108,9 @@
  par[[id]]$parval = 0.5
  
  id = id + 1
- par[[id]]$parname = 'del2'
- par[[id]]$partext = 'bound antibody strength 2'
- par[[id]]$parval = 0
- 
- id = id + 1
  par[[id]]$parname = 'p2'
  par[[id]]$partext = 'saturation level 2'
  par[[id]]$parval = 1000
- 
- id = id + 1
- par[[id]]$parname = 'a2'
- par[[id]]$partext = 'FIM impact 2'
- par[[id]]$parval = 0
  
  id = id + 1
  par[[id]]$parname = 'g2'

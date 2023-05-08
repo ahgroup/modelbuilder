@@ -1,5 +1,6 @@
 ############################## 
 #R script to generate a modelbuilder model object with code. 
+#This file was generated on 2023-05-08 15:16:21.930296 
 ############################## 
  
  mbmodel = list() #create empty list 
@@ -13,154 +14,188 @@
 
  #Information for all variables
  var = vector('list',9)
- var[[1]]$varname = 'S'
- var[[1]]$vartext = 'Susceptible Host'
- var[[1]]$varval = 1000
- var[[1]]$flows = c('+eh', '-bP*P*S', '-bA*A*S', '-bI*I*S', '-bE*E*S', '+w*R', '-nh*S')
- var[[1]]$flownames = c('Susceptible host enters system', 'Presymptomatic infection', 'Asymptomatic infection', 'Symptomatic infection', 'Pathogen infection', 'Loss of immunity', 'Host death')
+ id = 0
+ id = id + 1
+ var[[id]]$varname = 'S'
+ var[[id]]$vartext = 'Susceptible Host'
+ var[[id]]$varval = 1000
+ var[[id]]$flows = c('+eh', '-bP*P*S', '-bA*A*S', '-bI*I*S', '-bE*E*S', '+w*R', '-nh*S')
+ var[[id]]$flownames = c('Susceptible host enters system', 'Presymptomatic infection', 'Asymptomatic infection', 'Symptomatic infection', 'Pathogen infection', 'Loss of immunity', 'Host death')
  
- var[[2]]$varname = 'P'
- var[[2]]$vartext = 'Infected, Presymptomatic'
- var[[2]]$varval = 1
- var[[2]]$flows = c('+bP*P*S', '+bA*A*S', '+bI*I*S', '+bE*E*S', '+bV*IV*S', '-gP*P', '-nh*P')
- var[[2]]$flownames = c('Presymptomatic infection', 'Asymptomatic infection', 'Symptomatic infection', 'Pathogen infection', 'Vector infection', 'Presymptomatic recovery', 'Host death')
+ id = id + 1
+ var[[id]]$varname = 'P'
+ var[[id]]$vartext = 'Infected, Presymptomatic'
+ var[[id]]$varval = 1
+ var[[id]]$flows = c('+bP*P*S', '+bA*A*S', '+bI*I*S', '+bE*E*S', '+bV*IV*S', '-gP*P', '-nh*P')
+ var[[id]]$flownames = c('Presymptomatic infection', 'Asymptomatic infection', 'Symptomatic infection', 'Pathogen infection', 'Vector infection', 'Presymptomatic recovery', 'Host death')
  
- var[[3]]$varname = 'A'
- var[[3]]$vartext = 'Infected, Asymptomatic'
- var[[3]]$varval = 1
- var[[3]]$flows = c('+f*gP*P', '-gA*A', '-nh*A')
- var[[3]]$flownames = c('Presymptomatic hosts move into the asymptomatic', 'Asymptomatic recovery', 'Host natural death')
+ id = id + 1
+ var[[id]]$varname = 'A'
+ var[[id]]$vartext = 'Infected, Asymptomatic'
+ var[[id]]$varval = 1
+ var[[id]]$flows = c('+f*gP*P', '-gA*A', '-nh*A')
+ var[[id]]$flownames = c('Presymptomatic hosts move into the asymptomatic', 'Asymptomatic recovery', 'Host natural death')
  
- var[[4]]$varname = 'I'
- var[[4]]$vartext = 'Infected, Symptomatic'
- var[[4]]$varval = 1
- var[[4]]$flows = c('+gP*P', '-f*gP*P', '-gI*I', '-nh*I')
- var[[4]]$flownames = c('Presymptomatic recovery', 'Presymptomatic hosts move into the asymptomatic', 'Symptomatic recovery', 'Host infection')
+ id = id + 1
+ var[[id]]$varname = 'I'
+ var[[id]]$vartext = 'Infected, Symptomatic'
+ var[[id]]$varval = 1
+ var[[id]]$flows = c('+gP*P', '-f*gP*P', '-gI*I', '-nh*I')
+ var[[id]]$flownames = c('Presymptomatic recovery', 'Presymptomatic hosts move into the asymptomatic', 'Symptomatic recovery', 'Host infection')
  
- var[[5]]$varname = 'R'
- var[[5]]$vartext = 'Recovered'
- var[[5]]$varval = 0
- var[[5]]$flows = c('+gA*A', '+gI*I', '-d*gI*I', '-w*R', '-nh*R')
- var[[5]]$flownames = c('Asymptomatic recovery', 'Symptomatic recovery', 'Host death due to infection', 'Loss of immunity', 'Host natural death')
+ id = id + 1
+ var[[id]]$varname = 'R'
+ var[[id]]$vartext = 'Recovered'
+ var[[id]]$varval = 0
+ var[[id]]$flows = c('+gA*A', '+gI*I', '-d*gI*I', '-w*R', '-nh*R')
+ var[[id]]$flownames = c('Asymptomatic recovery', 'Symptomatic recovery', 'Host death due to infection', 'Loss of immunity', 'Host natural death')
  
- var[[6]]$varname = 'D'
- var[[6]]$vartext = 'Deaths'
- var[[6]]$varval = 0
- var[[6]]$flows = c('+d*gI*I')
- var[[6]]$flownames = c('Host death due to infection')
+ id = id + 1
+ var[[id]]$varname = 'D'
+ var[[id]]$vartext = 'Deaths'
+ var[[id]]$varval = 0
+ var[[id]]$flows = c('+d*gI*I')
+ var[[id]]$flownames = c('Host death due to infection')
  
- var[[7]]$varname = 'E'
- var[[7]]$vartext = 'Pathogen in the environment'
- var[[7]]$varval = 0
- var[[7]]$flows = c('+pI*I', '+pA*A', '-c*E')
- var[[7]]$flownames = c('Symptomatic host pathogen shed', 'Asymptomatic host pathogen shed', 'Pathogen decay')
+ id = id + 1
+ var[[id]]$varname = 'E'
+ var[[id]]$vartext = 'Pathogen in the environment'
+ var[[id]]$varval = 0
+ var[[id]]$flows = c('+pI*I', '+pA*A', '-c*E')
+ var[[id]]$flownames = c('Symptomatic host pathogen shed', 'Asymptomatic host pathogen shed', 'Pathogen decay')
  
- var[[8]]$varname = 'SV'
- var[[8]]$vartext = 'Susceptible Vectors'
- var[[8]]$varval = 100
- var[[8]]$flows = c('+eV', '-bh*I*SV', '-nV*SV')
- var[[8]]$flownames = c('Susceptible vector enter system', 'Host infection', 'Vector natural death')
+ id = id + 1
+ var[[id]]$varname = 'SV'
+ var[[id]]$vartext = 'Susceptible Vectors'
+ var[[id]]$varval = 100
+ var[[id]]$flows = c('+eV', '-bh*I*SV', '-nV*SV')
+ var[[id]]$flownames = c('Susceptible vector enter system', 'Host infection', 'Vector natural death')
  
- var[[9]]$varname = 'IV'
- var[[9]]$vartext = 'Infectious Vectors'
- var[[9]]$varval = 1
- var[[9]]$flows = c('+bh*I*SV', '-nV*IV')
- var[[9]]$flownames = c('Host infection', 'Vector natural Death ')
+ id = id + 1
+ var[[id]]$varname = 'IV'
+ var[[id]]$vartext = 'Infectious Vectors'
+ var[[id]]$varval = 1
+ var[[id]]$flows = c('+bh*I*SV', '-nV*IV')
+ var[[id]]$flownames = c('Host infection', 'Vector natural Death ')
  
  mbmodel$var = var
  
  #Information for all parameters
  par = vector('list',19)
- par[[1]]$parname = 'bP'
- par[[1]]$partext = 'Presymptomatic infection rate'
- par[[1]]$parval = 0.002
+ id = 0
+ id = id + 1
+ par[[id]]$parname = 'bP'
+ par[[id]]$partext = 'Presymptomatic infection rate'
+ par[[id]]$parval = 0.002
  
- par[[2]]$parname = 'bA'
- par[[2]]$partext = 'Asymptomatic infection rate'
- par[[2]]$parval = 0.002
+ id = id + 1
+ par[[id]]$parname = 'bA'
+ par[[id]]$partext = 'Asymptomatic infection rate'
+ par[[id]]$parval = 0.002
  
- par[[3]]$parname = 'bI'
- par[[3]]$partext = 'Symptomatic infection rate'
- par[[3]]$parval = 0.002
+ id = id + 1
+ par[[id]]$parname = 'bI'
+ par[[id]]$partext = 'Symptomatic infection rate'
+ par[[id]]$parval = 0.002
  
- par[[4]]$parname = 'bE'
- par[[4]]$partext = 'Pathogen infection rate'
- par[[4]]$parval = 0.002
+ id = id + 1
+ par[[id]]$parname = 'bE'
+ par[[id]]$partext = 'Pathogen infection rate'
+ par[[id]]$parval = 0.002
  
- par[[5]]$parname = 'bV'
- par[[5]]$partext = 'Vector infection rate'
- par[[5]]$parval = 0.002
+ id = id + 1
+ par[[id]]$parname = 'bV'
+ par[[id]]$partext = 'Vector infection rate'
+ par[[id]]$parval = 0.002
  
- par[[6]]$parname = 'bh'
- par[[6]]$partext = 'Host natural infection rate'
- par[[6]]$parval = 0.002
+ id = id + 1
+ par[[id]]$parname = 'bh'
+ par[[id]]$partext = 'Host natural infection rate'
+ par[[id]]$parval = 0.002
  
- par[[7]]$parname = 'nV'
- par[[7]]$partext = 'Vector natural death rate'
- par[[7]]$parval = 0.02
+ id = id + 1
+ par[[id]]$parname = 'nV'
+ par[[id]]$partext = 'Vector natural death rate'
+ par[[id]]$parval = 0.02
  
- par[[8]]$parname = 'nh'
- par[[8]]$partext = 'Host death rate'
- par[[8]]$parval = 0.02
+ id = id + 1
+ par[[id]]$parname = 'nh'
+ par[[id]]$partext = 'Host death rate'
+ par[[id]]$parval = 0.02
  
- par[[9]]$parname = 'gP'
- par[[9]]$partext = 'Presymptomatic recovery rate'
- par[[9]]$parval = 0.05
+ id = id + 1
+ par[[id]]$parname = 'gP'
+ par[[id]]$partext = 'Presymptomatic recovery rate'
+ par[[id]]$parval = 0.05
  
- par[[10]]$parname = 'gA'
- par[[10]]$partext = 'Asymptomatic recovery rate'
- par[[10]]$parval = 0.05
+ id = id + 1
+ par[[id]]$parname = 'gA'
+ par[[id]]$partext = 'Asymptomatic recovery rate'
+ par[[id]]$parval = 0.05
  
- par[[11]]$parname = 'gI'
- par[[11]]$partext = 'Symptomatic recovery rate'
- par[[11]]$parval = 0.05
+ id = id + 1
+ par[[id]]$parname = 'gI'
+ par[[id]]$partext = 'Symptomatic recovery rate'
+ par[[id]]$parval = 0.05
  
- par[[12]]$parname = 'pI'
- par[[12]]$partext = 'Symptomatic host pathogen shed rate'
- par[[12]]$parval = 0.01
+ id = id + 1
+ par[[id]]$parname = 'pI'
+ par[[id]]$partext = 'Symptomatic host pathogen shed rate'
+ par[[id]]$parval = 0.01
  
- par[[13]]$parname = 'pA'
- par[[13]]$partext = 'Asymptomatic host pathogen shed rate'
- par[[13]]$parval = 0.01
+ id = id + 1
+ par[[id]]$parname = 'pA'
+ par[[id]]$partext = 'Asymptomatic host pathogen shed rate'
+ par[[id]]$parval = 0.01
  
- par[[14]]$parname = 'c'
- par[[14]]$partext = 'pathogen decay rate '
- par[[14]]$parval = 0.03
+ id = id + 1
+ par[[id]]$parname = 'c'
+ par[[id]]$partext = 'pathogen decay rate '
+ par[[id]]$parval = 0.03
  
- par[[15]]$parname = 'eV'
- par[[15]]$partext = 'Susceptible vector enter system rate'
- par[[15]]$parval = 0.2
+ id = id + 1
+ par[[id]]$parname = 'eV'
+ par[[id]]$partext = 'Susceptible vector enter system rate'
+ par[[id]]$parval = 0.2
  
- par[[16]]$parname = 'eh'
- par[[16]]$partext = 'Susceptible host enter system rate'
- par[[16]]$parval = 0.2
+ id = id + 1
+ par[[id]]$parname = 'eh'
+ par[[id]]$partext = 'Susceptible host enter system rate'
+ par[[id]]$parval = 0.2
  
- par[[17]]$parname = 'f'
- par[[17]]$partext = 'presymptomatic hosts move into the asymptomatic rate'
- par[[17]]$parval = 0.4
+ id = id + 1
+ par[[id]]$parname = 'f'
+ par[[id]]$partext = 'presymptomatic hosts move into the asymptomatic rate'
+ par[[id]]$parval = 0.4
  
- par[[18]]$parname = 'd'
- par[[18]]$partext = 'host death rate due to infection'
- par[[18]]$parval = 0.08
+ id = id + 1
+ par[[id]]$parname = 'd'
+ par[[id]]$partext = 'host death rate due to infection'
+ par[[id]]$parval = 0.08
  
- par[[19]]$parname = 'w'
- par[[19]]$partext = 'Loss of immunity rate'
- par[[19]]$parval = 0.005
+ id = id + 1
+ par[[id]]$parname = 'w'
+ par[[id]]$partext = 'Loss of immunity rate'
+ par[[id]]$parval = 0.005
  
  mbmodel$par = par
  
  #Information for time parameters
  time = vector('list',3)
- time[[1]]$timename = 'tstart'
- time[[1]]$timetext = 'Start time of simulation'
- time[[1]]$timeval = 0
+ id = 0
+ id = id + 1
+ time[[id]]$timename = 'tstart'
+ time[[id]]$timetext = 'Start time of simulation'
+ time[[id]]$timeval = 0
  
- time[[2]]$timename = 'tfinal'
- time[[2]]$timetext = 'Final time of simulation'
- time[[2]]$timeval = 100
+ id = id + 1
+ time[[id]]$timename = 'tfinal'
+ time[[id]]$timetext = 'Final time of simulation'
+ time[[id]]$timeval = 100
  
- time[[3]]$timename = 'dt'
- time[[3]]$timetext = 'Time step'
- time[[3]]$timeval = 0.1
+ id = id + 1
+ time[[id]]$timename = 'dt'
+ time[[id]]$timetext = 'Time step'
+ time[[id]]$timeval = 0.1
  
  mbmodel$time = time

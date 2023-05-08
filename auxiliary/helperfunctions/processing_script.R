@@ -52,7 +52,7 @@ for (n in 1: length(files))
 files = list.files(path = modelfilepath, pattern = "\\.Rds$", full.names = TRUE)
 #files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Stratified_Inoculum_Model.Rds"
 #files = "D:/Github/ahgroup/modelbuilder/auxiliary/modelfiles/Basic_Inoculum_Model.rds"
-simfilepath = paste0(modelfilepath,'/simulators/')
+simfilepath = paste0(modelfilepath,'/simulators')
 for (n in 1: length(files))
 {
     mbmodel = readRDS(files[n])

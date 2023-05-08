@@ -1,5 +1,6 @@
 ############################## 
 #R script to generate a modelbuilder model object with code. 
+#This file was generated on 2023-05-08 15:16:22.010744 
 ############################## 
  
  mbmodel = list() #create empty list 
@@ -13,54 +14,66 @@
 
  #Information for all variables
  var = vector('list',3)
- var[[1]]$varname = 'S'
- var[[1]]$vartext = 'Susceptible'
- var[[1]]$varval = 1000
- var[[1]]$flows = c('-b*(exp(-t/d))*S*I')
- var[[1]]$flownames = c('infection of susceptibles')
+ id = 0
+ id = id + 1
+ var[[id]]$varname = 'S'
+ var[[id]]$vartext = 'Susceptible'
+ var[[id]]$varval = 1000
+ var[[id]]$flows = c('-b*(exp(-t/d))*S*I')
+ var[[id]]$flownames = c('infection of susceptibles')
  
- var[[2]]$varname = 'I'
- var[[2]]$vartext = 'Infected'
- var[[2]]$varval = 1
- var[[2]]$flows = c('+b*(exp(-t/d))*S*I', '-g*I')
- var[[2]]$flownames = c('infection of susceptibles', 'recovery of infected')
+ id = id + 1
+ var[[id]]$varname = 'I'
+ var[[id]]$vartext = 'Infected'
+ var[[id]]$varval = 1
+ var[[id]]$flows = c('+b*(exp(-t/d))*S*I', '-g*I')
+ var[[id]]$flownames = c('infection of susceptibles', 'recovery of infected')
  
- var[[3]]$varname = 'R'
- var[[3]]$vartext = 'Recovered'
- var[[3]]$varval = 0
- var[[3]]$flows = c('+g*I')
- var[[3]]$flownames = c('recovery of infected')
+ id = id + 1
+ var[[id]]$varname = 'R'
+ var[[id]]$vartext = 'Recovered'
+ var[[id]]$varval = 0
+ var[[id]]$flows = c('+g*I')
+ var[[id]]$flownames = c('recovery of infected')
  
  mbmodel$var = var
  
  #Information for all parameters
  par = vector('list',3)
- par[[1]]$parname = 'b'
- par[[1]]$partext = 'infection rate'
- par[[1]]$parval = 0.007
+ id = 0
+ id = id + 1
+ par[[id]]$parname = 'b'
+ par[[id]]$partext = 'infection rate'
+ par[[id]]$parval = 0.007
  
- par[[2]]$parname = 'g'
- par[[2]]$partext = 'recovery rate'
- par[[2]]$parval = 0.09
+ id = id + 1
+ par[[id]]$parname = 'g'
+ par[[id]]$partext = 'recovery rate'
+ par[[id]]$parval = 0.09
  
- par[[3]]$parname = 'd'
- par[[3]]$partext = 'exponential decay'
- par[[3]]$parval = 1
+ id = id + 1
+ par[[id]]$parname = 'd'
+ par[[id]]$partext = 'exponential decay'
+ par[[id]]$parval = 1
  
  mbmodel$par = par
  
  #Information for time parameters
  time = vector('list',3)
- time[[1]]$timename = 'tstart'
- time[[1]]$timetext = 'Start time of simulation'
- time[[1]]$timeval = 0
+ id = 0
+ id = id + 1
+ time[[id]]$timename = 'tstart'
+ time[[id]]$timetext = 'Start time of simulation'
+ time[[id]]$timeval = 0
  
- time[[2]]$timename = 'tfinal'
- time[[2]]$timetext = 'Final time of simulation'
- time[[2]]$timeval = 100
+ id = id + 1
+ time[[id]]$timename = 'tfinal'
+ time[[id]]$timetext = 'Final time of simulation'
+ time[[id]]$timeval = 100
  
- time[[3]]$timename = 'dt'
- time[[3]]$timetext = 'Time step'
- time[[3]]$timeval = 0.1
+ id = id + 1
+ time[[id]]$timename = 'dt'
+ time[[id]]$timetext = 'Time step'
+ time[[id]]$timeval = 0.1
  
  mbmodel$time = time

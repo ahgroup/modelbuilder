@@ -1,5 +1,6 @@
 ############################## 
 #R script to generate a modelbuilder model object with code. 
+#This file was generated on 2023-05-08 15:16:21.927062 
 ############################## 
  
  mbmodel = list() #create empty list 
@@ -13,74 +14,91 @@
 
  #Information for all variables
  var = vector('list',3)
- var[[1]]$varname = 'S'
- var[[1]]$vartext = 'Susceptible'
- var[[1]]$varval = 10000
- var[[1]]$flows = c('+n*h', '-n*S', '-a*B/(k+B)*S')
- var[[1]]$flownames = c('births', 'deaths', 'infection of susceptibles')
+ id = 0
+ id = id + 1
+ var[[id]]$varname = 'S'
+ var[[id]]$vartext = 'Susceptible'
+ var[[id]]$varval = 10000
+ var[[id]]$flows = c('+n*h', '-n*S', '-a*B/(k+B)*S')
+ var[[id]]$flownames = c('births', 'deaths', 'infection of susceptibles')
  
- var[[2]]$varname = 'I'
- var[[2]]$vartext = 'Infected'
- var[[2]]$varval = 1
- var[[2]]$flows = c('+a*B/(k+B)*S', '-r*I')
- var[[2]]$flownames = c('infection of susceptibles', 'recovery of infected')
+ id = id + 1
+ var[[id]]$varname = 'I'
+ var[[id]]$vartext = 'Infected'
+ var[[id]]$varval = 1
+ var[[id]]$flows = c('+a*B/(k+B)*S', '-r*I')
+ var[[id]]$flownames = c('infection of susceptibles', 'recovery of infected')
  
- var[[3]]$varname = 'B'
- var[[3]]$vartext = 'Bacteria'
- var[[3]]$varval = 0
- var[[3]]$flows = c('+nb*B', '-mb*B', '+e*I')
- var[[3]]$flownames = c('bacteria growth', 'bacteria decay', 'bacteria shedding')
+ id = id + 1
+ var[[id]]$varname = 'B'
+ var[[id]]$vartext = 'Bacteria'
+ var[[id]]$varval = 0
+ var[[id]]$flows = c('+nb*B', '-mb*B', '+e*I')
+ var[[id]]$flownames = c('bacteria growth', 'bacteria decay', 'bacteria shedding')
  
  mbmodel$var = var
  
  #Information for all parameters
  par = vector('list',8)
- par[[1]]$parname = 'h'
- par[[1]]$partext = 'population size'
- par[[1]]$parval = 10000
+ id = 0
+ id = id + 1
+ par[[id]]$parname = 'h'
+ par[[id]]$partext = 'population size'
+ par[[id]]$parval = 10000
  
- par[[2]]$parname = 'n'
- par[[2]]$partext = 'birth rate'
- par[[2]]$parval = 1e-04
+ id = id + 1
+ par[[id]]$parname = 'n'
+ par[[id]]$partext = 'birth rate'
+ par[[id]]$parval = 1e-04
  
- par[[3]]$parname = 'a'
- par[[3]]$partext = 'infection rate'
- par[[3]]$parval = 1
+ id = id + 1
+ par[[id]]$parname = 'a'
+ par[[id]]$partext = 'infection rate'
+ par[[id]]$parval = 1
  
- par[[4]]$parname = 'k'
- par[[4]]$partext = '50% infection rate'
- par[[4]]$parval = 1e+06
+ id = id + 1
+ par[[id]]$parname = 'k'
+ par[[id]]$partext = '50% infection rate'
+ par[[id]]$parval = 1e+06
  
- par[[5]]$parname = 'r'
- par[[5]]$partext = 'recovery rate'
- par[[5]]$parval = 0.2
+ id = id + 1
+ par[[id]]$parname = 'r'
+ par[[id]]$partext = 'recovery rate'
+ par[[id]]$parval = 0.2
  
- par[[6]]$parname = 'nb'
- par[[6]]$partext = 'bacteria growth rate'
- par[[6]]$parval = 1
+ id = id + 1
+ par[[id]]$parname = 'nb'
+ par[[id]]$partext = 'bacteria growth rate'
+ par[[id]]$parval = 1
  
- par[[7]]$parname = 'mb'
- par[[7]]$partext = 'bacteria death rate'
- par[[7]]$parval = 1.33
+ id = id + 1
+ par[[id]]$parname = 'mb'
+ par[[id]]$partext = 'bacteria death rate'
+ par[[id]]$parval = 1.33
  
- par[[8]]$parname = 'e'
- par[[8]]$partext = 'bacteria shedding rate'
- par[[8]]$parval = 10
+ id = id + 1
+ par[[id]]$parname = 'e'
+ par[[id]]$partext = 'bacteria shedding rate'
+ par[[id]]$parval = 10
  
  mbmodel$par = par
  
  #Information for time parameters
  time = vector('list',3)
- time[[1]]$timename = 'tstart'
- time[[1]]$timetext = 'Start time of simulation'
- time[[1]]$timeval = 0
+ id = 0
+ id = id + 1
+ time[[id]]$timename = 'tstart'
+ time[[id]]$timetext = 'Start time of simulation'
+ time[[id]]$timeval = 0
  
- time[[2]]$timename = 'tfinal'
- time[[2]]$timetext = 'Final time of simulation'
- time[[2]]$timeval = 500
+ id = id + 1
+ time[[id]]$timename = 'tfinal'
+ time[[id]]$timetext = 'Final time of simulation'
+ time[[id]]$timeval = 500
  
- time[[3]]$timename = 'dt'
- time[[3]]$timetext = 'Time step'
- time[[3]]$timeval = 0.1
+ id = id + 1
+ time[[id]]$timename = 'dt'
+ time[[id]]$timetext = 'Time step'
+ time[[id]]$timeval = 0.1
  
  mbmodel$time = time
