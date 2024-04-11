@@ -38,7 +38,7 @@ Suggests:
     pkgdown,
     rmarkdown (>= 1.10),
     testthat
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 VignetteBuilder: knitr
 URL: https://ahgroup.github.io/modelbuilder, https://github.com/ahgroup/modelbuilder
 BugReports: https://github.com/ahgroup/modelbuilder/issues
