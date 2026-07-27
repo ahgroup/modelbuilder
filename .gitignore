@@ -1,8 +1,2 @@
-Meta
-doc
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-/doc/
-/Meta/
+/.quarto/
+**/*.quarto_ipynb
