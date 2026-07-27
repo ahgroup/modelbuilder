@@ -1,6 +1,4 @@
----
-title: "Former `modelbuilder` repository and website"
----
+# Former `modelbuilder` repository and website
 
 This is the former home of the **modelbuilder** R package.
 
